@@ -83,7 +83,7 @@ expr : intLiter
 // Operators
 // unary ops
 unaryOper: NOT
-         | NEG
+         | MINUS
          | LEN
          | ORD
          | CHR;
@@ -107,4 +107,10 @@ ident: LETTER (UNDERSCORE|LETTER|DIGIT)*;
 
 arrayElem: ident (OPEN_SQUARE_BRACKETS expr CLOSE_SQUARE_BRACKETS)+;
 
-
+// literal
+intLiter: INTSIGN? DIGIT+;
+boolLiter: TRUE | FALSE;
+charLiter: APOSTROPHE CHARACTER APOSTROPHE;
+strLiter: QUOTATION CHARACTER* QUOTATION;
+arrayLiter: OPEN_SQUARE_BRACKETS (expr (COMMA expr)*)? CLOSE_SQUARE_BRACKETS;
+pairLiter: NULL;

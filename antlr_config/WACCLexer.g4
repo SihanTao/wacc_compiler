@@ -11,6 +11,9 @@ EXIT: 'exit';
 PRINT: 'print';
 PRINTLN: 'println';
 CALL: 'call';
+TRUE: 'true';
+FALSE: 'false';
+NULL: 'null';
 
 // if-else keywords
 IF: 'if';
@@ -45,7 +48,6 @@ CLOSE_SQUARE_BRACKETS: ']';
 // unary ops
 ASSIGN: '=';
 NOT: '!';
-NEG: '-';
 LEN: 'len';
 ORD: 'ord';
 CHR: 'chr';
@@ -64,10 +66,22 @@ EQ: '==';
 NEQ: '!=';
 AND: '&&';
 OR: '||';
+fragment INTSIGN: MINUS | PLUS;
 
 // character
 COMMA: ',';
 SEMICOLON: ';';
 UNDERSCORE: '_';
-LETTER: [a-zA-z];
-DIGIT: [0-9];
+APOSTROPHE: '\'';
+QUOTATION: '"';
+CHARACTER: ~['"\\]
+         | '\\' ESCASPED_CHAR;
+
+ESCASPED_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\';
+fragment LETTER: [a-zA-Z];
+fragment DIGIT: [0-9];
+
+// comment
+SHARP   : '#' ;
+EOL     : '\n' ;
+COMMENT : SHARP ~[\n]* EOL -> skip;
