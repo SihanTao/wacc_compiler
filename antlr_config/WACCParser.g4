@@ -29,44 +29,54 @@ stat: SKP
     | IF expr THEN stat ELSE stat FI
     | WHILE expr DO stat DONE
     | BEGIN stat END
-    | stat SEMICOLON stat;
+    | stat SEMICOLON stat
+    ;
 
 // assign-lhs
 assignlhs : ident
           | arrayElem
-          | pairElem;
+          | pairElem
+          ;
 
 // assign rhs
 assignrhs : expr
           | arrayLiter
           | NEWPAIR OPEN_PARENTHESES expr COMMA expr CLOSE_PARENTHESES
           | pairElem
-          | CALL ident OPEN_PARENTHESES arglist? CLOSE_PARENTHESES;
+          | CALL ident OPEN_PARENTHESES arglist? CLOSE_PARENTHESES
+          ;
 
 // argument list
 arglist : expr (COMMA expr)*;
 
 // pair element
 pairElem : FST expr
-         | SND expr;
+         | SND expr
+         ;
 
 // type
 type : baseType
      | arrayType
-     | pairType;
+     | pairType
+     ;
 
 baseType: INT
         | BOOL
         | CHAR
-        | STRING;
+        | STRING
+        ;
 
-arrayType: type OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS;
+arrayType: baseType OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
+         | arrayType OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
+         | pairType OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
+         ;
 
 pairType: PAIR OPEN_PARENTHESES pairElemType COMMA pairElemType CLOSE_PARENTHESES;
 
 pairElemType: baseType
             | arrayType
-            | PAIR;
+            | PAIR
+            ;
 
 // expression
 expr : intLiter
@@ -78,7 +88,8 @@ expr : intLiter
      | arrayElem
      | unaryOper expr
      | expr binaryOper expr
-     | OPEN_PARENTHESES expr CLOSE_PARENTHESES;
+     | OPEN_PARENTHESES expr CLOSE_PARENTHESES
+     ;
 
 // Operators
 // unary ops
@@ -86,7 +97,8 @@ unaryOper: NOT
          | MINUS
          | LEN
          | ORD
-         | CHR;
+         | CHR
+         ;
 
 // binary ops
 binaryOper: MUL
@@ -101,7 +113,8 @@ binaryOper: MUL
           | EQ
           | NEQ
           | AND
-          | OR;
+          | OR
+          ;
 
 ident: LETTER (UNDERSCORE|LETTER|DIGIT)*;
 

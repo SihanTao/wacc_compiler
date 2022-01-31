@@ -14,6 +14,7 @@ CALL: 'call';
 TRUE: 'true';
 FALSE: 'false';
 NULL: 'null';
+IS: 'is';
 
 // if-else keywords
 IF: 'if';
@@ -66,7 +67,7 @@ EQ: '==';
 NEQ: '!=';
 AND: '&&';
 OR: '||';
-fragment INTSIGN: MINUS | PLUS;
+INTSIGN: MINUS | PLUS;
 
 // character
 COMMA: ',';
@@ -78,8 +79,8 @@ CHARACTER: ~['"\\]
          | '\\' ESCASPED_CHAR;
 
 ESCASPED_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\';
-fragment LETTER: [a-zA-Z];
-fragment DIGIT: [0-9];
+LETTER: [a-zA-Z];
+DIGIT: [0-9];
 
 // comment
 SHARP   : '#' ;
