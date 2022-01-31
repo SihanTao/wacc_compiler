@@ -30,3 +30,81 @@ stat: SKP
     | WHILE expr DO stat DONE
     | BEGIN stat END
     | stat SEMICOLON stat;
+
+// assign-lhs
+assignlhs : ident
+          | arrayElem
+          | pairElem;
+
+// assign rhs
+assignrhs : expr
+          | arrayLiter
+          | NEWPAIR OPEN_PARENTHESES expr COMMA expr CLOSE_PARENTHESES
+          | pairElem
+          | CALL ident OPEN_PARENTHESES arglist? CLOSE_PARENTHESES;
+
+// argument list
+arglist : expr (COMMA expr)*;
+
+// pair element
+pairElem : FST expr
+         | SND expr;
+
+// type
+type : baseType
+     | arrayType
+     | pairType;
+
+baseType: INT
+        | BOOL
+        | CHAR
+        | STRING;
+
+arrayType: type OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS;
+
+pairType: PAIR OPEN_PARENTHESES pairElemType COMMA pairElemType CLOSE_PARENTHESES;
+
+pairElemType: baseType
+            | arrayType
+            | PAIR;
+
+// expression
+expr : intLiter
+     | boolLiter
+     | charLiter
+     | strLiter
+     | pairLiter
+     | ident
+     | arrayElem
+     | unaryOper expr
+     | expr binaryOper expr
+     | OPEN_PARENTHESES expr CLOSE_PARENTHESES;
+
+// Operators
+// unary ops
+unaryOper: NOT
+         | NEG
+         | LEN
+         | ORD
+         | CHR;
+
+// binary ops
+binaryOper: MUL
+          | DIV
+          | MOD
+          | PLUS
+          | MINUS
+          | GT
+          | GEQ
+          | LT
+          | LEQ
+          | EQ
+          | NEQ
+          | AND
+          | OR;
+
+ident: LETTER (UNDERSCORE|LETTER|DIGIT)*;
+
+arrayElem: ident (OPEN_SQUARE_BRACKETS expr CLOSE_SQUARE_BRACKETS)+;
+
+
