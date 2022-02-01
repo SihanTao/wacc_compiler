@@ -10,6 +10,12 @@ build-job:
     paths:
       - target/  
 
+parser-test-job:
+  stage: test
+  script:
+    - ./src/test/compile/ParserTest.sh
+
+
 
 
   
