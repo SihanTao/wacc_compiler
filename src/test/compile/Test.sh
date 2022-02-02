@@ -1,5 +1,7 @@
 VALID_TEST=$(find ../valid -iname '*.wacc')
-INVALID_TEST=$(find ../invalid/syntaxErr -iname '*.wacc')
+INVALID_SYNTAX_TEST=$(find ../invalid/syntaxErr -iname '*.wacc')
+INVALID_SEMANTIC_TEST=$(find ../invalid/semanticErr -iname '*.wacc')
+
 
 valid_cases=0
 invalid_cases=0
@@ -37,14 +39,42 @@ valid_cases_for_invalid=0
 invalid_cases_for_invalid=0
 total_cases_for_invalid=0
 
-for file in ${INVALID_TEST}; do
+for file in ${INVALID_SYNTAX_TEST}; do
     msg=$(./compile $file 2>> ../bin/invalidsyn)
     let total_cases_for_invalid+=1
 
     if [ $? -ne 100 ]; then
       echo "-------------------------------------------------------"
       echo "fail at" $file
-#      echo "error message: " $msg
+      echo "error message: " $?
+      echo "-------------------------------------------------------"
+      exit 1
+      let invalid_cases_for_invalid+=1
+    else
+      let valid_cases_for_invalid+=1
+    fi
+    done
+
+    echo "-------------------------------------------------------"
+    echo "TOTAL" $total_cases_for_invalid "CASES. PASSED" $valid_cases_for_invalid ".
+    FAILED" $invalid_cases_for_invalid "CASES"
+    echo "-------------------------------------------------------"
+
+echo "-------------------------------------------------------------------"
+echo "INVALID SEMANTIC ERROR TEST START"
+echo "-------------------------------------------------------------------"
+
+valid_cases_for_invalid=0
+invalid_cases_for_invalid=0
+total_cases_for_invalid=0
+
+for file in ${INVALID_SEMANTIC_TEST}; do
+    msg=$(./compile $file 2>> ../bin/invalidsyn)
+    let total_cases_for_invalid+=1
+
+    if [ $? -ne 100 ]; then
+      echo "-------------------------------------------------------"
+      echo "fail at" $file
       echo "error message: " $?
       echo "-------------------------------------------------------"
       exit 1
