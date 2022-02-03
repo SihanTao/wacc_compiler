@@ -12,11 +12,13 @@ OUTPUT_DIR	 := bin
 ANTLR	:= antlrBuild
 MKDIR	:= mkdir -p
 JAVAC	:= javac
+KOTLINC	:= kotlinc
 RM	:= rm -rf
 
 # Configure project Java flags
 
-JFLAGS	:= -sourcepath $(SOURCE_DIR) -d $(OUTPUT_DIR) -cp lib/antlr-4.9.3-complete.jar 
+FLAGS	:= -d $(OUTPUT_DIR) -cp bin:lib/antlr-4.9.3-complete.jar
+JFLAGS	:= -sourcepath $(SOURCE_DIR) $(FLAGS)
 
 
 # The make rules:
@@ -26,6 +28,7 @@ all:
 	cd $(ANTLR_DIR) && ./$(ANTLR) 
 	$(MKDIR) $(OUTPUT_DIR)
 	$(JAVAC) $(JFLAGS) $(ANTLR_SOURCE_DIR)/*.java
+	$(KOTLINC) $(FLAGS) $(SOURCE_DIR)/*.kt
 
 # clean up all of the compiled files
 clean:
