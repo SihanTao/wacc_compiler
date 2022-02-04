@@ -1,8 +1,11 @@
 lexer grammar WACCLexer;
 
+// Skip white space
+WS : [ \n\t\r]+ -> skip;
+
 // Other Keywords
 BEGIN: 'begin';
-END: 'END';
+END: 'end';
 SKP: 'skip';
 READ: 'read';
 FREE: 'free';
