@@ -1,26 +1,21 @@
-// import ANTLR's runtime libraries
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.*;
+// import ANTLR package
+import org.antlr.v4.runtime.*
+import org.antlr.v4.runtime.tree.*
+import antlr.*
 
-// import antlr package (your code)
-import antlr.*;
-
-fun main(){
-
-    // create a CharStream that reads from standard input
-    val input = CharStreams.fromStream(System.`in`);
-
-    // create a lexer that feeds off of input CharStream
-    val lexer = BasicLexer(input);
-
-    // create a buffer of tokens pulled from the lexer
-    val tokens = CommonTokenStream(lexer);
-
-    // create a parser that feeds off the tokens buffer
-    val parser = BasicParser(tokens);
-
-    val tree = parser.prog(); // begin parsing at prog rule
-
-    println(tree.toStringTree(parser)); // print LISP-style tree
-
+fun main(args: Array<String>) {
+    val input: CharStream
+    if (args.size == 0) {
+        // Read from standard in if file not supplied
+        input = CharStreams.fromStream(System.`in`)
+    } else {
+        val file = java.io.File(args[0])
+        val fileInputStream = java.io.FileInputStream(file)
+        input = CharStreams.fromStream(fileInputStream)
+    }
+    val lexer = WACCLexer(input)
+    val tokens = CommonTokenStream(lexer)
+    val parser = WACCParser(tokens)
+    val tree: ParseTree = parser.program()
+    println(tree.toStringTree(parser)) // Print LISP-style tree
 }

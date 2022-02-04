@@ -3,7 +3,6 @@
 # You are free to change the language used for this script,
 # but do *not* change its name.
 
-puts("Here")
-system("kotlin -cp bin:lib/antlr-4.9.3-complete.jar TestKt < #{ARGV[0]}")
+system("kotlin -cp bin:lib/antlr-4.9.3-complete.jar Main < #{ARGV[0]}")
 exit $?.exitstatus
 
