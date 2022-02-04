@@ -1,12 +1,8 @@
-#!/bin/bash
-# This script is implemented using Bash
+#!/usr/bin/ruby
+# Ruby front-end for your compiler.
 # You are free to change the language used for this script,
 # but do *not* change its name.
 
-if [ -z $1 ]
-then
-    echo "No file/path has been supplied!";
-fi
+system("kotlin -cp bin:lib/antlr-4.9.3-complete.jar TestKt < #{ARGV[0]}")
+exit $?.exitstatus
 
-# compile the given wacc file here
-kotlin -cp ./bin:./lib/antlr-4.9.3-complete.jar TestKt $1
