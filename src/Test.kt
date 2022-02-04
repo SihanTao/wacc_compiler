@@ -5,7 +5,7 @@ import antlr.*
 
 fun main(args: Array<String>) {
     val input: CharStream
-    if (args.size == 0) {
+    if (args.isEmpty()) {
         // Read from standard in if file not supplied
         input = CharStreams.fromStream(System.`in`)
     } else {
