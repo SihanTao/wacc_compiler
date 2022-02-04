@@ -70,7 +70,6 @@ EQ: '==';
 NEQ: '!=';
 AND: '&&';
 OR: '||';
-INTSIGN: MINUS | PLUS;
 
 // character
 COMMA: ',';
@@ -78,8 +77,13 @@ SEMICOLON: ';';
 UNDERSCORE: '_';
 APOSTROPHE: '\'';
 QUOTATION: '"';
+fragment
 CHARACTER: ~['"\\]
          | '\\' ESCASPED_CHAR;
+
+// some literals
+CHARLITER: '\'' CHARACTER '\'';
+STRLITER: '"' CHARACTER '"';
 
 ESCASPED_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\';
 LETTER: [a-zA-Z];
