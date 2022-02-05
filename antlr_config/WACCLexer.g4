@@ -74,7 +74,6 @@ OR: '||';
 // character
 COMMA: ',';
 SEMICOLON: ';';
-UNDERSCORE: '_';
 APOSTROPHE: '\'';
 QUOTATION: '"';
 fragment
@@ -87,7 +86,7 @@ STRLITER: '"' CHARACTER* '"';
 
 fragment ESCASPED_CHAR: [0btnfr"'\\];
 
-IDENT: LETTER (UNDERSCORE|LETTER|DIGIT)*;
+IDENT: ('_' | LETTER) ('_' | LETTER | DIGIT)*;
 NUMBER: DIGIT+;
 fragment LETTER: [a-zA-Z];
 fragment DIGIT: [0-9];
