@@ -82,13 +82,13 @@ CHARACTER: ~['"\\]
          | '\\' ESCASPED_CHAR;
 
 // some literals
-INTLITER: (PLUS | MINUS)? DIGIT+;
 CHARLITER: '\'' CHARACTER '\'';
 STRLITER: '"' CHARACTER* '"';
 
 fragment ESCASPED_CHAR: [0btnfr"'\\];
 
 IDENT: LETTER (UNDERSCORE|LETTER|DIGIT)*;
+NUMBER: DIGIT+;
 fragment LETTER: [a-zA-Z];
 fragment DIGIT: [0-9];
 

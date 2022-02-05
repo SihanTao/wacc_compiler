@@ -110,7 +110,7 @@ ident: IDENT;
 arrayElem: ident (OPEN_SQUARE_BRACKETS expr CLOSE_SQUARE_BRACKETS)+;
 
 // literal
-intLiter: INTLITER;
+intLiter: (PLUS | MINUS)? NUMBER;
 boolLiter: TRUE | FALSE;
 charLiter: CHARLITER;
 strLiter: STRLITER;
