@@ -84,9 +84,9 @@ CHARACTER: ~['"\\]
 // some literals
 INTLITER: (PLUS | MINUS)? DIGIT+;
 CHARLITER: '\'' CHARACTER '\'';
-STRLITER: '"' CHARACTER '"';
+STRLITER: '"' CHARACTER* '"';
 
-ESCASPED_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\';
+fragment ESCASPED_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\';
 
 IDENT: LETTER (UNDERSCORE|LETTER|DIGIT)*;
 fragment LETTER: [a-zA-Z];

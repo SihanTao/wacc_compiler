@@ -87,7 +87,12 @@ expr : intLiter
      | ident
      | arrayElem
      | unaryOper expr
-     | expr binaryOper expr
+     | expr binaryOper=(MUL | DIV | MOD) expr
+     | expr binaryOper=( PLUS | MINUS ) expr
+     | expr binaryOper=(GT | GEQ | LT | LEQ) expr
+     | expr binaryOper=( EQ | NEQ ) expr
+     | expr AND expr
+     | expr OR expr
      | OPEN_PARENTHESES expr CLOSE_PARENTHESES
      ;
 
@@ -99,22 +104,6 @@ unaryOper: NOT
          | ORD
          | CHR
          ;
-
-// binary ops
-binaryOper: MUL
-          | DIV
-          | MOD
-          | PLUS
-          | MINUS
-          | GT
-          | GEQ
-          | LT
-          | LEQ
-          | EQ
-          | NEQ
-          | AND
-          | OR
-          ;
 
 ident: IDENT;
 
