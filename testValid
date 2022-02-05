@@ -1,0 +1,62 @@
+#!/bin/bash
+VALID_EXAMPLES=("./src/wacc_examples/valid/advanced"
+                "./src/wacc_examples/valid/array"
+                "./src/wacc_examples/valid/basic"
+                "./src/wacc_examples/valid/expressions"
+                "./src/wacc_examples/valid/function"
+                "./src/wacc_examples/valid/if"
+                "./src/wacc_examples/valid/IO"
+                "./src/wacc_examples/valid/pairs"
+                "./src/wacc_examples/valid/runtimeErr"
+                "./src/wacc_examples/valid/scope"
+                "./src/wacc_examples/valid/sequence"
+                "./src/wacc_examples/valid/variables"
+                "./src/wacc_examples/valid/while")
+
+LOG=./log
+VALID_OUT=./log/testValidOut.txt
+VALID_ERR=./log/testValidErr.txt
+
+if [ ! -d $LOG ]; then
+    mkdir $LOG
+    echo "Create the log directory"
+else
+  echo "The log directory exists."
+fi
+
+if [ ! -f $VALID_OUT ]; then
+    touch $VALID_OUT
+    echo "Log file created."
+else
+  echo "Clear the log file..."
+  truncate -s 0 $VALID_OUT
+  truncate -s 0 $VALID_ERR
+fi
+
+# counters to represent the total number of test files to be processed
+# shellcheck disable=SC2068
+TOTAL_COUNT=$(find ${VALID_EXAMPLES[@]} -name "*.wacc" | wc -l)
+COUNTER=0
+
+for folder in ${VALID_EXAMPLES[@]}; do
+  # shellcheck disable=SC2044
+  for file in $(find "$folder" -name "*.wacc"); do
+    echo "$file" >>$VALID_OUT
+    echo "$file" >>$VALID_ERR
+    ./grun antlr.WACC program -tokens "$file" >>$VALID_OUT 2>>VALID_ERR
+    ret=$?
+    echo "exit status: " $ret
+    if [ $ret -ne 0 ]; then
+      echo "status code incorrect: " $ret
+      exit 1
+    fi
+
+    COUNTER=$((COUNTER+1))
+    echo "$COUNTER / $(($TOTAL_COUNT)) finished"
+    echo ""
+  done
+
+  echo "========================================================================================"
+  echo "Test Folder" $folder "has been processed" "($COUNTER / $(($TOTAL_COUNT)))"
+  echo "========================================================================================"
+done
