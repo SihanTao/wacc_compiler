@@ -43,7 +43,8 @@ for folder in ${VALID_EXAMPLES[@]}; do
   for file in $(find "$folder" -name "*.wacc"); do
     echo "$file" >>$VALID_OUT
     echo "$file" >>$VALID_ERR
-    ./grun antlr.WACC program -tokens "$file" >>$VALID_OUT 2>>VALID_ERR
+    ./compile "$file" >>$VALID_OUT
+    ./grun antlr.WACC program -tokens "$file" >>$VALID_OUT 2>>$VALID_ERR
     ret=$?
     echo "exit status: " $ret
     if [ $ret -ne 0 ]; then
