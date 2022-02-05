@@ -82,12 +82,15 @@ CHARACTER: ~['"\\]
          | '\\' ESCASPED_CHAR;
 
 // some literals
+INTLITER: (PLUS | MINUS)? DIGIT+;
 CHARLITER: '\'' CHARACTER '\'';
 STRLITER: '"' CHARACTER '"';
 
 ESCASPED_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\';
-LETTER: [a-zA-Z];
-DIGIT: [0-9];
+
+IDENT: LETTER (UNDERSCORE|LETTER|DIGIT)*;
+fragment LETTER: [a-zA-Z];
+fragment DIGIT: [0-9];
 
 // comment
 SHARP   : '#' ;

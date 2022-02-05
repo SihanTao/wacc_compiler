@@ -116,12 +116,12 @@ binaryOper: MUL
           | OR
           ;
 
-ident: LETTER (UNDERSCORE|LETTER|DIGIT)*;
+ident: IDENT;
 
 arrayElem: ident (OPEN_SQUARE_BRACKETS expr CLOSE_SQUARE_BRACKETS)+;
 
 // literal
-intLiter: (PLUS | MINUS)? DIGIT+;
+intLiter: INTLITER;
 boolLiter: TRUE | FALSE;
 charLiter: CHARLITER;
 strLiter: STRLITER;
