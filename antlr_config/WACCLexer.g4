@@ -86,9 +86,8 @@ STRLITER: '"' CHARACTER* '"';
 
 fragment ESCASPED_CHAR: [0btnfr"'\\];
 
-IDENT: ('_' | LETTER) ('_' | LETTER | DIGIT)*;
+IDENT: ('_' | [a-zA-Z]) ('_' | [a-zA-Z] | DIGIT)*;
 NUMBER: DIGIT+;
-fragment LETTER: [a-zA-Z];
 fragment DIGIT: [0-9];
 
 // comment
