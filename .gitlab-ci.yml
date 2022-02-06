@@ -1,0 +1,16 @@
+stages:
+  - build
+  - test
+
+build-job:
+  stage: build
+  script:
+    - make
+  artifacts:
+    paths:
+      - target/  
+
+
+
+  
+
