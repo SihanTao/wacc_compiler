@@ -1,5 +1,5 @@
 package node
 
-class ParamNode : Node {
+class ParamNode(typeNode: TypeNode, identNode: IdentNode) : Node {
 
 }
