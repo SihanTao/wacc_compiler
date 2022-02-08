@@ -29,6 +29,7 @@ all:
 	cd $(ANTLR_DIR) && ./$(ANTLR) 
 	$(MKDIR) $(OUTPUT_DIR)
 	$(JAVAC) $(JFLAGS) $(ANTLR_SOURCE_DIR)/*.java
+	$(KOTLINC) $(FLAGS) $(SOURCE_DIR)/node/*.kt
 	$(KOTLINC) $(FLAGS) $(SOURCE_DIR)/*.kt
 
 # clean up all of the compiled files
