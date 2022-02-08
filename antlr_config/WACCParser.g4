@@ -17,19 +17,19 @@ paramlist : param (COMMA param)*;
 param: type ident;
 
 // statement
-stat: SKP
-    | type ident ASSIGN assignrhs
-    | assignlhs ASSIGN assignrhs
-    | READ assignlhs
-    | FREE expr
-    | RETURN expr
-    | EXIT expr
-    | PRINT expr
-    | PRINTLN expr
-    | IF expr THEN stat ELSE stat FI
-    | WHILE expr DO stat DONE
-    | BEGIN stat END
-    | stat SEMICOLON stat
+stat: SKP                               #SkipStat
+    | type ident ASSIGN assignrhs       #DeclareStat
+    | assignlhs ASSIGN assignrhs        #AssignStat
+    | READ assignlhs                    #ReadStat
+    | FREE expr                         #FreeStat
+    | RETURN expr                       #ReturnStat
+    | EXIT expr                         #ExitStat
+    | PRINT expr                        #PrintStat
+    | PRINTLN expr                      #PrintlnStat
+    | IF expr THEN stat ELSE stat FI    #IfStat
+    | WHILE expr DO stat DONE           #WhileStat
+    | BEGIN stat END                    #ScopeStat
+    | stat SEMICOLON stat               #SequenceStat
     ;
 
 // assign-lhs
