@@ -9,4 +9,4 @@ then
 fi
 
 # compile the given wacc file here
-kotlin -cp ./bin:./lib/antlr-4.9.3-complete.jar TestKt $1
+kotlin -cp ./bin:./lib/antlr-4.9.3-complete.jar MainKt $1
