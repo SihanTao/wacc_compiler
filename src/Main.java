@@ -30,6 +30,12 @@ public class Main {
     ParseTree tree = parser.program();
     new WACCSyntaxErrorVisitor(parser).visit(tree);
 
+	if (parser.getNumberOfSyntaxErrors() != 0) {
+		System.out.println(parser.getNumberOfSyntaxErrors() + " syntax errors detected, "
+		+ " failing with exit code 100\n");
+		System.exit(200);
+	}
+
   }
 
 }

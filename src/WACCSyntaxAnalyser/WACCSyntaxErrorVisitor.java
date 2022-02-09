@@ -49,5 +49,4 @@ public class WACCSyntaxErrorVisitor<T> extends WACCParserBaseVisitor<T> {
 			parser.notifyErrorListeners(ctx.getStart(), "Char literal " + ctx.getText()
 			+ "is not defined for WACC", (RecognitionException) null);
 		}
-
 }
