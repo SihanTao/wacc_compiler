@@ -1,8 +1,11 @@
 lexer grammar WACCLexer;
 
+// Skip white space
+WS : [ \n\t\r]+ -> skip;
+
 // Other Keywords
 BEGIN: 'begin';
-END: 'END';
+END: 'end';
 SKP: 'skip';
 READ: 'read';
 FREE: 'free';
@@ -67,22 +70,28 @@ EQ: '==';
 NEQ: '!=';
 AND: '&&';
 OR: '||';
-INTSIGN: MINUS | PLUS;
 
 // character
 COMMA: ',';
 SEMICOLON: ';';
-UNDERSCORE: '_';
 APOSTROPHE: '\'';
 QUOTATION: '"';
+fragment
 CHARACTER: ~['"\\]
-         | '\\' ESCASPED_CHAR;
+| '\\' ESCASPED_CHAR;
 
-ESCASPED_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '"' | '\'' | '\\';
-LETTER: [a-zA-Z];
-DIGIT: [0-9];
+// some literals
+CHARLITER: '\'' CHARACTER '\'';
+STRLITER: '"' CHARACTER* '"';
+
+fragment ESCASPED_CHAR: [0btnfr"'\\];
+
+IDENT: ('_' | [a-zA-Z]) ('_' | [a-zA-Z] | DIGIT)*;
+NUMBER: DIGIT+;
+fragment DIGIT: [0-9];
 
 // comment
 SHARP   : '#' ;
 EOL     : '\n' ;
 COMMENT : SHARP ~[\n]* EOL -> skip;
+
