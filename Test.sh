@@ -8,12 +8,18 @@ valid_cases=0
 invalid_cases=0
 total_cases=0
 
+mkdir -p "${SRC_DIR}/out"
+> "${SRC_DIR}/out/valid.txt"
+> "${SRC_DIR}/out/invalidSyntax.txt"
+> "${SRC_DIR}/out/invalidSemantic.txt"
+
 echo "-------------------------------------------------------------------"
 echo "VALID TEST START"
 echo "-------------------------------------------------------------------"
 
 for file in ${VALID_TEST}; do
-    ./compile $file
+    echo $file >> "${SRC_DIR}/out/valid.txt" 
+    ./compile $file >> "${SRC_DIR}/out/valid.txt"
     let total_cases+=1
 
     if [ $? -ne 0 ]; then
@@ -40,7 +46,8 @@ invalid_cases_for_invalid=0
 total_cases_for_invalid=0
 
 for file in ${INVALID_SYNTAX_TEST}; do
-    ./compile $file
+    echo $file >>  "${SRC_DIR}/out/invalidSyntax.txt"
+    ./compile $file >> "${SRC_DIR}/out/invalidSyntax.txt"
     let total_cases_for_invalid+=1
 
     if [ $? -ne 100 ]; then
@@ -68,7 +75,8 @@ invalid_cases_for_invalid=0
 total_cases_for_invalid=0
 
 for file in ${INVALID_SEMANTIC_TEST}; do
-    ./compile $file
+    echo $file >> "${SRC_DIR}/out/invalidSemantic.txt"
+    ./compile $file >> "${SRC_DIR}/out/invalidSemantic.txt"
     let total_cases_for_invalid+=1
 
     if [ $? -ne 100 ]; then
