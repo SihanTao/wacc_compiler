@@ -5,8 +5,8 @@ import org.antlr.v4.runtime.tree.*;
 // import ANTLR package
 import antlr.*;
 
-import WACCSyntaxAnalyser.WACCSyntaxErrorListener
-import WACCSyntaxAnalyser.WACCSyntaxErrorVisitor
+import WACCSyntaxAnalyser.WACCSyntaxErrorListener;
+import WACCSyntaxAnalyser.WACCSyntaxErrorVisitor;
 
 public class Main {
 
