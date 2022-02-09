@@ -19,6 +19,7 @@ public class WACCSyntaxErrorVisitor<T> extends WACCParserBaseVisitor<T> {
 			parser.notifyErrorListeners(ctx.getStart(), "Function " + ctx.ident()
 			+ " has no adequate return or exit statements", (RecognitionException) null);
 		}
+		return visitChildren(ctx);
     }
 
 	// helper function to check if a function has appropriate return statements
@@ -31,5 +32,22 @@ public class WACCSyntaxErrorVisitor<T> extends WACCParserBaseVisitor<T> {
 			return false;
 		}
     }
+
+	@Override public T visitIntLiter(WACCParser.IntLiterContext ctx) {
+		try {
+			int i = Integer.parseInt(ctx.getText());
+		} catch(NumberFormatException e) {
+			parser.notifyErrorListeners(ctx.getStart(), "Int Literal " + ctx.getText()
+			+ "overflowed as it is too large", (RecognitionException) null);
+		}
+		return visitChildren(ctx);
+	}
+
+	@Override public T visitCharLiter(WACCParser.CharLiterContext ctx) {
+		char c = ctx.getText().charAt(0);
+		if (c > 255) {
+			parser.notifyErrorListeners(ctx.getStart(), "Char literal " + ctx.getText()
+			+ "is not defined for WACC", (RecognitionException) null);
+		}
 
 }
