@@ -5,6 +5,9 @@ import org.antlr.v4.runtime.tree.*;
 // import ANTLR package
 import antlr.*;
 
+import WACCSyntaxAnalyser.WACCSyntaxErrorListener
+import WACCSyntaxAnalyser.WACCSyntaxErrorVisitor
+
 public class Main {
 
   public static void main(String[] args) throws Exception {
@@ -20,9 +23,12 @@ public class Main {
     WACCLexer lexer = new WACCLexer(input);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     WACCParser parser = new WACCParser(tokens);
-    ParseTree tree = parser.program();
 
-    System.out.println(tree.toStringTree(parser)); // Print LISP-style tree
+    parser.removeErrorListeners();
+    parser.addErrorListener(new WACCSyntaxErrorListener());
+    
+    ParseTree tree = parser.program();
+    new WACCSyntaxErrorVisitor(parser).visit(tree);
 
   }
 
