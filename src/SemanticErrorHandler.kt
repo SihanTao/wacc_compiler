@@ -1,0 +1,3 @@
+class SemanticErrorHandler private constructor() {
+
+}
