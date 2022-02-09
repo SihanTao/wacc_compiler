@@ -1,5 +1,9 @@
 package node
 
-class FuncNode(typeNode: TypeNode, identNode: IdentNode, paramList: ArrayList<ParamNode>, statNode: StatNode) : Node {
+import node.stat.IdentNode
+import node.stat.StatNode
+import type.TypeNode
+
+class FuncNode(typeNode: TypeNode, identNode: StatNode, paramList: ArrayList<IdentNode>) : Node {
 
 }

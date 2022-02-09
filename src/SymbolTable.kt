@@ -8,7 +8,7 @@ class SymbolTable(parentSymbolTable: SymbolTable) {
      * of that identifier in the current scope. It will also contain a copy of its parent SymbolTable.
      * The parent of the root SymbolTable will be set to null.
      */
-    private val dictionary: HashMap<String, ExprNode> = java.util.HashMap<String, ExprNode>()
+    private val dictionary = java.util.HashMap<String, ExprNode>()
 
     init {
         this.parentSymbolTable = parentSymbolTable

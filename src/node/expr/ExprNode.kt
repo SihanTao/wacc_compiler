@@ -1,7 +1,7 @@
 package node.expr
 
 import node.Node
-import node.TypeNode
+import type.TypeNode
 
 abstract class ExprNode : Node {
     /**

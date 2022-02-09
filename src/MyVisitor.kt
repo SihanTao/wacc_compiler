@@ -1,6 +1,8 @@
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 import node.*
+import node.stat.*
+import type.TypeNode
 
 
 class MyVisitor : WACCParserBaseVisitor<Node>() {
@@ -20,20 +22,17 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitFunc(ctx: WACCParser.FuncContext?): Node {
-        val paramList = ArrayList<ParamNode>()
-        if (ctx!!.paramlist() != null) {
-            for (param in ctx.paramlist().param()) {
-                paramList += visit(param) as ParamNode
-            }
+        val returnType = visit(ctx!!.type()) as TypeNode
+        val paramList = ArrayList<IdentNode>()
+        for (param in ctx.paramlist().param()) {
+            val paramType: TypeNode = visit(param.type()) as TypeNode
+            val paramNode = IdentNode(paramType, param.ident().IDENT().text)
+            paramList.add(paramNode)
         }
 
-        val funcNode = FuncNode(
-            visit(ctx.type()) as TypeNode,
-            visit(ctx.ident()) as IdentNode,
-            paramList,
-            visit(ctx.stat()) as StatNode
-        )
-        return funcNode
+        val functionBody = visitChildren(ctx) as StatNode
+
+        return FuncNode(returnType, functionBody, paramList)
     }
 
     override fun visitParam(ctx: WACCParser.ParamContext?): Node {
@@ -78,5 +77,25 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         // TODO: need to check type
         val readNode = ReadNode(assignLhs)
         return readNode
+    }
+
+    override fun visitReturnStat(ctx: WACCParser.ReturnStatContext?): Node {
+        return super.visitReturnStat(ctx)
+    }
+
+    override fun visitExitStat(ctx: WACCParser.ExitStatContext?): Node {
+        return super.visitExitStat(ctx)
+    }
+
+    override fun visitFreeStat(ctx: WACCParser.FreeStatContext?): Node {
+        return super.visitFreeStat(ctx)
+    }
+
+    override fun visitPrintlnStat(ctx: WACCParser.PrintlnStatContext?): Node {
+        return super.visitPrintlnStat(ctx)
+    }
+
+    override fun visitPrintStat(ctx: WACCParser.PrintStatContext?): Node {
+        return super.visitPrintStat(ctx)
     }
 }
