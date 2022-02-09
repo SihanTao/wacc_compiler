@@ -43,4 +43,33 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitType(ctx: WACCParser.TypeContext?): Node {
         return visitChildren(ctx)
     }
+
+    /* =========================================================
+    *                   Statement Visitors
+    * =========================================================
+    */
+
+    override fun visitSkipStat(ctx: WACCParser.SkipStatContext?): Node {
+        return SkipNode()
+    }
+
+    override fun visitDeclareStat(ctx: WACCParser.DeclareStatContext?): Node {
+        val declareStatNode = DeclareStatNode(
+            visit(ctx!!.type()) as TypeNode,
+            visit(ctx.ident()) as IdentNode,
+            visit(ctx.assignrhs()) as RhsNode
+        )
+
+        return declareStatNode
+    }
+
+    override fun visitAssignStat(ctx: WACCParser.AssignStatContext): Node {
+
+        val lhs = visit(ctx.assignlhs()) as LhsNode
+        val rhs = visit(ctx.assignrhs()) as RhsNode
+
+        // TODO: check the type of lhs and rhs
+        val node: AssignNode = AssignNode(lhs, rhs)
+        return node
+    }
 }
