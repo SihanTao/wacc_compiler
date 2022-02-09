@@ -72,4 +72,11 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         val node: AssignNode = AssignNode(lhs, rhs)
         return node
     }
+
+    override fun visitReadStat(ctx: WACCParser.ReadStatContext?): Node {
+        val assignLhs = visit(ctx!!.assignlhs()) as LhsNode
+        // TODO: need to check type
+        val readNode = ReadNode(assignLhs)
+        return readNode
+    }
 }
