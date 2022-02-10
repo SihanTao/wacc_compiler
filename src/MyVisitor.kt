@@ -73,7 +73,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         val rhs = visit(ctx.assignrhs()) as RhsNode
 
         // TODO: check the type of lhs and rhs
-        val node: AssignNode = AssignNode(lhs, rhs)
+        val node = AssignNode(lhs, rhs)
         return node
     }
 
@@ -178,7 +178,14 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitScopeStat(ctx: WACCParser.ScopeStatContext?): Node {
-        return super.visitScopeStat(ctx)
+
+        /* simply create a new SymbolTable to represent a BEGIN ... END statement */
+        val curr = SymbolTable(symbolTable)
+        val body: StatNode = visit(ctx!!.stat()) as StatNode
+        val scopeNode = ScopeNode(body)
+        scopeNode.scope = curr
+
+        return scopeNode
     }
 
     override fun visitSequenceStat(ctx: WACCParser.SequenceStatContext?): Node {
