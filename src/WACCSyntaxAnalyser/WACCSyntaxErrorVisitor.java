@@ -8,6 +8,8 @@ import static antlr.WACCParser.*;
 
 public class WACCSyntaxErrorVisitor<T> extends WACCParserBaseVisitor<T> {
 
+	static final int CHARACTER_MAX_VALUE = 255;
+
 	private WACCParser parser;
 
 	public WACCSyntaxErrorVisitor(WACCParser parser) {
@@ -45,7 +47,7 @@ public class WACCSyntaxErrorVisitor<T> extends WACCParserBaseVisitor<T> {
 
 	@Override public T visitCharLiter(WACCParser.CharLiterContext ctx) {
 		char c = ctx.getText().charAt(0);
-		if (c > 255) {
+		if (c > CHARACTER_MAX_VALUE) {
 			parser.notifyErrorListeners(ctx.getStart(), "Char literal " + ctx.getText()
 			+ "is not defined for WACC", (RecognitionException) null);
 		}
