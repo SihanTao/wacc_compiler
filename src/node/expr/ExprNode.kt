@@ -7,7 +7,7 @@ abstract class ExprNode : Node {
     /**
      * abstract class for expression nodes. Every expression node has a type
      */
-    protected var type: TypeNode? = null
+    var type: TypeNode? = null
 
 
 }

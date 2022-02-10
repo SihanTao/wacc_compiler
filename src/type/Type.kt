@@ -1,5 +1,7 @@
 package type
 
-interface Type {
+import node.Node
+
+interface Type : Node {
     // Type
 }
