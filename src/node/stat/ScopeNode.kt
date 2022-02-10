@@ -1,0 +1,22 @@
+package node.stat
+
+class ScopeNode(node: StatNode) : StatNode() {
+
+    private val body: MutableList<StatNode> = ArrayList()
+
+    private fun mergeScope(s: StatNode) {
+        if (s is ScopeNode) {
+            body.addAll(s.body)
+        } else if (s !is SkipNode) {
+            body.add(s)
+        }
+    }
+
+    /* This will help to determine whether there is a return statement at the end of a sequence */
+    private val endValue: Boolean = body.isNotEmpty() && body[body.size - 1].isReturned
+
+    init {
+        mergeScope(node)
+        isReturned = endValue
+    }
+}
