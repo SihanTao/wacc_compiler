@@ -31,6 +31,7 @@ all:
 	$(MKDIR) $(OUTPUT_DIR)
 	$(JAVAC) $(JFLAGS) $(ANTLR_SOURCE_DIR)/*.java
 	$(KOTLINC) $(FLAGS) @$@
+	$(RM) all
 
 # clean up all of the compiled files
 clean:
