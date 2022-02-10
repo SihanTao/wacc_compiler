@@ -4,15 +4,31 @@ import antlr.WACCParserBaseVisitor
 import node.*
 import node.expr.*
 import node.stat.*
+import org.antlr.v4.runtime.ParserRuleContext
 import type.ArrayType
 import type.Type
+import type.Utils
+import type.Utils.Companion.unopEnumMapping
+import type.Utils.Companion.unopTypeMapping
 
 
-class MyVisitor : WACCParserBaseVisitor<Node>() {
+class MyVisitor() : WACCParserBaseVisitor<Node>() {
 
     private var symbolTable: SymbolTable? = null
+    private var globalFuncTable: Map<String, FuncNode>? = null
+    private var isMainFunction = false
+    private var expectedFunctionReturn: Type? = null
+    private var currDeclareType: Type? = null
+    private var semanticError = false
 
-    override fun visitProgram(ctx: WACCParser.ProgramContext?): Node {
+    init {
+        symbolTable = null
+        globalFuncTable = HashMap()
+        isMainFunction = false
+        expectedFunctionReturn = null
+        currDeclareType = null
+    }
+    override fun visitProgram(ctx: ProgramContext?): Node {
         val functionList = ArrayList<FuncNode>()
         for (f in ctx!!.func()) {
             val funcNode = visitFunc(f) as FuncNode
@@ -256,7 +272,46 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return PairNode()
     }
 
-    override fun visitUnopExpr(ctx: UnopExprContext?): Node {
-        return super.visitUnopExpr(ctx)
+    override fun visitUnopExpr(ctx: UnopExprContext): Node {
+        val literal: String = ctx.unaryOper().text
+        val unop: Utils.Unop? = unopEnumMapping[literal]
+        val targetType: Type? = unopTypeMapping[literal]
+
+        /* parsed directly as a negative number(IntNode) */
+        val exprText = ctx.expr().text
+        if (unop!! == Utils.Unop.MINUS && exprText.toIntOrNull() != null) {
+            val intVal: Int = exprText.toInt()
+            return IntNode(intVal)
+        }
+
+        val expr: ExprNode = visit(ctx.expr()) as ExprNode
+        val exprType = expr.type
+        semanticError = semanticError or typeCheck(ctx.expr(), targetType, exprType!!)
+
+        return UnopNode(expr, unop)
+    }
+
+    override fun visitArithmeticExpr(ctx: ArithmeticExprContext?): Node {
+        return super.visitArithmeticExpr(ctx)
+    }
+
+    fun typeCheck(ctx: ParserRuleContext?, expected: Type?, actual: Type): Boolean {
+        if (actual != expected) {
+            ErrorHandler.typeMismatch(ctx!!, expected!!, actual)
+            return true
+        }
+        return false
+    }
+
+
+    fun typeCheck(
+        ctx: ParserRuleContext?, varName: String?, expected: Type?,
+        actual: Type
+    ): Boolean {
+        if (actual != expected) {
+            ErrorHandler.typeMismatch(ctx!!, varName!!, expected!!, actual)
+            return true
+        }
+        return false
     }
 }
