@@ -10,6 +10,7 @@ build-job:
 valid-test-job:
   stage: test
   script:
+    - pwd
     - ./testValid
 
 invalid_syntax-test-job:
