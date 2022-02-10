@@ -5,10 +5,7 @@ stages:
 build-job:
   stage: build
   script:
-    - make -f Makefile
-  artifacts:
-    paths:
-      - target/  
+    - make
 
 valid-test-job:
   stage: test
