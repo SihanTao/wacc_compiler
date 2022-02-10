@@ -1,8 +1,7 @@
 package node.stat
 
-import node.Node
-import type.TypeNode
+import type.Type
 
-class IdentNode(param_type: TypeNode, text: String) : StatNode() {
+class IdentNode(param_type: Type, text: String) : StatNode() {
 
 }

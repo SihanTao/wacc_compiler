@@ -1,8 +1,8 @@
 package node
 
 import node.stat.IdentNode
-import type.TypeNode
+import type.Type
 
-class ParamNode(typeNode: TypeNode, identNode: IdentNode) : Node {
+class ParamNode(typeNode: Type, identNode: IdentNode) : Node {
 
 }

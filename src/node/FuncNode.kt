@@ -2,8 +2,8 @@ package node
 
 import node.stat.IdentNode
 import node.stat.StatNode
-import type.TypeNode
+import type.Type
 
-class FuncNode(typeNode: TypeNode, identNode: StatNode, paramList: ArrayList<IdentNode>) : Node {
+class FuncNode(typeNode: Type, identNode: StatNode, paramList: ArrayList<IdentNode>) : Node {
 
 }

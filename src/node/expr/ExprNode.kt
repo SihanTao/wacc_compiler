@@ -1,13 +1,13 @@
 package node.expr
 
 import node.Node
-import type.TypeNode
+import type.Type
 
 abstract class ExprNode : Node {
     /**
      * abstract class for expression nodes. Every expression node has a type
      */
-    var type: TypeNode? = null
+    var type: Type? = null
 
 
 }
