@@ -29,7 +29,7 @@ echo "==========================================================================
 for folder in ${INVALID_SYNTAX_EXAMPLES[@]}; do
   # shellcheck disable=SC2044
   for file in $(find "$folder" -name "*.wacc"); do
-    ./compile "$file" >tmp 2>tmp
+    ./compile "$file" 
     # ./grun antlr.WACC program -tokens "$file" >tmp 2>tmp
     ret=$?
     if [ $ret -ne 100 ]; then
