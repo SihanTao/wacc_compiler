@@ -1,4 +1,4 @@
-package WACCSyntaxAnalyser
+package WACCSyntaxAnalyser;
 
 import org.antlr.v4.runtime.*;
 
