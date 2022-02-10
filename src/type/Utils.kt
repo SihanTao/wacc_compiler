@@ -18,40 +18,56 @@ class Utils {
         NOT, MINUS, LEN, ORD, CHR
     }
 
-    /* mapping from string literals to internal representations of UnopEnum and Type */
-    val unopEnumMapping: Map<String, Unop> = mapOf(
-        "-" to Unop.MINUS,
-        "chr" to Unop.CHR,
-        "!" to Unop.NOT,
-        "len" to Unop.LEN,
-        "ord" to Unop.ORD
-    )
-    val unopTypeMapping = mapOf(
-        "-" to INT,
-        "chr" to INT,
-        "!" to BOOL,
-        "len" to ARRAY_TYPE,
-        "ord" to CHAR
-    )
-
-    enum class Binop {
-        PLUS, MINUS, MUL, DIV, MOD, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, EQUAL, INEQUAL, AND, OR
+    companion object {
+        @JvmStatic lateinit var unopEnumMapping: Map<String, Unop>
+        @JvmStatic lateinit var unopTypeMapping: Map<String, Type>
+        @JvmStatic lateinit var binopEnumMapping: Map<String, Binop>
+        @JvmStatic lateinit var EqEnumMapping: Map<String, Binop>
+        @JvmStatic lateinit var LogicOpEnumMapping: Map<String, Binop>
+        @JvmStatic lateinit var CmpEnumMapping: Map<String, Binop>
     }
+    /* mapping from string literals to internal representations of UnopEnum and Type */
 
-    val binopEnumMapping: Map<String, Binop> = mapOf(
-        "+" to Binop.PLUS,
-        "-" to Binop.MINUS,
-        "*" to Binop.MUL,
-        "/" to Binop.DIV,
-        "%" to Binop.MOD
-    )
-    val EqEnumMapping: Map<String, Binop> = mapOf("==" to Binop.EQUAL, "!=" to Binop.INEQUAL)
-    val LogicOpEnumMapping: Map<String, Binop> = mapOf("&&" to Binop.AND, "||" to Binop.OR)
-    val CmpEnumMapping: Map<String, Binop> = mapOf(
+    init {
+        unopEnumMapping = mapOf(
+            "-" to Unop.MINUS,
+            "chr" to Unop.CHR,
+            "!" to Unop.NOT,
+            "len" to Unop.LEN,
+            "ord" to Unop.ORD
+        )
+
+        unopTypeMapping = mapOf(
+            "-" to INT,
+            "chr" to INT,
+            "!" to BOOL,
+            "len" to ARRAY_TYPE,
+            "ord" to CHAR
+        )
+
+        binopEnumMapping = mapOf(
+            "+" to Binop.PLUS,
+            "-" to Binop.MINUS,
+            "*" to Binop.MUL,
+            "/" to Binop.DIV,
+            "%" to Binop.MOD
+        )
+
+        EqEnumMapping = mapOf("==" to Binop.EQUAL, "!=" to Binop.INEQUAL)
+
+        LogicOpEnumMapping = mapOf("&&" to Binop.AND, "||" to Binop.OR)
+
+        CmpEnumMapping = mapOf(
             ">" to Binop.GREATER,
             ">=" to Binop.GREATER_EQUAL,
             "<" to Binop.LESS,
             "<=" to Binop.LESS_EQUAL
         )
+    }
+
+
+    enum class Binop {
+        PLUS, MINUS, MUL, DIV, MOD, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, EQUAL, INEQUAL, AND, OR
+    }
 
 }
