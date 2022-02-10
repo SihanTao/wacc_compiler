@@ -11,6 +11,12 @@ build-job:
       - target/  
 
 
+test-job:
+  stage: test
+  script:
+    - ./Test.sh
+
+
 
   
 
