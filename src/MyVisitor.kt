@@ -255,4 +255,8 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitPairExpr(ctx: PairExprContext?): Node {
         return PairNode()
     }
+
+    override fun visitUnopExpr(ctx: UnopExprContext?): Node {
+        return super.visitUnopExpr(ctx)
+    }
 }
