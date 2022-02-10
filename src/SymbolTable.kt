@@ -1,7 +1,7 @@
 import node.expr.ExprNode
 
-class SymbolTable(parentSymbolTable: SymbolTable) {
-    private var parentSymbolTable: SymbolTable
+class SymbolTable(parentSymbolTable: SymbolTable?) {
+    private var parentSymbolTable: SymbolTable?
 
     /**
      * SymbolTable will record an identifier String and an ExprNode as the node representing the value
@@ -26,12 +26,16 @@ class SymbolTable(parentSymbolTable: SymbolTable) {
     }
 
     fun lookupAll(name: String): ExprNode? {
-        var st = this
+        var st: SymbolTable? = this
         var obj: ExprNode? = null
         while (obj == null && st != null) {
             obj = st.lookup(name)
             st = st.parentSymbolTable
         }
         return obj
+    }
+
+    fun getParentSymbolTable(): SymbolTable? {
+        return parentSymbolTable
     }
 }
