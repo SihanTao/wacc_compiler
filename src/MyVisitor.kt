@@ -2,11 +2,9 @@ import antlr.WACCParser
 import antlr.WACCParser.*
 import antlr.WACCParserBaseVisitor
 import node.*
-import node.expr.BoolNode
-import node.expr.CharNode
-import node.expr.ExprNode
-import node.expr.PairNode
+import node.expr.*
 import node.stat.*
+import type.ArrayType
 import type.Type
 
 
@@ -216,6 +214,25 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
 
         // TODO: may not be correct
         return IdentNode(value!!.type!!, varName)
+    }
+
+    override fun visitArrayElem(ctx: ArrayElemContext?): Node {
+        val arrayIdent: String = ctx!!.array_elem().ident().text
+        val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
+        // TODO: typeCheck and Symbol find?
+
+        val indexList: MutableList<ExprNode> = java.util.ArrayList()
+
+        for (exprContext in ctx.array_elem().expr()) {
+            val index: ExprNode = visit(exprContext) as ExprNode
+            // TODO: check every expr has type int
+            val elemType = index.type
+            indexList.add(index)
+        }
+
+        val arrayType = array?.type as ArrayType
+
+        return ArrayElemNode(array, indexList, arrayType.getContentType())
     }
 
     override fun visitBoolExpr(ctx: BoolExprContext): Node? {

@@ -1,7 +1,7 @@
 package type
 
 class ArrayType constructor(private val type: Type? = null) : Type {
-    private val dimension: Int
+    val dimension: Int
 
     /*
         init calculate dimension recursively
@@ -11,14 +11,10 @@ class ArrayType constructor(private val type: Type? = null) : Type {
         var subType = type
         var dimension = 1
         while (subType is ArrayType) {
-            subType = subType.asArrayType().getContentType()
+            subType = subType.getContentType()
             dimension++
         }
         this.dimension = dimension
-    }
-
-    fun asArrayType(): ArrayType {
-        return this
     }
 
     override fun equals(other: Any?): Boolean {
