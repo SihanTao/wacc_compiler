@@ -162,7 +162,19 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitWhileStat(ctx: WACCParser.WhileStatContext?): Node {
-        return super.visitWhileStat(ctx)
+        val cond: ExprNode = visit(ctx!!.expr()) as ExprNode
+        // TODO: check type of cond is BOOL
+        val condType = cond.type
+
+        symbolTable = SymbolTable(symbolTable)
+        val doBody = visit(ctx.stat()) as StatNode
+        symbolTable = symbolTable!!.getParentSymbolTable()
+
+        val whileNode : StatNode = WhileNode(cond, ScopeNode(doBody))
+
+        whileNode.scope = symbolTable
+
+        return whileNode
     }
 
     override fun visitScopeStat(ctx: WACCParser.ScopeStatContext?): Node {
