@@ -1,6 +1,7 @@
 package type
 
 class Utils {
+    /* Basic Types */
     val INT: Type = BasicType(BasicTypeEnum.INTEGER)
     val BOOL: Type = BasicType(BasicTypeEnum.BOOLEAN)
     val CHAR: Type = BasicType(BasicTypeEnum.CHAR)
@@ -18,15 +19,29 @@ class Utils {
         NOT, MINUS, LEN, ORD, CHR
     }
 
-    companion object {
-        @JvmStatic lateinit var unopEnumMapping: Map<String, Unop>
-        @JvmStatic lateinit var unopTypeMapping: Map<String, Type>
-        @JvmStatic lateinit var binopEnumMapping: Map<String, Binop>
-        @JvmStatic lateinit var EqEnumMapping: Map<String, Binop>
-        @JvmStatic lateinit var LogicOpEnumMapping: Map<String, Binop>
-        @JvmStatic lateinit var CmpEnumMapping: Map<String, Binop>
+    enum class Binop {
+        PLUS, MINUS, MUL, DIV, MOD, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, EQUAL, INEQUAL, AND, OR
     }
-    /* mapping from string literals to internal representations of UnopEnum and Type */
+
+    companion object {
+        @JvmStatic
+        lateinit var unopEnumMapping: Map<String, Unop>
+
+        @JvmStatic
+        lateinit var unopTypeMapping: Map<String, Type>
+
+        @JvmStatic
+        lateinit var binopEnumMapping: Map<String, Binop>
+
+        @JvmStatic
+        lateinit var EqEnumMapping: Map<String, Binop>
+
+        @JvmStatic
+        lateinit var LogicOpEnumMapping: Map<String, Binop>
+
+        @JvmStatic
+        lateinit var CmpEnumMapping: Map<String, Binop>
+    }
 
     init {
         unopEnumMapping = mapOf(
@@ -36,7 +51,6 @@ class Utils {
             "len" to Unop.LEN,
             "ord" to Unop.ORD
         )
-
         unopTypeMapping = mapOf(
             "-" to INT,
             "chr" to INT,
@@ -63,11 +77,6 @@ class Utils {
             "<" to Binop.LESS,
             "<=" to Binop.LESS_EQUAL
         )
-    }
-
-
-    enum class Binop {
-        PLUS, MINUS, MUL, DIV, MOD, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, EQUAL, INEQUAL, AND, OR
     }
 
 }
