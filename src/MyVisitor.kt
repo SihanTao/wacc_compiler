@@ -23,7 +23,6 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitFunc(ctx: WACCParser.FuncContext?): Node {
-        // TODO: don't want TypeNode
         val returnType = visit(ctx!!.type()) as Type
         val paramList = ArrayList<IdentNode>()
         for (param in ctx.paramlist().param()) {
@@ -197,5 +196,21 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         /* ensure all statNode has scope not null */
         node.scope = symbolTable
         return node
+    }
+
+    /* =======================================================
+     *                  Expression Visitors
+     * =======================================================
+     */
+
+    override fun visitIdent(ctx: WACCParser.IdentContext?): Node {
+        val varName = ctx!!.IDENT().text
+        val value: ExprNode? = symbolTable!!.lookupAll(varName)
+        if (value == null) {
+            // TODO: semantic error: symbol not found
+        }
+
+        // TODO: may not be correct
+        return IdentNode(value!!.type!!, varName)
     }
 }
