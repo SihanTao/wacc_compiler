@@ -3,7 +3,7 @@ import antlr.WACCParserBaseVisitor
 import node.*
 import node.expr.ExprNode
 import node.stat.*
-import type.TypeNode
+import type.Type
 
 
 class MyVisitor : WACCParserBaseVisitor<Node>() {
@@ -23,10 +23,11 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitFunc(ctx: WACCParser.FuncContext?): Node {
-        val returnType = visit(ctx!!.type()) as TypeNode
+        // TODO: don't want TypeNode
+        val returnType = visit(ctx!!.type()) as Type
         val paramList = ArrayList<IdentNode>()
         for (param in ctx.paramlist().param()) {
-            val paramType: TypeNode = visit(param.type()) as TypeNode
+            val paramType: Type = visit(param.type()) as Type
             val paramNode = IdentNode(paramType, param.ident().IDENT().text)
             paramList.add(paramNode)
         }
@@ -42,7 +43,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitParam(ctx: WACCParser.ParamContext?): Node {
-        return ParamNode(visit(ctx!!.type()) as TypeNode, visit(ctx.ident()) as IdentNode)
+        return ParamNode(visit(ctx!!.type()) as Type, visit(ctx.ident()) as IdentNode)
     }
 
     override fun visitType(ctx: WACCParser.TypeContext?): Node {
@@ -60,7 +61,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitDeclareStat(ctx: WACCParser.DeclareStatContext?): Node {
         val declareStatNode = DeclareStatNode(
-            visit(ctx!!.type()) as TypeNode,
+            visit(ctx!!.type()) as Type,
             visit(ctx.ident()) as IdentNode,
             visit(ctx.assignrhs()) as RhsNode
         )
@@ -87,7 +88,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitFreeStat(ctx: WACCParser.FreeStatContext?): Node {
         val exprNode: ExprNode = visit(ctx!!.expr()) as ExprNode
-        val type: TypeNode? = exprNode.type
+        val type: Type? = exprNode.type
 
         /* TODO: check if the reference has correct type(array or pair) */
 
@@ -99,7 +100,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitReturnStat(ctx: WACCParser.ReturnStatContext?): Node {
         val exprNode: ExprNode = visit(ctx!!.expr()) as ExprNode
-        val type : TypeNode? = exprNode.type
+        val type: Type? = exprNode.type
 
         // TODO: need to check the expected return type is the same
 
@@ -109,7 +110,15 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitExitStat(ctx: WACCParser.ExitStatContext?): Node {
-        return super.visitExitStat(ctx)
+        val exitCode: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val exitCodeType: Type? = exitCode.type
+
+        // TODO: type check here : return code must be int
+
+        val node: StatNode = ExitNode(exitCode)
+        node.setScope(symbolTable)
+
+        return node
     }
 
     override fun visitPrintStat(ctx: WACCParser.PrintStatContext?): Node {
