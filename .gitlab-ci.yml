@@ -12,9 +12,9 @@ build-job:
 
 
 test-job:
-  state: test
+  stage: test
   script:
-    - ./Test
+    - ./Test.sh
 
 
 
