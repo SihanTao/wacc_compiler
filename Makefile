@@ -20,17 +20,17 @@ RM	:= rm -rf
 
 FLAGS	:= -d $(OUTPUT_DIR) -cp bin:lib/antlr-4.9.3-complete.jar
 JFLAGS	:= -sourcepath $(SOURCE_DIR) $(FLAGS)
-
+FIND	:= find
 
 # The make rules:
 
 # run the antlr build script then attempts to compile all .java files within src/antlr
 all:
-	cd $(ANTLR_DIR) && ./$(ANTLR) 
+	cd $(ANTLR_DIR) && ./$(ANTLR)
+	$(FIND) $(SOURCE_DIR) -name '*.kt' > $@
 	$(MKDIR) $(OUTPUT_DIR)
 	$(JAVAC) $(JFLAGS) $(ANTLR_SOURCE_DIR)/*.java
-	$(KOTLINC) $(FLAGS) $(SOURCE_DIR)/node/*.kt
-	$(KOTLINC) $(FLAGS) $(SOURCE_DIR)/*.kt
+	$(KOTLINC) $(FLAGS) @$@
 
 # clean up all of the compiled files
 clean:
