@@ -122,10 +122,20 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitPrintStat(ctx: WACCParser.PrintStatContext?): Node {
-        return super.visitPrintStat(ctx)
+        // TODO: syntax error: cannot print char[] directly
+        val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val node: StatNode = PrintNode(printContent)
+        node.setScope(symbolTable)
+
+        return node
     }
 
     override fun visitPrintlnStat(ctx: WACCParser.PrintlnStatContext?): Node {
-        return super.visitPrintlnStat(ctx)
+        // TODO: syntax error: cannot print char[] directly
+        val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val node: StatNode = PrintlnNode(printContent)
+        node.setScope(symbolTable)
+
+        return node
     }
 }

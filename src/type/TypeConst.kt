@@ -12,4 +12,5 @@ class TypeConst {
     val readStatAllowedTypes: Set<Type> = setOf(STRING, INT, CHAR)
     val freeStatAllowedTypes: Set<Type> = setOf(ARRAY_TYPE, PAIR_TYPE)
     val compareStatAllowedTypes: Set<Type> = setOf(STRING, INT, CHAR)
+    val notPrintable: Set<Type> = setOf(ArrayType(CHAR))
 }
