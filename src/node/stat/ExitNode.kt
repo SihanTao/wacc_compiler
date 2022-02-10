@@ -4,6 +4,6 @@ import node.expr.ExprNode
 
 class ExitNode(exitCode: ExprNode) : StatNode() {
     init {
-        returned()
+        isReturned = true
     }
 }
