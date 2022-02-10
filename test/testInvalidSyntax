@@ -1,0 +1,52 @@
+#!/bin/bash
+INVALID_SYNTAX_EXAMPLES=(
+                "test/wacc_examples/invalid/syntaxErr/array"
+                "test/wacc_examples/invalid/syntaxErr/basic"
+                "test/wacc_examples/invalid/syntaxErr/expressions"
+                "test/wacc_examples/invalid/syntaxErr/function"
+                "test/wacc_examples/invalid/syntaxErr/if"
+                "test/wacc_examples/invalid/syntaxErr/print"
+                "test/wacc_examples/invalid/syntaxErr/pairs"
+                "test/wacc_examples/invalid/syntaxErr/sequence"
+                "test/wacc_examples/invalid/syntaxErr/variables"
+                "test/wacc_examples/invalid/syntaxErr/while")
+
+# counters to represent the total number of test files to be processed
+# shellcheck disable=SC2068
+TOTAL_COUNT=$(find ${INVALID_SYNTAX_EXAMPLES[@]} -name "*.wacc" | wc -l)
+COUNTER=1
+PASSED=0
+FAILED=0
+
+red=`tput setaf 1`
+green=`tput setaf 2`
+reset=`tput sgr0`
+
+echo "=============================Valid Case Test============================================"
+echo "Invalid Syntax program must have exit code of 100"
+echo "========================================================================================"
+
+for folder in ${INVALID_SYNTAX_EXAMPLES[@]}; do
+  # shellcheck disable=SC2044
+  for file in $(find "$folder" -name "*.wacc"); do
+    ./compile "$file" >tmp 2>tmp
+    # ./grun antlr.WACC program -tokens "$file" >tmp 2>tmp
+    ret=$?
+    if [ $ret -ne 100 ]; then
+      echo "${red}TEST" $COUNTER "FAILED: Exit Status of" $ret " for " $file "${reset}"
+      FAILED=$((FAILED+1))
+    else
+      echo "${green}TEST" $COUNTER "PASSED: " $file "${reset}"
+      PASSED=$((PASSED+1))
+    fi
+
+    COUNTER=$((COUNTER+1))
+  done
+
+done
+
+echo "================================TEST RESULT============================================="
+echo "Total Test: " $TOTAL_COUNT
+echo "Passed Test:" $PASSED
+echo "Failed Test:" $FAILED
+echo "========================================================================================"
