@@ -189,6 +189,13 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitSequenceStat(ctx: WACCParser.SequenceStatContext?): Node {
-        return super.visitSequenceStat(ctx)
+        val stat1: StatNode = visit(ctx!!.stat(0)) as StatNode
+        val stat2: StatNode = visit(ctx.stat(1)) as StatNode
+
+        val node: StatNode = SequenceNode(stat1, stat2)
+
+        /* ensure all statNode has scope not null */
+        node.scope = symbolTable
+        return node
     }
 }
