@@ -8,7 +8,7 @@ import static antlr.WACCParser.*;
 
 public class WACCSyntaxErrorVisitor<T> extends WACCParserBaseVisitor<T> {
 
-	static final int CHARACTER_MAX_VALUE = 255;
+	private static final int CHARACTER_MAX_VALUE = 255;
 
 	private WACCParser parser;
 

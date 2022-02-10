@@ -26,6 +26,8 @@ public class Main {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		WACCParser parser = new WACCParser(tokens);
 
+		parser.setErrorHandler(new WACCSyntaxErrorStrategy());
+
 		parser.removeErrorListeners();
 		parser.addErrorListener(new WACCSyntaxErrorListener());
 
