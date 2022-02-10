@@ -6,11 +6,21 @@ build-job:
   stage: build
   script:
     - make
-  artifacts:
-    paths:
-      - target/  
 
+valid-test-job:
+  stage: test
+  script:
+    - /bin/bash test/testValid
 
+invalid-syntax-test-job:
+  stage: test
+  script:
+    - /bin/bash test/testInvalidSyntax
+
+invalid-semantics-test-job:
+  stage: test
+  script:
+    - /bin/bash test/testInvalidSemantic
 
   
 
