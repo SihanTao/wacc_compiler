@@ -10,10 +10,20 @@ build-job:
     paths:
       - target/  
 
-parser-test-job:
+valid-test-job:
   stage: test
   script:
-    - ./src/test/compile/ParserTest.sh
+    - ./testValid
+
+invalid_syntax-test-job:
+  stage: test
+  script:
+    - ./testInvalidSyntax
+
+invalid_semantic-test-job:
+  stage: test
+  script:
+    - ./testInvalidSemantic
 
 
 
