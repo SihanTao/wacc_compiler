@@ -37,7 +37,7 @@ public class Main {
 
 		if (parser.getNumberOfSyntaxErrors() != 0) {
 			System.out.println(parser.getNumberOfSyntaxErrors() + " syntax errors detected, "
-					+ " failing with exit code " + SYNTAX_ERROR_EXIT_CODE + "\n");
+					+ " failing with exit code " + SYNTAX_ERROR_EXIT_CODE);
 			System.exit(SYNTAX_ERROR_EXIT_CODE);
 		}
 

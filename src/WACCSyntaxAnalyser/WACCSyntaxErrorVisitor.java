@@ -28,8 +28,10 @@ public class WACCSyntaxErrorVisitor<T> extends WACCParserBaseVisitor<T> {
     private boolean hasReturnStatement(WACCParser.StatContext ctx) {
 		if (ctx.RETURN() != null || ctx.EXIT() != null) {
 			return true;
-		} else if (ctx.IF() != null || (ctx.stat(0) != null && ctx.stat(1) != null)) {
+		} else if (ctx.IF() != null) {
 			return hasReturnStatement(ctx.stat(0)) && hasReturnStatement(ctx.stat(1));
+		} else if (ctx.stat(0) != null && ctx.stat(1) != null) {
+			return hasReturnStatement(ctx.stat(1));
 		} else {
 			return false;
 		}
@@ -40,7 +42,7 @@ public class WACCSyntaxErrorVisitor<T> extends WACCParserBaseVisitor<T> {
 			int i = Integer.parseInt(ctx.getText());
 		} catch(NumberFormatException e) {
 			parser.notifyErrorListeners(ctx.getStart(), "Int Literal " + ctx.getText()
-			+ "overflowed as it is too large", (RecognitionException) null);
+			+ " overflowed as it is too large", (RecognitionException) null);
 		}
 		return visitChildren(ctx);
 	}
@@ -49,7 +51,7 @@ public class WACCSyntaxErrorVisitor<T> extends WACCParserBaseVisitor<T> {
 		char c = ctx.getText().charAt(0);
 		if (c > CHARACTER_MAX_VALUE) {
 			parser.notifyErrorListeners(ctx.getStart(), "Char literal " + ctx.getText()
-			+ "is not defined for WACC", (RecognitionException) null);
+			+ " is not defined for WACC", (RecognitionException) null);
 		}
 		return visitChildren(ctx);
 	}
