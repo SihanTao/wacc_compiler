@@ -32,7 +32,7 @@ echo "==========================================================================
 for folder in ${VALID_EXAMPLES[@]}; do
   # shellcheck disable=SC2044
   for file in $(find "$folder" -name "*.wacc"); do
-    ./compile "$file" > tmp
+    ./compile "$file" 
     # ./grun antlr.WACC program -tokens "$file" > tmp
     ret=$?
     if [ $ret -ne 0 ]; then
