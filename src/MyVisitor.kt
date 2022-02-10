@@ -33,6 +33,11 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
 
         val functionBody = visitChildren(ctx) as StatNode
 
+        /* if the function declaration is not terminated with a return/exit statement, then throw the semantic error */
+        if (!functionBody.isReturned()) {
+            // TODO: semantic error : function not return
+        }
+
         return FuncNode(returnType, functionBody, paramList)
     }
 
@@ -93,18 +98,25 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitReturnStat(ctx: WACCParser.ReturnStatContext?): Node {
-        return super.visitReturnStat(ctx)
+        val exprNode: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val type : TypeNode? = exprNode.type
+
+        // TODO: need to check the expected return type is the same
+
+        val node: StatNode = ReturnNode(exprNode)
+        node.setScope(symbolTable)
+        return node
     }
 
     override fun visitExitStat(ctx: WACCParser.ExitStatContext?): Node {
         return super.visitExitStat(ctx)
     }
 
-    override fun visitPrintlnStat(ctx: WACCParser.PrintlnStatContext?): Node {
-        return super.visitPrintlnStat(ctx)
-    }
-
     override fun visitPrintStat(ctx: WACCParser.PrintStatContext?): Node {
         return super.visitPrintStat(ctx)
+    }
+
+    override fun visitPrintlnStat(ctx: WACCParser.PrintlnStatContext?): Node {
+        return super.visitPrintlnStat(ctx)
     }
 }

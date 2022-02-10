@@ -5,12 +5,15 @@ import node.Node
 
 abstract class StatNode : Node {
 
-    private var leaveAtEnd = false
+    private var isReturned = false
     private var scope: SymbolTable? = null
 
-    /* Set leaveAtEnd if needs overwrite */
-    protected fun setLeaveAtEnd(value: Boolean) {
-        leaveAtEnd = value
+    protected fun returned() {
+        isReturned = true
+    }
+
+    protected fun notReturned() {
+        isReturned = false
     }
 
     fun setScope(scope: SymbolTable?) {
@@ -18,8 +21,8 @@ abstract class StatNode : Node {
     }
 
     /* Getters */
-    fun leaveAtEnd(): Boolean {
-        return leaveAtEnd
+    fun isReturned(): Boolean {
+        return isReturned
     }
 
     fun asStatNode(): StatNode {
