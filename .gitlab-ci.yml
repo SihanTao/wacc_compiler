@@ -5,12 +5,18 @@ stages:
 build-job:
   stage: build
   script:
-    - make
+    - make -f Makefile
   artifacts:
     paths:
-      - target/  
+      - target/
+
+parser-test-job:
+  stage: test
+  script:
+    - ./ParserTest.sh
 
 
 
-  
+
+
 
