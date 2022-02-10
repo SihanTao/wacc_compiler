@@ -240,16 +240,16 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return IntNode(ctx!!.intLiter().text.toInt())
     }
 
-    override fun visitBoolExpr(ctx: BoolExprContext): Node? {
+    override fun visitBoolExpr(ctx: BoolExprContext): Node {
         return BoolNode(ctx.boolLiter().text.equals("true"))
     }
 
-    override fun visitCharExpr(ctx: CharExprContext): Node? {
+    override fun visitCharExpr(ctx: CharExprContext): Node {
         return CharNode(ctx.charLiter().text[0])
     }
 
-    override fun visitStrExpr(ctx: StrExprContext?): Node {
-        return super.visitStrExpr(ctx)
+    override fun visitStrExpr(ctx: StrExprContext): Node {
+        return StringNode(ctx.strLiter().text)
     }
 
     override fun visitPairExpr(ctx: PairExprContext?): Node? {
