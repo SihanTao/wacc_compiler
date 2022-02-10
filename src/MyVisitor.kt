@@ -43,11 +43,11 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return FuncNode(returnType, functionBody, paramList)
     }
 
-    override fun visitParam(ctx: WACCParser.ParamContext?): Node {
+    override fun visitParam(ctx: ParamContext?): Node {
         return ParamNode(visit(ctx!!.type()) as Type, visit(ctx.ident()) as IdentNode)
     }
 
-    override fun visitType(ctx: WACCParser.TypeContext?): Node {
+    override fun visitType(ctx: TypeContext?): Node {
         return visitChildren(ctx)
     }
 
@@ -56,11 +56,11 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
     * =========================================================
     */
 
-    override fun visitSkipStat(ctx: WACCParser.SkipStatContext?): Node {
+    override fun visitSkipStat(ctx: SkipStatContext?): Node {
         return SkipNode()
     }
 
-    override fun visitDeclareStat(ctx: WACCParser.DeclareStatContext?): Node {
+    override fun visitDeclareStat(ctx: DeclareStatContext?): Node {
         val declareStatNode = DeclareStatNode(
             visit(ctx!!.type()) as Type, visit(ctx.ident()) as IdentNode, visit(ctx.assignrhs()) as RhsNode
         )
@@ -68,7 +68,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return declareStatNode
     }
 
-    override fun visitAssignStat(ctx: WACCParser.AssignStatContext): Node {
+    override fun visitAssignStat(ctx: AssignStatContext): Node {
 
         val lhs = visit(ctx.assignlhs()) as LhsNode
         val rhs = visit(ctx.assignrhs()) as RhsNode
@@ -78,14 +78,14 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return node
     }
 
-    override fun visitReadStat(ctx: WACCParser.ReadStatContext?): Node {
+    override fun visitReadStat(ctx: ReadStatContext?): Node {
         val assignLhs = visit(ctx!!.assignlhs()) as LhsNode
         // TODO: need to check type
         val readNode = ReadNode(assignLhs)
         return readNode
     }
 
-    override fun visitFreeStat(ctx: WACCParser.FreeStatContext?): Node {
+    override fun visitFreeStat(ctx: FreeStatContext?): Node {
         val exprNode: ExprNode = visit(ctx!!.expr()) as ExprNode
         val type: Type? = exprNode.type
 
@@ -97,7 +97,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return node
     }
 
-    override fun visitReturnStat(ctx: WACCParser.ReturnStatContext?): Node {
+    override fun visitReturnStat(ctx: ReturnStatContext?): Node {
         val exprNode: ExprNode = visit(ctx!!.expr()) as ExprNode
         val type: Type? = exprNode.type
 
@@ -108,7 +108,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return node
     }
 
-    override fun visitExitStat(ctx: WACCParser.ExitStatContext?): Node {
+    override fun visitExitStat(ctx: ExitStatContext?): Node {
         val exitCode: ExprNode = visit(ctx!!.expr()) as ExprNode
         val exitCodeType: Type? = exitCode.type
 
@@ -120,7 +120,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return node
     }
 
-    override fun visitPrintStat(ctx: WACCParser.PrintStatContext?): Node {
+    override fun visitPrintStat(ctx: PrintStatContext?): Node {
         // TODO: syntax error: cannot print char[] directly
         val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
         val node: StatNode = PrintNode(printContent)
@@ -129,7 +129,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return node
     }
 
-    override fun visitPrintlnStat(ctx: WACCParser.PrintlnStatContext?): Node {
+    override fun visitPrintlnStat(ctx: PrintlnStatContext?): Node {
         // TODO: syntax error: cannot print char[] directly
         val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
         val node: StatNode = PrintlnNode(printContent)
@@ -138,7 +138,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return node
     }
 
-    override fun visitIfStat(ctx: WACCParser.IfStatContext?): Node {
+    override fun visitIfStat(ctx: IfStatContext?): Node {
         // 'if' <expr> than <stat> else <stat>
 
         /* check that the condition of if statement is of type boolean */
@@ -162,7 +162,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return node
     }
 
-    override fun visitWhileStat(ctx: WACCParser.WhileStatContext?): Node {
+    override fun visitWhileStat(ctx: WhileStatContext?): Node {
         val cond: ExprNode = visit(ctx!!.expr()) as ExprNode
         // TODO: check type of cond is BOOL
         val condType = cond.type
@@ -178,7 +178,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return whileNode
     }
 
-    override fun visitScopeStat(ctx: WACCParser.ScopeStatContext?): Node {
+    override fun visitScopeStat(ctx: ScopeStatContext?): Node {
 
         /* simply create a new SymbolTable to represent a BEGIN ... END statement */
         val curr = SymbolTable(symbolTable)
@@ -189,7 +189,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return scopeNode
     }
 
-    override fun visitSequenceStat(ctx: WACCParser.SequenceStatContext?): Node {
+    override fun visitSequenceStat(ctx: SequenceStatContext?): Node {
         val stat1: StatNode = visit(ctx!!.stat(0)) as StatNode
         val stat2: StatNode = visit(ctx.stat(1)) as StatNode
 
@@ -205,7 +205,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
      * =======================================================
      */
 
-    override fun visitIdent(ctx: WACCParser.IdentContext?): Node {
+    override fun visitIdent(ctx: IdentContext?): Node {
         val varName = ctx!!.IDENT().text
         val value: ExprNode? = symbolTable!!.lookupAll(varName)
         if (value == null) {
@@ -252,7 +252,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return StringNode(ctx.strLiter().text)
     }
 
-    override fun visitPairExpr(ctx: PairExprContext?): Node? {
+    override fun visitPairExpr(ctx: PairExprContext?): Node {
         return PairNode()
     }
 }
