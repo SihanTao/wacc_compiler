@@ -33,67 +33,66 @@ stat: SKP                               #SkipStat
     ;
 
 // assign-lhs
-assignlhs : ident
-          | arrayElem
-          | pairElem
+assignlhs : ident        #Identifier
+          | array_elem   #ArrayElem
+          | pair_elem    #LhsPairElem // will use the same visitor in rhs and lhs
           ;
 
 // assign rhs
-assignrhs : expr
-          | arrayLiter
-          | NEWPAIR OPEN_PARENTHESES expr COMMA expr CLOSE_PARENTHESES
-          | pairElem
-          | CALL ident OPEN_PARENTHESES arglist? CLOSE_PARENTHESES
+assignrhs : expr                                                        #ExprNode
+          | arrayLiter                                                  #ArrayLiteral
+          | NEWPAIR OPEN_PARENTHESES expr COMMA expr CLOSE_PARENTHESES  #NewPair
+          | pair_elem                                                   #RhsPairElem // will use the same visitor in rhs and lhs
+          | CALL ident OPEN_PARENTHESES arglist? CLOSE_PARENTHESES      #FunctionCall
           ;
 
 // argument list
 arglist : expr (COMMA expr)*;
 
 // pair element
-pairElem : FST expr
-         | SND expr
+pair_elem: FST expr #FstExpr
+         | SND expr #SndExpr
          ;
 
 // type
-type : baseType
-     | arrayType
-     | pairType
+type : base_type
+     | array_type
+     | pair_type
      ;
 
-baseType: INT
+base_type: INT
         | BOOL
         | CHAR
         | STRING
         ;
 
-arrayType: baseType OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
-         | arrayType OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
-         | pairType OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
+array_type: base_type OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
+         | array_type OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
+         | pair_type OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
          ;
 
-pairType: PAIR OPEN_PARENTHESES pairElemType COMMA pairElemType CLOSE_PARENTHESES;
+pair_type: PAIR OPEN_PARENTHESES pairElemType COMMA pairElemType CLOSE_PARENTHESES;
 
-pairElemType: baseType
-            | arrayType
+pairElemType: base_type
+            | array_type
             | PAIR
             ;
 
 // expression
-expr : intLiter
-     | boolLiter
-     | charLiter
-     | strLiter
-     | pairLiter
-     | ident
-     | arrayElem
-     | unaryOper expr
-     | expr binaryOper=(MUL | DIV | MOD) expr
-     | expr binaryOper=( PLUS | MINUS ) expr
-     | expr binaryOper=(GT | GEQ | LT | LEQ) expr
-     | expr binaryOper=( EQ | NEQ ) expr
-     | expr AND expr
-     | expr OR expr
-     | OPEN_PARENTHESES expr CLOSE_PARENTHESES
+expr : intLiter         #IntExpr
+     | boolLiter        #BoolExpr
+     | charLiter        #CharExpr
+     | strLiter         #StrExpr
+     | pairLiter        #PairExpr
+     | ident            #IdentExpr
+     | array_elem       #ArrayExpr
+     | unaryOper expr   #UnopExpr
+     | expr binaryOper=(MUL | DIV | MOD) expr      #ArithmeticExpr
+     | expr binaryOper=( PLUS | MINUS ) expr       #ArithmeticExpr
+     | expr binaryOper=(GT | GEQ | LT | LEQ) expr  #CmpExpr
+     | expr binaryOper=( EQ | NEQ ) expr           #EqExpr
+     | expr (AND | OR) expr                        #AndOrExpr
+     | OPEN_PARENTHESES expr CLOSE_PARENTHESES     #ParenExpr
      ;
 
 // Operators
@@ -107,7 +106,7 @@ unaryOper: NOT
 
 ident: IDENT;
 
-arrayElem: ident (OPEN_SQUARE_BRACKETS expr CLOSE_SQUARE_BRACKETS)+;
+array_elem: ident (OPEN_SQUARE_BRACKETS expr CLOSE_SQUARE_BRACKETS)+;
 
 // literal
 intLiter: (PLUS | MINUS)? NUMBER;
