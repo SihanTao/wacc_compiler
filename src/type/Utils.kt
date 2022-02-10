@@ -1,19 +1,7 @@
 package type
 
 class Utils {
-    /* Basic Types */
-    val INT: Type = BasicType(BasicTypeEnum.INTEGER)
-    val BOOL: Type = BasicType(BasicTypeEnum.BOOLEAN)
-    val CHAR: Type = BasicType(BasicTypeEnum.CHAR)
-    val STRING: Type = BasicType(BasicTypeEnum.STRING)
-    val ARRAY_TYPE: Type = ArrayType()
-    val PAIR_TYPE: Type = PairType()
 
-    /* a list of allowed types in read, free, cmp statement */
-    val readStatAllowedTypes: Set<Type> = setOf(STRING, INT, CHAR)
-    val freeStatAllowedTypes: Set<Type> = setOf(ARRAY_TYPE, PAIR_TYPE)
-    val compareStatAllowedTypes: Set<Type> = setOf(STRING, INT, CHAR)
-    val notPrintable: Set<Type> = setOf(ArrayType(CHAR))
 
     enum class Unop {
         NOT, MINUS, LEN, ORD, CHR
@@ -41,6 +29,20 @@ class Utils {
 
         @JvmStatic
         lateinit var CmpEnumMapping: Map<String, Binop>
+
+        /* Basic Types */
+        val INT_T: Type = BasicType(BasicTypeEnum.INTEGER)
+        val BOOL_T: Type = BasicType(BasicTypeEnum.BOOLEAN)
+        val CHAR_T: Type = BasicType(BasicTypeEnum.CHAR)
+        val STRING_T: Type = BasicType(BasicTypeEnum.STRING)
+        val ARRAY_T: Type = ArrayType()
+        val PAIR_T: Type = PairType()
+
+        /* a list of allowed types in read, free, cmp statement */
+        val readStatAllowedTypes: Set<Type> = setOf(STRING_T, INT_T, CHAR_T)
+        val freeStatAllowedTypes: Set<Type> = setOf(ARRAY_T, PAIR_T)
+        val compareStatAllowedTypes: Set<Type> = setOf(STRING_T, INT_T, CHAR_T)
+        val notPrintable: Set<Type> = setOf(ArrayType(CHAR_T))
     }
 
     init {
@@ -52,11 +54,11 @@ class Utils {
             "ord" to Unop.ORD
         )
         unopTypeMapping = mapOf(
-            "-" to INT,
-            "chr" to INT,
-            "!" to BOOL,
-            "len" to ARRAY_TYPE,
-            "ord" to CHAR
+            "-" to INT_T,
+            "chr" to INT_T,
+            "!" to BOOL_T,
+            "len" to ARRAY_T,
+            "ord" to CHAR_T
         )
 
         binopEnumMapping = mapOf(

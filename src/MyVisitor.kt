@@ -8,6 +8,8 @@ import org.antlr.v4.runtime.ParserRuleContext
 import type.ArrayType
 import type.Type
 import type.Utils
+import type.Utils.Companion.INT_T
+import type.Utils.Companion.binopEnumMapping
 import type.Utils.Companion.unopEnumMapping
 import type.Utils.Companion.unopTypeMapping
 
@@ -291,8 +293,19 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         return UnopNode(expr, unop)
     }
 
-    override fun visitArithmeticExpr(ctx: ArithmeticExprContext?): Node {
-        return super.visitArithmeticExpr(ctx)
+    override fun visitArithmeticExpr(ctx: ArithmeticExprContext): Node {
+        val literal: String = ctx.binaryOper.text
+        val binop: Utils.Binop = binopEnumMapping[literal]!!
+
+        val expr1: ExprNode = visit(ctx.expr(0)) as ExprNode
+        val expr2: ExprNode = visit(ctx.expr(1)) as ExprNode
+        val expr1Type = expr1.type
+        val expr2Type = expr2.type
+
+        semanticError = semanticError or typeCheck(ctx.expr(0), INT_T, expr1Type!!)
+        semanticError = semanticError or typeCheck(ctx.expr(1), INT_T, expr2Type!!)
+
+        return BinopNode(expr1, expr2, binop)
     }
 
     fun typeCheck(ctx: ParserRuleContext?, expected: Type?, actual: Type): Boolean {
