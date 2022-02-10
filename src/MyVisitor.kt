@@ -1,6 +1,7 @@
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 import node.*
+import node.expr.ExprNode
 import node.stat.*
 import type.TypeNode
 
@@ -79,16 +80,24 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         return readNode
     }
 
+    override fun visitFreeStat(ctx: WACCParser.FreeStatContext?): Node {
+        val exprNode: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val type: TypeNode? = exprNode.type
+
+        /* TODO: check if the reference has correct type(array or pair) */
+
+        val node: StatNode = FreeNode(exprNode)
+        node.setScope(symbolTable)
+
+        return node
+    }
+
     override fun visitReturnStat(ctx: WACCParser.ReturnStatContext?): Node {
         return super.visitReturnStat(ctx)
     }
 
     override fun visitExitStat(ctx: WACCParser.ExitStatContext?): Node {
         return super.visitExitStat(ctx)
-    }
-
-    override fun visitFreeStat(ctx: WACCParser.FreeStatContext?): Node {
-        return super.visitFreeStat(ctx)
     }
 
     override fun visitPrintlnStat(ctx: WACCParser.PrintlnStatContext?): Node {
