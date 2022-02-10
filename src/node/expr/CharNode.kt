@@ -1,7 +1,10 @@
 package node.expr
 
-import node.Node
+import type.BasicType
+import type.BasicTypeEnum
 
-class CharNode(c: Char) : Node {
-
+class CharNode(private val ch: Char) : ExprNode() {
+    init {
+        type = BasicType(BasicTypeEnum.CHAR)
+    }
 }
