@@ -35,7 +35,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         val functionBody = visitChildren(ctx) as StatNode
 
         /* if the function declaration is not terminated with a return/exit statement, then throw the semantic error */
-        if (!functionBody.isReturned()) {
+        if (!functionBody.isReturned) {
             // TODO: semantic error : function not return
         }
 
@@ -61,9 +61,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitDeclareStat(ctx: WACCParser.DeclareStatContext?): Node {
         val declareStatNode = DeclareStatNode(
-            visit(ctx!!.type()) as Type,
-            visit(ctx.ident()) as IdentNode,
-            visit(ctx.assignrhs()) as RhsNode
+            visit(ctx!!.type()) as Type, visit(ctx.ident()) as IdentNode, visit(ctx.assignrhs()) as RhsNode
         )
 
         return declareStatNode
@@ -93,7 +91,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         /* TODO: check if the reference has correct type(array or pair) */
 
         val node: StatNode = FreeNode(exprNode)
-        node.setScope(symbolTable)
+        node.scope = symbolTable
 
         return node
     }
@@ -105,7 +103,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         // TODO: need to check the expected return type is the same
 
         val node: StatNode = ReturnNode(exprNode)
-        node.setScope(symbolTable)
+        node.scope = symbolTable
         return node
     }
 
@@ -116,7 +114,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         // TODO: type check here : return code must be int
 
         val node: StatNode = ExitNode(exitCode)
-        node.setScope(symbolTable)
+        node.scope = symbolTable
 
         return node
     }
@@ -125,7 +123,7 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         // TODO: syntax error: cannot print char[] directly
         val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
         val node: StatNode = PrintNode(printContent)
-        node.setScope(symbolTable)
+        node.scope = symbolTable
 
         return node
     }
@@ -134,8 +132,44 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
         // TODO: syntax error: cannot print char[] directly
         val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
         val node: StatNode = PrintlnNode(printContent)
-        node.setScope(symbolTable)
+        node.scope = symbolTable
 
         return node
+    }
+
+    override fun visitIfStat(ctx: WACCParser.IfStatContext?): Node {
+        // 'if' <expr> than <stat> else <stat>
+
+        /* check that the condition of if statement is of type boolean */
+        val condition: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val conditionType = condition.type
+        // TODO: check type bool
+
+        symbolTable = SymbolTable(symbolTable)
+        val ifBody: StatNode = visit(ctx.stat(0)) as StatNode
+        symbolTable = symbolTable!!.getParentSymbolTable()
+
+        /* create the StatNode for the else body and generate new child scope */
+        symbolTable = SymbolTable(symbolTable)
+        val elseBody: StatNode = visit(ctx.stat(1)) as StatNode
+        symbolTable = symbolTable!!.getParentSymbolTable()
+
+        val node: StatNode = IfNode(condition, ScopeNode(ifBody), ScopeNode(elseBody))
+
+        node.scope = symbolTable
+
+        return node
+    }
+
+    override fun visitWhileStat(ctx: WACCParser.WhileStatContext?): Node {
+        return super.visitWhileStat(ctx)
+    }
+
+    override fun visitScopeStat(ctx: WACCParser.ScopeStatContext?): Node {
+        return super.visitScopeStat(ctx)
+    }
+
+    override fun visitSequenceStat(ctx: WACCParser.SequenceStatContext?): Node {
+        return super.visitSequenceStat(ctx)
     }
 }
