@@ -1,7 +1,11 @@
 import antlr.WACCParser
+import antlr.WACCParser.*
 import antlr.WACCParserBaseVisitor
 import node.*
+import node.expr.BoolNode
+import node.expr.CharNode
 import node.expr.ExprNode
+import node.expr.PairNode
 import node.stat.*
 import type.Type
 
@@ -212,5 +216,17 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
 
         // TODO: may not be correct
         return IdentNode(value!!.type!!, varName)
+    }
+
+    override fun visitBoolExpr(ctx: BoolExprContext): Node? {
+        return BoolNode(ctx.boolLiter().text.equals("true"))
+    }
+
+    override fun visitPairExpr(ctx: PairExprContext?): Node? {
+        return PairNode()
+    }
+
+    override fun visitCharExpr(ctx: CharExprContext): Node? {
+        return CharNode(ctx.charLiter().text[0])
     }
 }
