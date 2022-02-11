@@ -29,7 +29,7 @@ echo "==========================================================================
 for folder in ${INVALID_SYNTAX_EXAMPLES[@]}; do
   # shellcheck disable=SC2044
   for file in $(find "$folder" -name "*.wacc"); do
-    ./compile "$file" 
+    ./compile "$file" >tmp 2>tmp
     # ./grun antlr.WACC program -tokens "$file" >tmp 2>tmp
     ret=$?
     if [ $ret -ne 100 ]; then
@@ -50,3 +50,7 @@ echo "Total Test: " $TOTAL_COUNT
 echo "Passed Test:" $PASSED
 echo "Failed Test:" $FAILED
 echo "========================================================================================"
+
+if [[ $((FAILED)) -gt 0 ]]; then
+  exit -1
+fi
