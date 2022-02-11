@@ -1,7 +1,15 @@
 #!/bin/bash
-SRC_DIR="$(pwd)"
-
-INVALID_SYNTAX_EXAMPLES=$(find "${SRC_DIR}/wacc_examples/invalid/syntaxErr" -iname '*.wacc')
+INVALID_SYNTAX_EXAMPLES=(
+                "test/wacc_examples/invalid/syntaxErr/array"
+                "test/wacc_examples/invalid/syntaxErr/basic"
+                "test/wacc_examples/invalid/syntaxErr/expressions"
+                "test/wacc_examples/invalid/syntaxErr/function"
+                "test/wacc_examples/invalid/syntaxErr/if"
+                "test/wacc_examples/invalid/syntaxErr/print"
+                "test/wacc_examples/invalid/syntaxErr/pairs"
+                "test/wacc_examples/invalid/syntaxErr/sequence"
+                "test/wacc_examples/invalid/syntaxErr/variables"
+                "test/wacc_examples/invalid/syntaxErr/while")
 
 # counters to represent the total number of test files to be processed
 # shellcheck disable=SC2068

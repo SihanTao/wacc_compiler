@@ -1,9 +1,17 @@
 #!/bin/bash
-SRC_DIR="$(pwd)"
-
-VALID_EXAMPLES=$(find "${SRC_DIR}/wacc_examples/valid" -iname '*.wacc')
-
-
+VALID_EXAMPLES=("test/wacc_examples/valid/advanced"
+                "test/wacc_examples/valid/array"
+                "test/wacc_examples/valid/basic"
+                "test/wacc_examples/valid/expressions"
+                "test/wacc_examples/valid/function"
+                "test/wacc_examples/valid/if"
+                "test/wacc_examples/valid/IO"
+                "test/wacc_examples/valid/pairs"
+                "test/wacc_examples/valid/runtimeErr"
+                "test/wacc_examples/valid/scope"
+                "test/wacc_examples/valid/sequence"
+                "test/wacc_examples/valid/variables"
+                "test/wacc_examples/valid/while")
 
 
 # counters to represent the total number of test files to be processed
