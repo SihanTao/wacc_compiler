@@ -5,6 +5,11 @@ import type.BasicTypeEnum
 
 class StringNode(string: String) : ExprNode() {
 
+    /**
+     * Represent a string
+     * Examples: "string"
+     */
+
     private val length: Int
 
     init {
