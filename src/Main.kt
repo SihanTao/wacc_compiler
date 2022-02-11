@@ -1,6 +1,6 @@
 // import ANTLR package
 import antlr.*
-import errorHandler.SyntaxErrorHandler
+import errorHandler.WACCSyntaxErrorStrategy
 import org.antlr.v4.runtime.*
 import java.io.FileNotFoundException
 
@@ -18,11 +18,11 @@ fun main(args: Array<String>) {
         val lexer = WACCLexer(input)
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
-        parser.errorHandler = SyntaxErrorHandler()
+        parser.errorHandler = WACCSyntaxErrorStrategy()
         val tree: WACCParser.ProgramContext = parser.program()
 
         if (!args.contains("--parse-only")) {
-            val semanticChecker = MyVisitor()
+            val semanticChecker = WACCSemanticErrorVisitor()
             semanticChecker.visitProgram(tree)
         }
 
