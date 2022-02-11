@@ -24,7 +24,7 @@ import type.Utils.Companion.unopEnumMapping
 import type.Utils.Companion.unopTypeMapping
 import kotlin.system.exitProcess
 
-class MyVisitor : WACCParserBaseVisitor<Node>() {
+class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
     private var symbolTable: SymbolTable? = null
     private var globalFuncTable: MutableMap<String, FuncNode>? = null
