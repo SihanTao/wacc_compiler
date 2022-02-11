@@ -1,0 +1,4 @@
+package node
+
+interface Node {
+}
