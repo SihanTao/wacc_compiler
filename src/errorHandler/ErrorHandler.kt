@@ -18,7 +18,6 @@ class ErrorHandler private constructor() {
     }
 
     companion object {
-        const val SYNTAX_ERROR_CODE: Int = 100
         const val SEMANTIC_ERROR_CODE = 200
 
         fun typeMismatch(ctx: ParserRuleContext, expected: Type, actual: Type) {
@@ -72,31 +71,6 @@ class ErrorHandler private constructor() {
             val msg = "Calling fst/snd on uninitialised pair expr is not allowed"
             errorHandler(ctx, msg)
             exitProcess(SEMANTIC_ERROR_CODE)
-        }
-
-        fun integerRangeError(ctx: ParserRuleContext?, intText: String) {
-            val msg = "Integer $intText format not compatible with 32bit int"
-            errorHandler(ctx, msg)
-            exitProcess(SYNTAX_ERROR_CODE)
-        }
-
-        fun charOperatorRangeError(ctx: ParserRuleContext?, intText: String) {
-            val msg = ("chr operator will only accept integer in the range of 0-127, but the actual integer is "
-                    + intText)
-            errorHandler(ctx, msg)
-            exitProcess(SYNTAX_ERROR_CODE)
-        }
-
-        fun invalidFunctionReturnExit(ctx: ParserRuleContext?, funcName: String) {
-            val msg = "Function $funcName has not returned or exited properly."
-            errorHandler(ctx, msg)
-            exitProcess(SYNTAX_ERROR_CODE)
-        }
-
-        fun functionJunkAfterReturn(ctx: WACCParser.SequenceStatContext?) {
-            val msg = "Other statements exist after function return statement."
-            errorHandler(ctx, msg)
-            exitProcess(SYNTAX_ERROR_CODE)
         }
 
         /* private common handler of all types of errors */

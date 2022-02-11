@@ -1,8 +1,7 @@
 package node.stat
 
-import node.LhsNode
-import node.Node
-import node.RhsNode
+import node.expr.ExprNode
 
-class AssignNode(lhs: LhsNode, rhs: RhsNode) : StatNode() {
-}
+class AssignNode(
+    private val lhs: ExprNode?, private val rhs: ExprNode?
+) : StatNode()

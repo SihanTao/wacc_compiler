@@ -1,9 +1,8 @@
 import ErrorHandler.Companion.SEMANTIC_ERROR_CODE
 import ErrorHandler.Companion.invalidFuncArgCount
-import ErrorHandler.Companion.invalidFunctionReturnExit
 import ErrorHandler.Companion.invalidPairError
+import ErrorHandler.Companion.returnFromMainError
 import ErrorHandler.Companion.symbolRedeclare
-import antlr.WACCParser
 import antlr.WACCParser.*
 import antlr.WACCParserBaseVisitor
 import node.*
@@ -19,12 +18,13 @@ import type.Utils.Companion.LogicOpEnumMapping
 import type.Utils.Companion.PAIR_T
 import type.Utils.Companion.binopEnumMapping
 import type.Utils.Companion.compareStatAllowedTypes
+import type.Utils.Companion.freeStatAllowedTypes
+import type.Utils.Companion.readStatAllowedTypes
 import type.Utils.Companion.unopEnumMapping
 import type.Utils.Companion.unopTypeMapping
 import kotlin.system.exitProcess
 
-
-class MyVisitor() : WACCParserBaseVisitor<Node>() {
+class MyVisitor : WACCParserBaseVisitor<Node>() {
 
     private var symbolTable: SymbolTable? = null
     private var globalFuncTable: MutableMap<String, FuncNode>? = null
@@ -70,10 +70,6 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         for (f in ctx.func()) {
             val funcName: String = f.ident().IDENT().text
             val functionBody: StatNode = visitFunc(f) as StatNode
-
-            if (!functionBody.isReturned) {
-                invalidFunctionReturnExit(ctx, funcName)
-            }
             globalFuncTable!![funcName]!!.functionBody = functionBody
         }
 
@@ -91,7 +87,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         } else ProgramNode(globalFuncTable!!, body)
     }
 
-    override fun visitFunc(ctx: WACCParser.FuncContext?): Node {
+    override fun visitFunc(ctx: FuncContext?): Node {
         val funcNode = globalFuncTable!![ctx!!.ident().IDENT().text]!!
 
         /* visit the function body */
@@ -139,25 +135,39 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val node: StatNode = DeclareStatNode(varName, expr)
         node.scope = symbolTable
 
-        semanticError = semanticError or symbolTable!!.add(varName, expr!!)
+        semanticError = semanticError or symbolTable!!.add(varName, expr)
 
         return node
     }
 
     override fun visitAssignStat(ctx: AssignStatContext): Node {
 
-        val lhs = visit(ctx.assignlhs()) as LhsNode
-        val rhs = visit(ctx.assignrhs()) as RhsNode
+        /* check if the type of lhs and rhs are equal */
+        val lhs: ExprNode? = visit(ctx.assignlhs()) as ExprNode?
+        val rhs: ExprNode? = visit(ctx.assignrhs()) as ExprNode?
 
-        // TODO: check the type of lhs and rhs
-        val node = AssignNode(lhs, rhs)
+        if (rhs != null && lhs != null) {
+            val lhsType = lhs.type
+            val rhsType = rhs.type
+            semanticError = semanticError or typeCheck(ctx.assignrhs(), lhsType, rhsType!!)
+        }
+
+        val node: StatNode = AssignNode(lhs, rhs)
+        node.scope = symbolTable
+
         return node
     }
 
-    override fun visitReadStat(ctx: ReadStatContext?): Node {
-        val assignLhs = visit(ctx!!.assignlhs()) as LhsNode
-        // TODO: need to check type
-        val readNode = ReadNode(assignLhs)
+    override fun visitReadStat(ctx: ReadStatContext): Node {
+        val exprNode: ExprNode = visit(ctx.assignlhs()) as ExprNode
+
+        val inputType = exprNode.type
+        semanticError = semanticError or typeCheck(ctx.assignlhs(), readStatAllowedTypes, inputType!!)
+
+        val readNode = ReadNode(exprNode)
+
+        readNode.scope = symbolTable
+
         return readNode
     }
 
@@ -165,7 +175,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val exprNode: ExprNode = visit(ctx!!.expr()) as ExprNode
         val type: Type? = exprNode.type
 
-        /* TODO: check if the reference has correct type(array or pair) */
+        semanticError = semanticError or typeCheck(ctx.expr(), freeStatAllowedTypes, type!!)
 
         val node: StatNode = FreeNode(exprNode)
         node.scope = symbolTable
@@ -174,12 +184,17 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitReturnStat(ctx: ReturnStatContext?): Node {
-        val exprNode: ExprNode = visit(ctx!!.expr()) as ExprNode
-        val type: Type? = exprNode.type
+        val returnNum: ExprNode = visit(ctx!!.expr()) as ExprNode
 
-        // TODO: need to check the expected return type is the same
+        if (isMainFunction) {
+            returnFromMainError(ctx)
+            semanticError = true
+        }
 
-        val node: StatNode = ReturnNode(exprNode)
+        val returnType = returnNum.type
+        semanticError = semanticError or typeCheck(ctx.expr(), expectedFunctionReturn, returnType!!)
+
+        val node: StatNode = ReturnNode(returnNum)
         node.scope = symbolTable
         return node
     }
@@ -188,7 +203,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val exitCode: ExprNode = visit(ctx!!.expr()) as ExprNode
         val exitCodeType: Type? = exitCode.type
 
-        // TODO: type check here : return code must be int
+        semanticError = semanticError || typeCheck(ctx.expr(), INT_T, exitCodeType!!)
 
         val node: StatNode = ExitNode(exitCode)
         node.scope = symbolTable
@@ -197,7 +212,6 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitPrintStat(ctx: PrintStatContext?): Node {
-        // TODO: syntax error: cannot print char[] directly
         val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
         val node: StatNode = PrintNode(printContent)
         node.scope = symbolTable
@@ -206,7 +220,6 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitPrintlnStat(ctx: PrintlnStatContext?): Node {
-        // TODO: syntax error: cannot print char[] directly
         val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
         val node: StatNode = PrintlnNode(printContent)
         node.scope = symbolTable
@@ -220,7 +233,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         /* check that the condition of if statement is of type boolean */
         val condition: ExprNode = visit(ctx!!.expr()) as ExprNode
         val conditionType = condition.type
-        // TODO: check type bool
+        semanticError = semanticError or typeCheck(ctx.expr(), BOOL_T, conditionType!!)
 
         symbolTable = SymbolTable(symbolTable)
         val ifBody: StatNode = visit(ctx.stat(0)) as StatNode
@@ -240,8 +253,8 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
 
     override fun visitWhileStat(ctx: WhileStatContext?): Node {
         val cond: ExprNode = visit(ctx!!.expr()) as ExprNode
-        // TODO: check type of cond is BOOL
         val condType = cond.type
+        semanticError = semanticError || typeCheck(ctx.expr(), BOOL_T, condType!!)
 
         symbolTable = SymbolTable(symbolTable)
         val doBody = visit(ctx.stat()) as StatNode
@@ -303,7 +316,6 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         for (exprContext in ctx.array_elem().expr()) {
             val index: ExprNode = visit(exprContext) as ExprNode
             semanticError = semanticError || typeCheck(exprContext, INT_T, index.type!!)
-            val elemType = index.type
             indexList.add(index)
         }
 
@@ -313,7 +325,6 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitIntExpr(ctx: IntExprContext?): Node {
-        // TODO: check int out of bound in syntax error
         return IntNode(ctx!!.intLiter().text.toInt())
     }
 
@@ -371,7 +382,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val literal: String = ctx.binaryOper.text
         val binop: Utils.Binop = CmpEnumMapping[literal]!!
 
-        val expr1: ExprNode = visit(ctx!!.expr(0)) as ExprNode
+        val expr1: ExprNode = visit(ctx.expr(0)) as ExprNode
         val expr1Type = expr1.type
         val expr2: ExprNode = visit(ctx.expr(1)) as ExprNode
         val expr2Type = expr2.type
@@ -386,7 +397,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
 
     override fun visitEqExpr(ctx: EqExprContext): Node {
         val literal: String = ctx.binaryOper.text
-        val binop: Utils.Binop = EqEnumMapping.get(literal)!!
+        val binop: Utils.Binop = EqEnumMapping[literal]!!
 
         val expr1: ExprNode = visit(ctx.expr(0)) as ExprNode
         val exrp1Type = expr1.type

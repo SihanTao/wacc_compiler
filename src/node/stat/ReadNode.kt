@@ -1,7 +1,5 @@
 package node.stat
 
-import node.LhsNode
-import node.Node
+import node.expr.ExprNode
 
-class ReadNode(assignLhs: LhsNode) : StatNode() {
-}
+class ReadNode(val inputExpr: ExprNode) : StatNode()
