@@ -1,17 +1,9 @@
 #!/bin/bash
-VALID_EXAMPLES=("./wacc_examples/valid/advanced"
-                "./wacc_examples/valid/array"
-                "./wacc_examples/valid/basic"
-                "./wacc_examples/valid/expressions"
-                "./wacc_examples/valid/function"
-                "./wacc_examples/valid/if"
-                "./wacc_examples/valid/IO"
-                "./wacc_examples/valid/pairs"
-                "./wacc_examples/valid/runtimeErr"
-                "./wacc_examples/valid/scope"
-                "./wacc_examples/valid/sequence"
-                "./wacc_examples/valid/variables"
-                "./wacc_examples/valid/while")
+SRC_DIR="$(pwd)"
+
+VALID_EXAMPLES=$(find "${SRC_DIR}/wacc_examples/valid" -iname '*.wacc')
+
+
 
 
 # counters to represent the total number of test files to be processed
@@ -32,7 +24,7 @@ echo "==========================================================================
 for folder in ${VALID_EXAMPLES[@]}; do
   # shellcheck disable=SC2044
   for file in $(find "$folder" -name "*.wacc"); do
-    ../compile "$file" >tmp 2>tmp
+    ./compile "$file" >tmp 2>tmp
     # ./grun antlr.WACC program -tokens "$file" > tmp
     ret=$?
     if [ $ret -ne 0 ]; then
