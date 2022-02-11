@@ -352,6 +352,11 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitIntExpr(ctx: IntExprContext?): Node {
+        try {
+            ctx!!.intLiter().text.toInt()
+        } catch (e: NumberFormatException) {
+            ErrorHandler.integerRangeError(ctx, ctx!!.intLiter().text)
+        }
         return IntNode(ctx!!.intLiter().text.toInt())
     }
 

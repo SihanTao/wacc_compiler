@@ -24,10 +24,10 @@ for file in ${VALID_TEST}; do
 
     let total_cases+=1
 
-    echo $file >> "${SRC_DIR}/out/valid.txt" 
+    echo $file >> "${SRC_DIR}/out/valid.txt"
     ./compile $file &>> "${SRC_DIR}/out/valid.txt"
-	let error_code=$?
-	echo "" >> "${SRC_DIR}/out/valid.txt"
+	  let error_code=$?
+	  echo "" >> "${SRC_DIR}/out/valid.txt"
 
     if [ $error_code -ne 0 ]; then
       echo "-------------------------------------------------------"
@@ -93,8 +93,8 @@ for file in ${INVALID_SEMANTIC_TEST}; do
 
     echo $file >> "${SRC_DIR}/out/invalidSemantic.txt"
     ./compile $file &>> "${SRC_DIR}/out/invalidSemantic.txt"
-	let error_code=$?
-	echo "" >> "${SRC_DIR}/out/invalidSemantic.txt"
+	   let error_code=$?
+	   echo "" >> "${SRC_DIR}/out/invalidSemantic.txt"
 
     if [ $error_code -ne $SEMANTIC_ERROR_CODE ]; then
       echo "-------------------------------------------------------"
