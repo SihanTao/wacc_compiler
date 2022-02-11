@@ -19,11 +19,9 @@ class PairNode : ExprNode {
         type = PairType()
     }
 
-    constructor(fst: ExprNode?, snd: ExprNode?) {
+    constructor(fst: ExprNode, snd: ExprNode) {
         this.fst = fst
         this.snd = snd
-        if (fst != null && snd != null) {
-            type = PairType(fst.type, snd.type)
-        }
+        type = PairType(fst.type, snd.type)
     }
 }
