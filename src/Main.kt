@@ -3,6 +3,7 @@ import antlr.*
 import errorHandler.WACCSyntaxErrorStrategy
 import org.antlr.v4.runtime.*
 import java.io.FileNotFoundException
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
     try {
@@ -20,6 +21,9 @@ fun main(args: Array<String>) {
         val parser = WACCParser(tokens)
         parser.errorHandler = WACCSyntaxErrorStrategy()
         val tree: WACCParser.ProgramContext = parser.program()
+        if (parser.numberOfSyntaxErrors > 0) {
+            exitProcess(100)
+        }
 
         if (!args.contains("--parse-only")) {
             val semanticChecker = WACCSemanticErrorVisitor()
