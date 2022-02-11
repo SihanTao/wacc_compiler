@@ -9,6 +9,7 @@ import node.*
 import node.expr.*
 import node.stat.*
 import type.*
+import type.Utils.Companion.ARRAY_T
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_T
 import type.Utils.Companion.CmpEnumMapping
@@ -287,8 +288,6 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         symbolTable = symbolTable!!.parentSymbolTable
 
         return scopeNode
-
-        return scopeNode
     }
 
     override fun visitSequenceStat(ctx: SequenceStatContext?): Node {
@@ -320,8 +319,11 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitArrayElem(ctx: ArrayElemContext?): Node {
         val arrayIdent: String = ctx!!.array_elem().ident().text
         val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
-        if (array == null) {
-            ErrorHandler.symbolNotExist(ctx, arrayIdent)
+
+        /* special case: if ident is not array, cannot call asArrayType on it, exit directly */
+        if (typeCheck(ctx, ARRAY_T, array!!.type!!)
+        ) {
+            exitProcess(SEMANTIC_ERROR_CODE)
         }
 
         val indexList: MutableList<ExprNode> = java.util.ArrayList()
@@ -371,7 +373,8 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
         val expr: ExprNode = visit(ctx.expr()) as ExprNode
         val exprType = expr.type
-        semanticError = semanticError or typeCheck(ctx.expr(), targetType, exprType!!)
+
+        semanticError = semanticError || typeCheck(ctx.expr(), targetType, exprType!!)
 
         return UnopNode(expr, unop)
     }
