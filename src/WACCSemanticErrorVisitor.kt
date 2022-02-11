@@ -237,7 +237,6 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitIfStat(ctx: IfStatContext?): Node {
         // 'if' <expr> than <stat> else <stat>
-        println("In visitIfStat: before condition as ExprNode")
         val condition: ExprNode = visit(ctx!!.expr()) as ExprNode
         val conditionType = condition.type
 
@@ -334,7 +333,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             indexList.add(index)
         }
 
-        val arrayType = array?.type as ArrayType
+        val arrayType = array.type as ArrayType
 
         return ArrayElemNode(array, indexList, arrayType.getContentType())
     }
@@ -495,7 +494,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
             /* given argument number is not 0, generate list */
             for ((exprIndex, e) in ctx.arglist().expr().withIndex()) {
-                val param: ExprNode = visit(e) as ExprNode
+                val param: ExprNode = visit(e) as ExprNode? ?: continue
                 val paramType = param.type
                 val targetType = function.paramList!![exprIndex]!!.type
 
@@ -516,8 +515,8 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitNewPair(ctx: NewPairContext?): Node {
-        val fst: ExprNode = visit(ctx!!.expr(0)) as ExprNode
-        val snd: ExprNode = visit(ctx.expr(1)) as ExprNode
+        val fst: ExprNode? = visit(ctx!!.expr(0)) as ExprNode?
+        val snd: ExprNode? = visit(ctx.expr(1)) as ExprNode?
         return PairNode(fst, snd)
     }
 
