@@ -8,7 +8,9 @@ import ErrorHandler.Companion.returnFromMainError
 import ErrorHandler.Companion.symbolRedeclare
 import antlr.WACCParser.*
 import antlr.WACCParserBaseVisitor
-import node.*
+import node.FuncNode
+import node.Node
+import node.ProgramNode
 import node.expr.*
 import node.stat.*
 import org.antlr.v4.runtime.ParserRuleContext
@@ -328,6 +330,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         return IdentNode(value!!.type!!, varName)
     }
 
+
     override fun visitArrayElem(ctx: ArrayElemContext?): Node {
         val arrayIdent: String = ctx!!.array_elem().ident().text
         val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
@@ -352,6 +355,13 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitIntExpr(ctx: IntExprContext?): Node {
+        try {
+            ctx!!.intLiter().text.toInt()
+        } catch (e : NumberFormatException) {
+            ErrorHandler.integerRangeError(ctx, ctx!!.intLiter().text)
+        }
+
+
         return IntNode(ctx!!.intLiter().text.toInt())
     }
 
@@ -369,6 +379,10 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitPairExpr(ctx: PairExprContext?): Node {
         return PairNode()
+    }
+
+    override fun visitArrayExpr(ctx: ArrayExprContext?): Node? {
+        return visitArray_elem(ctx!!.array_elem())
     }
 
     override fun visitUnopExpr(ctx: UnopExprContext): Node {
