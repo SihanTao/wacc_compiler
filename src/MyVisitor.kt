@@ -1,3 +1,6 @@
+import ErrorHandler.Companion.SEMANTIC_ERROR_CODE
+import ErrorHandler.Companion.invalidFunctionReturnExit
+import ErrorHandler.Companion.symbolRedeclared
 import antlr.WACCParser
 import antlr.WACCParser.*
 import antlr.WACCParserBaseVisitor
@@ -12,12 +15,13 @@ import type.Utils.Companion.INT_T
 import type.Utils.Companion.binopEnumMapping
 import type.Utils.Companion.unopEnumMapping
 import type.Utils.Companion.unopTypeMapping
+import kotlin.system.exitProcess
 
 
 class MyVisitor() : WACCParserBaseVisitor<Node>() {
 
     private var symbolTable: SymbolTable? = null
-    private var globalFuncTable: Map<String, FuncNode>? = null
+    private var globalFuncTable: MutableMap<String, FuncNode>? = null
     private var isMainFunction = false
     private var expectedFunctionReturn: Type? = null
     private var currDeclareType: Type? = null
@@ -30,35 +34,73 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         expectedFunctionReturn = null
         currDeclareType = null
     }
-    override fun visitProgram(ctx: ProgramContext?): Node {
-        val functionList = ArrayList<FuncNode>()
-        for (f in ctx!!.func()) {
-            val funcNode = visitFunc(f) as FuncNode
-            functionList.add(funcNode)
+
+    override fun visitProgram(ctx: ProgramContext): Node {
+        /* add the identifiers and parameter list of functions in the globalFuncTable first */
+        for (f in ctx.func()) {
+            val funcName: String = f.ident().IDENT().text
+
+            /* check if the function is defined already */
+            if (globalFuncTable!!.containsKey(funcName)) {
+                symbolRedeclared(ctx, funcName)
+                semanticError = true
+            }
+
+            /* get the return type of the function */
+            val returnType: Type = visit(f.type()) as Type
+            /* store the parameters in a list of IdentNode */
+            val paramList: MutableList<IdentNode> = ArrayList()
+            if (f.paramlist() != null) {
+                for (param in f.paramlist().param()) {
+                    val paramType: Type = visit(param.type()) as Type
+                    val paramNode = IdentNode(paramType, param.ident().IDENT().text)
+                    paramList.add(paramNode)
+                }
+            }
+            globalFuncTable!![funcName] = FuncNode(returnType, paramList)
         }
 
-        val body = visit(ctx.stat()) as StatNode
+        /* then iterate through a list of function declarations to visit the function body */
+        for (f in ctx.func()) {
+            val funcName: String = f.ident().IDENT().text
+            val functionBody: StatNode = visitFunc(f) as StatNode
 
-        return ProgramNode(functionList, body)
+            if (!functionBody.isReturned) {
+                invalidFunctionReturnExit(ctx, funcName)
+            }
+            globalFuncTable!![funcName]!!.functionBody = functionBody
+        }
+
+        /* visit the body of the program and create the root SymbolTable here */
+        isMainFunction = true
+        symbolTable = SymbolTable(symbolTable)
+        val body: StatNode = visit(ctx.stat()) as StatNode
+        body.scope = symbolTable
+        symbolTable = symbolTable!!.getParentSymbolTable()
+        if (semanticError) {
+            exitProcess(SEMANTIC_ERROR_CODE)
+        }
+        return if (body !is ScopeNode) {
+            ProgramNode(globalFuncTable!!, ScopeNode(body))
+        } else ProgramNode(globalFuncTable!!, body)
     }
 
     override fun visitFunc(ctx: WACCParser.FuncContext?): Node {
-        val returnType = visit(ctx!!.type()) as Type
-        val paramList = ArrayList<IdentNode>()
-        for (param in ctx.paramlist().param()) {
-            val paramType: Type = visit(param.type()) as Type
-            val paramNode = IdentNode(paramType, param.ident().IDENT().text)
-            paramList.add(paramNode)
+        val funcNode = globalFuncTable!![ctx!!.ident().IDENT().text]!!
+
+        /* visit the function body */
+        expectedFunctionReturn = funcNode.returnType
+        symbolTable = SymbolTable(symbolTable)
+
+        for (param in funcNode.paramList!!) {
+            semanticError = semanticError or symbolTable!!.add(param!!.name, param)
         }
 
-        val functionBody = visitChildren(ctx) as StatNode
+        val functionBody: StatNode = visit(ctx.stat()) as StatNode
+        functionBody.scope = symbolTable
+        symbolTable = symbolTable!!.getParentSymbolTable()
 
-        /* if the function declaration is not terminated with a return/exit statement, then throw the semantic error */
-        if (!functionBody.isReturned) {
-            // TODO: semantic error : function not return
-        }
-
-        return FuncNode(returnType, functionBody, paramList)
+        return functionBody
     }
 
     override fun visitParam(ctx: ParamContext?): Node {
@@ -78,12 +120,22 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         return SkipNode()
     }
 
-    override fun visitDeclareStat(ctx: DeclareStatContext?): Node {
-        val declareStatNode = DeclareStatNode(
-            visit(ctx!!.type()) as Type, visit(ctx.ident()) as IdentNode, visit(ctx.assignrhs()) as RhsNode
-        )
+    override fun visitDeclareStat(ctx: DeclareStatContext): Node {
+        val expr: ExprNode = visit(ctx.assignrhs()) as ExprNode
+        val varName: String = ctx.ident().IDENT().text
+        val varType: Type = visit(ctx.type()) as Type
+        currDeclareType = varType
 
-        return declareStatNode
+        val exprType = expr.type
+        semanticError = semanticError or typeCheck(ctx.assignrhs(), varName, exprType, varType)
+        expr.type = varType
+
+        val node: StatNode = DeclareStatNode(varName, expr)
+        node.scope = symbolTable
+
+        semanticError = semanticError or symbolTable!!.add(varName, expr!!)
+
+        return node
     }
 
     override fun visitAssignStat(ctx: AssignStatContext): Node {
@@ -189,7 +241,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val doBody = visit(ctx.stat()) as StatNode
         symbolTable = symbolTable!!.getParentSymbolTable()
 
-        val whileNode : StatNode = WhileNode(cond, ScopeNode(doBody))
+        val whileNode: StatNode = WhileNode(cond, ScopeNode(doBody))
 
         whileNode.scope = symbolTable
 
@@ -227,10 +279,9 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val varName = ctx!!.IDENT().text
         val value: ExprNode? = symbolTable!!.lookupAll(varName)
         if (value == null) {
-            // TODO: semantic error: symbol not found
+            ErrorHandler.symbolNotFound(ctx, varName)
         }
 
-        // TODO: may not be correct
         return IdentNode(value!!.type!!, varName)
     }
 
@@ -302,13 +353,13 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val expr1Type = expr1.type
         val expr2Type = expr2.type
 
-        semanticError = semanticError or typeCheck(ctx.expr(0), INT_T, expr1Type!!)
-        semanticError = semanticError or typeCheck(ctx.expr(1), INT_T, expr2Type!!)
+        semanticError =
+            semanticError or typeCheck(ctx.expr(0), INT_T, expr1Type!!) or typeCheck(ctx.expr(1), INT_T, expr2Type!!)
 
         return BinopNode(expr1, expr2, binop)
     }
 
-    fun typeCheck(ctx: ParserRuleContext?, expected: Type?, actual: Type): Boolean {
+    private fun typeCheck(ctx: ParserRuleContext?, expected: Type?, actual: Type): Boolean {
         if (actual != expected) {
             ErrorHandler.typeMismatch(ctx!!, expected!!, actual)
             return true

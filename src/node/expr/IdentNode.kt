@@ -1,8 +1,12 @@
 package node.expr
 
-import node.stat.StatNode
 import type.Type
 
-class IdentNode(param_type: Type, text: String) : ExprNode() {
+class IdentNode(type: Type?, name: String) : ExprNode() {
+    val name: String
 
+    init {
+        this.type = type
+        this.name = name
+    }
 }

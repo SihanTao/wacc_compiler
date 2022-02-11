@@ -1,8 +1,7 @@
 package node.stat
 
 import node.expr.ExprNode
-import node.expr.IdentNode
 
-class DeclareStatNode(ident: String, exprNode: ExprNode) : StatNode() {
-
-}
+class DeclareStatNode(
+    private val identifier: String, private val rhs: ExprNode
+) : StatNode()

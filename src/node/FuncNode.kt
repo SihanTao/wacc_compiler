@@ -13,6 +13,6 @@ class FuncNode(val returnType: Type?, var functionBody: StatNode?, params: List<
         parameters = params
     }
 
-    val paramList: List<Any?>?
+    val paramList: List<IdentNode?>?
         get() = parameters
 }
