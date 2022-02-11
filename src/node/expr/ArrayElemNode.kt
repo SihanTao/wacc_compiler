@@ -1,5 +1,6 @@
 package node.expr
 
+import ErrorHandler.Companion.indexOutOfBoundError
 import type.ArrayType
 import type.Type
 
@@ -18,7 +19,7 @@ class ArrayElemNode(
         this.type = type
         val arrayType = array.type as ArrayType
         if (arrayType.dimension < index.size) {
-            // TODO: index out of bound error
+            indexOutOfBoundError(null, array.type as Type, index.size)
         }
     }
 }

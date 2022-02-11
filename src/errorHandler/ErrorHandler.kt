@@ -46,18 +46,18 @@ class ErrorHandler private constructor() {
             exitProcess(SEMANTIC_ERROR_CODE)
         }
 
-        fun symbolNotFound(ctx: ParserRuleContext?, ident: String) {
+        fun symbolNotExist(ctx: ParserRuleContext?, ident: String) {
             val msg = "Symbol $ident is not found in the current scope of the program"
             errorHandler(ctx, msg)
             exitProcess(SEMANTIC_ERROR_CODE)
         }
 
-        fun symbolRedeclared(ctx: ParserRuleContext?, ident: String) {
+        fun symbolRedeclare(ctx: ParserRuleContext?, ident: String) {
             val msg = "Symbol $ident has already been declared in the current scope of the program"
             errorHandler(ctx, msg)
         }
 
-        fun arrayDepthError(ctx: ParserRuleContext?, type: Type, indexDepth: Int) {
+        fun indexOutOfBoundError(ctx: ParserRuleContext?, type: Type, indexDepth: Int) {
             val msg = "Array declared as $type, but called with index depth $indexDepth"
             errorHandler(ctx, msg)
             exitProcess(SEMANTIC_ERROR_CODE)
@@ -105,7 +105,8 @@ class ErrorHandler private constructor() {
             val charPos: Int
 
             /* when ctx is null, it indicates that there is a funcJunk error or symbolRedeclare error
-           in SemanticChecker */if (ctx == null) {
+           in SemanticChecker */
+            if (ctx == null) {
                 System.err.println(msg)
                 return
             }

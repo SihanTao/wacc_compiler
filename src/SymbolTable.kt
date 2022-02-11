@@ -15,7 +15,10 @@ class SymbolTable(parentSymbolTable: SymbolTable?) {
     }
 
     fun add(name: String, expr: ExprNode): Boolean {
-        // TODO: check whether symbol has been declared
+        if (dictionary.containsKey(name)) {
+            ErrorHandler.symbolRedeclare(null, name)
+            return true
+        }
 
         dictionary[name] = expr
         return false

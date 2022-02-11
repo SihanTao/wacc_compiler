@@ -2,7 +2,7 @@ import ErrorHandler.Companion.SEMANTIC_ERROR_CODE
 import ErrorHandler.Companion.invalidFuncArgCount
 import ErrorHandler.Companion.invalidFunctionReturnExit
 import ErrorHandler.Companion.invalidPairError
-import ErrorHandler.Companion.symbolRedeclared
+import ErrorHandler.Companion.symbolRedeclare
 import antlr.WACCParser
 import antlr.WACCParser.*
 import antlr.WACCParserBaseVisitor
@@ -48,7 +48,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
 
             /* check if the function is defined already */
             if (globalFuncTable!!.containsKey(funcName)) {
-                symbolRedeclared(ctx, funcName)
+                symbolRedeclare(ctx, funcName)
                 semanticError = true
             }
 
@@ -285,7 +285,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val varName = ctx!!.IDENT().text
         val value: ExprNode? = symbolTable!!.lookupAll(varName)
         if (value == null) {
-            ErrorHandler.symbolNotFound(ctx, varName)
+            ErrorHandler.symbolNotExist(ctx, varName)
         }
 
         return IdentNode(value!!.type!!, varName)
@@ -295,7 +295,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val arrayIdent: String = ctx!!.array_elem().ident().text
         val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
         if (array == null) {
-            ErrorHandler.symbolNotFound(ctx, arrayIdent)
+            ErrorHandler.symbolNotExist(ctx, arrayIdent)
         }
 
         val indexList: MutableList<ExprNode> = java.util.ArrayList()
@@ -452,7 +452,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
 
         // Check whether function is defined
         if (function == null) {
-            ErrorHandler.symbolNotFound(ctx, funcName)
+            ErrorHandler.symbolNotExist(ctx, funcName)
         }
 
         val params: MutableList<ExprNode> = java.util.ArrayList()
@@ -498,7 +498,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         val name: String = ctx.ident().IDENT().text
         val expr: ExprNode? = symbolTable!!.lookupAll(name)
         if (expr == null) {
-            ErrorHandler.symbolNotFound(ctx, name)
+            ErrorHandler.symbolNotExist(ctx, name)
         }
         return expr as Node
     }
