@@ -1,0 +1,59 @@
+#!/bin/bash
+VALID_EXAMPLES=("test/wacc_examples/valid/advanced"
+                "test/wacc_examples/valid/array"
+                "test/wacc_examples/valid/basic"
+                "test/wacc_examples/valid/expressions"
+                "test/wacc_examples/valid/function"
+                "test/wacc_examples/valid/if"
+                "test/wacc_examples/valid/IO"
+                "test/wacc_examples/valid/pairs"
+                "test/wacc_examples/valid/runtimeErr"
+                "test/wacc_examples/valid/scope"
+                "test/wacc_examples/valid/sequence"
+                "test/wacc_examples/valid/variables"
+                "test/wacc_examples/valid/while")
+
+
+# counters to represent the total number of test files to be processed
+# shellcheck disable=SC2068
+TOTAL_COUNT=$(find ${VALID_EXAMPLES[@]} -name "*.wacc" | wc -l)
+COUNTER=1
+PASSED=0
+FAILED=0
+
+red=`tput setaf 1`
+green=`tput setaf 2`
+reset=`tput sgr0`
+
+echo "=============================Valid Case Test============================================"
+echo "Correct Program must have exit code of 0"
+echo "========================================================================================"
+
+for folder in ${VALID_EXAMPLES[@]}; do
+  # shellcheck disable=SC2044
+  for file in $(find "$folder" -name "*.wacc"); do
+    ./compile "$file" >tmp 2>tmp
+    # ./grun antlr.WACC program -tokens "$file" > tmp
+    ret=$?
+    if [ $ret -ne 0 ]; then
+      echo "${red}TEST" $COUNTER "FAILED: Exit Status of " $ret " for " $file "${reset}"
+      FAILED=$((FAILED+1))
+    else
+      echo "${green}TEST" $COUNTER "PASSED: " $file "${reset}"
+      PASSED=$((PASSED+1))
+    fi
+
+    COUNTER=$((COUNTER+1))
+  done
+
+done
+
+echo "================================TEST RESULT============================================="
+echo "Total Test: " $TOTAL_COUNT
+echo "Passed Test:" $PASSED
+echo "Failed Test:" $FAILED
+echo "========================================================================================"
+
+if [[ $((FAILED)) -gt 0 ]]; then
+  exit -1
+fi
