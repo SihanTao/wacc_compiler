@@ -1,7 +1,7 @@
 import node.expr.ExprNode
 
 class SymbolTable(parentSymbolTable: SymbolTable?) {
-    private var parentSymbolTable: SymbolTable?
+    var parentSymbolTable: SymbolTable?
 
     /**
      * SymbolTable will record an identifier String and an ExprNode as the node representing the value
@@ -33,9 +33,5 @@ class SymbolTable(parentSymbolTable: SymbolTable?) {
             st = st.parentSymbolTable
         }
         return obj
-    }
-
-    fun getParentSymbolTable(): SymbolTable? {
-        return parentSymbolTable
     }
 }

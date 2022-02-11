@@ -1,4 +1,5 @@
 import ErrorHandler.Companion.SEMANTIC_ERROR_CODE
+import ErrorHandler.Companion.invalidFuncArgCount
 import ErrorHandler.Companion.invalidFunctionReturnExit
 import ErrorHandler.Companion.invalidPairError
 import ErrorHandler.Companion.symbolRedeclared
@@ -84,7 +85,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         symbolTable = SymbolTable(symbolTable)
         val body: StatNode = visit(ctx.stat()) as StatNode
         body.scope = symbolTable
-        symbolTable = symbolTable!!.getParentSymbolTable()
+        symbolTable = symbolTable!!.parentSymbolTable
         if (semanticError) {
             exitProcess(SEMANTIC_ERROR_CODE)
         }
@@ -106,7 +107,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
 
         val functionBody: StatNode = visit(ctx.stat()) as StatNode
         functionBody.scope = symbolTable
-        symbolTable = symbolTable!!.getParentSymbolTable()
+        symbolTable = symbolTable!!.parentSymbolTable
 
         return functionBody
     }
@@ -226,12 +227,12 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
 
         symbolTable = SymbolTable(symbolTable)
         val ifBody: StatNode = visit(ctx.stat(0)) as StatNode
-        symbolTable = symbolTable!!.getParentSymbolTable()
+        symbolTable = symbolTable!!.parentSymbolTable
 
         /* create the StatNode for the else body and generate new child scope */
         symbolTable = SymbolTable(symbolTable)
         val elseBody: StatNode = visit(ctx.stat(1)) as StatNode
-        symbolTable = symbolTable!!.getParentSymbolTable()
+        symbolTable = symbolTable!!.parentSymbolTable
 
         val node: StatNode = IfNode(condition, ScopeNode(ifBody), ScopeNode(elseBody))
 
@@ -247,7 +248,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
 
         symbolTable = SymbolTable(symbolTable)
         val doBody = visit(ctx.stat()) as StatNode
-        symbolTable = symbolTable!!.getParentSymbolTable()
+        symbolTable = symbolTable!!.parentSymbolTable
 
         val whileNode: StatNode = WhileNode(cond, ScopeNode(doBody))
 
@@ -446,6 +447,64 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         }
 
         return PairElemNode(exprNode, pairElemType).snd()
+    }
+
+    override fun visitFunctionCall(ctx: FunctionCallContext): Node {
+        val funcName: String = ctx.ident().IDENT().text
+        val function = globalFuncTable!![funcName]
+
+        // Check whether function is defined
+        if (function == null) {
+            ErrorHandler.symbolNotFound(ctx, funcName)
+        }
+
+        val params: MutableList<ExprNode> = java.util.ArrayList()
+
+        /* check whether function has same number of parameter */
+        val expectedParamNum = function!!.paramList!!.size
+        if (expectedParamNum != 0) {
+            if (ctx.arglist() == null) {
+                invalidFuncArgCount(ctx, expectedParamNum, 0)
+            } else if (expectedParamNum != ctx.arglist().expr().size) {
+                invalidFuncArgCount(ctx, expectedParamNum, ctx.arglist().expr().size)
+            }
+
+            /* given argument number is not 0, generate list */
+            for ((exprIndex, e) in ctx.arglist().expr().withIndex()) {
+                val param: ExprNode = visit(e) as ExprNode
+                val paramType = param.type
+                val targetType = function.paramList!![exprIndex]!!.type
+
+                /* check param types */
+                semanticError = semanticError or typeCheck(
+                    ctx.arglist().expr(exprIndex), targetType,
+                    paramType!!
+                )
+                params.add(param)
+            }
+        }
+
+        symbolTable = SymbolTable(symbolTable)
+        val node: Node = FunctionCallNode(function, params, symbolTable)
+        symbolTable = symbolTable!!.parentSymbolTable
+
+        return node
+    }
+
+    override fun visitNewPair(ctx: NewPairContext?): Node {
+        return super.visitNewPair(ctx)
+    }
+
+    override fun visitIdentExpr(ctx: IdentExprContext?): Node {
+        return super.visitIdentExpr(ctx)
+    }
+
+    override fun visitArray_type(ctx: Array_typeContext?): Node {
+        return super.visitArray_type(ctx)
+    }
+
+    override fun visitArrayLiter(ctx: ArrayLiterContext?): Node {
+        return super.visitArrayLiter(ctx)
     }
 
     // If program has error, return true
