@@ -7,12 +7,6 @@ build-job:
   script:
     - make
 
-valid-test-job:
-  stage: test
-  script:
-    - make
-    - /bin/bash test/testValid
-
 invalid-syntax-test-job:
   stage: test
   script:
@@ -25,5 +19,9 @@ invalid-semantics-test-job:
     - make
     - /bin/bash test/testInvalidSemantic
 
-  
+valid-test-job:
+  stage: test
+  script:
+    - make
+    - /bin/bash test/testValid
 
