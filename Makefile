@@ -15,6 +15,7 @@ MKDIR	:= mkdir -p
 JAVAC	:= javac
 KOTLINC	:= kotlinc
 RM	:= rm -rf
+COMPILER := $(SOURCE_DIR)/Main.kt
 
 # Configure project Java flags
 
@@ -25,16 +26,20 @@ FIND	:= find
 # The make rules:
 
 # run the antlr build script then attempts to compile all .java files within src/antlr
-all:
+all: class compiler
+
+class:
 	cd $(ANTLR_DIR) && ./$(ANTLR)
 	$(FIND) $(SOURCE_DIR) -name '*.kt' > $@
 	$(MKDIR) $(OUTPUT_DIR)
 	$(JAVAC) $(JFLAGS) $(ANTLR_SOURCE_DIR)/*.java
 	$(KOTLINC) $(FLAGS) @$@
-	$(RM) all
+
+compiler:
+	$(KOTLINC) $(FLAGS) $(COMPILER)
 
 # clean up all of the compiled files
 clean:
-	$(RM) $(OUTPUT_DIR) $(SOURCE_DIR)/antlr $(LOG_DIR)
+	$(RM) $(OUTPUT_DIR) $(SOURCE_DIR)/antlr $(LOG_DIR) class
 
 .PHONY: all clean
