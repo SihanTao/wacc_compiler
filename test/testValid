@@ -1,10 +1,6 @@
 #!/bin/bash
-SRC_DIR="$(pwd)"
 
-VALID_EXAMPLES=$(find "${SRC_DIR}/wacc_examples/valid" -iname '*.wacc')
-
-
-
+VALID_EXAMPLES=$(find "./test/wacc_examples/valid" -iname '*.wacc')
 
 # counters to represent the total number of test files to be processed
 # shellcheck disable=SC2068
