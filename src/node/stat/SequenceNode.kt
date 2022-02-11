@@ -1,5 +1,11 @@
 package node.stat
 
+/**
+ * Represent a sequence statement with two statement nodes
+ * has a function mergeScope to go through all the statement nodes in the list to form the body
+ * Example: <stat>; <stat>
+ */
+
 class SequenceNode (stat1: StatNode?, stat2: StatNode?) : StatNode() {
 
     private val body: MutableList<StatNode> = ArrayList()

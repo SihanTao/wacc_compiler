@@ -1,5 +1,10 @@
 package node.stat
 
+/**
+ * Represent a scope statement 
+ * has a function mergeScope to go through all the statement nodes in the list to form the body
+ */
+
 class ScopeNode(node: StatNode) : StatNode() {
 
     private val body: MutableList<StatNode> = ArrayList()
