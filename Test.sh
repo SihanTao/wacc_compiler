@@ -1,4 +1,4 @@
-SRC_DIR="$(pwd)/src/test"
+SRC_DIR="$(pwd)/test/wacc_examples"
 
 VALID_TEST=$(find "${SRC_DIR}/valid" -iname '*.wacc')
 INVALID_SYNTAX_TEST=$(find "${SRC_DIR}/invalid/syntaxErr" -iname '*.wacc')
