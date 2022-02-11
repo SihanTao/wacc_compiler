@@ -219,7 +219,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitPrintStat(ctx: PrintStatContext?): Node {
-        val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val printContent: ExprNode? = visit(ctx!!.expr()) as ExprNode?
         val node: StatNode = PrintNode(printContent)
         node.scope = symbolTable
 
@@ -227,7 +227,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitPrintlnStat(ctx: PrintlnStatContext?): Node {
-        val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val printContent: ExprNode? = visit(ctx!!.expr()) as ExprNode?
         val node: StatNode = PrintlnNode(printContent)
         node.scope = symbolTable
 
@@ -278,10 +278,15 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitScopeStat(ctx: ScopeStatContext?): Node {
 
         /* simply create a new SymbolTable to represent a BEGIN ... END statement */
-        val curr = SymbolTable(symbolTable)
+
+        /* simply create a new SymbolTable to represent a BEGIN ... END statement */
+        symbolTable = SymbolTable(symbolTable)
         val body: StatNode = visit(ctx!!.stat()) as StatNode
         val scopeNode = ScopeNode(body)
-        scopeNode.scope = curr
+        scopeNode.scope = symbolTable
+        symbolTable = symbolTable!!.parentSymbolTable
+
+        return scopeNode
 
         return scopeNode
     }
