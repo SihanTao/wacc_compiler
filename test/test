@@ -15,7 +15,7 @@ reset=`tput setaf 7 && tput setab 0`
 echo "Start Testing"
 
 for file in $(find "$VALID_TEST_FOLDER" -name "*.wacc" 2> tmp); do
-    ./compile "$file" >tmp 2>tmp
+    ./compile "$file" >tmp
     # ./grun antlr.WACC program -tokens "$file" > tmp
     ret=$?
     if [ $ret -ne 0 ]; then
@@ -30,7 +30,7 @@ for file in $(find "$VALID_TEST_FOLDER" -name "*.wacc" 2> tmp); do
 done
 
 for file in $(find "$INVALID_TEST_FOLDER" -name "*.wacc"); do
-    ./compile "$file" >tmp 2>tmp
+    ./compile "$file" >tmp
     # ./grun antlr.WACC program -tokens "$file" > tmp
     ret=$?
     if [ $ret -ne $((EXPECTED_ERROR_CODE)) ]; then
