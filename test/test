@@ -10,7 +10,7 @@ FAILED=0
 
 red=`tput setaf 1`
 green=`tput setaf 2`
-reset=`tput init`
+reset=`tput setaf 7 && tput setab 0`
 
 echo "Start Testing"
 
