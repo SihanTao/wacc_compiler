@@ -492,18 +492,25 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitNewPair(ctx: NewPairContext?): Node {
-        return super.visitNewPair(ctx)
+        val fst: ExprNode = visit(ctx!!.expr(0)) as ExprNode
+        val snd: ExprNode = visit(ctx.expr(1)) as ExprNode
+        return PairNode(fst, snd)
     }
 
-    override fun visitIdentExpr(ctx: IdentExprContext?): Node {
-        return super.visitIdentExpr(ctx)
+    override fun visitIdentExpr(ctx: IdentExprContext): Node {
+        val name: String = ctx.ident().IDENT().text
+        val expr: ExprNode? = symbolTable!!.lookupAll(name)
+        if (expr == null) {
+            ErrorHandler.symbolNotFound(ctx, name)
+        }
+        return expr as Node
     }
 
-    override fun visitArray_type(ctx: Array_typeContext?): Node {
+    override fun visitArray_type(ctx: Array_typeContext): Node {
         return super.visitArray_type(ctx)
     }
 
-    override fun visitArrayLiter(ctx: ArrayLiterContext?): Node {
+    override fun visitArrayLiter(ctx: ArrayLiterContext): Node {
         return super.visitArrayLiter(ctx)
     }
 
