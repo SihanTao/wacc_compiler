@@ -143,7 +143,8 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val node: StatNode = DeclareStatNode(varName, expr)
         node.scope = symbolTable
 
-        semanticError = semanticError or symbolTable!!.add(varName, expr)
+        semanticError = semanticError || symbolTable!!.add(varName, expr)
+
 
         return node
     }
@@ -222,7 +223,6 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitPrintStat(ctx: PrintStatContext?): Node {
         val printContent: ExprNode? = visit(ctx!!.expr()) as ExprNode?
         val node: StatNode = PrintNode(printContent)
-        node.scope = symbolTable
 
         return node
     }
@@ -316,6 +316,29 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitArrayElem(ctx: ArrayElemContext?): Node {
+        val arrayIdent: String = ctx!!.array_elem().ident().text
+        val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
+
+        /* special case: if ident is not array, cannot call asArrayType on it, exit directly */
+        if (typeCheck(ctx, ARRAY_T, array!!.type!!)
+        ) {
+            exitProcess(SEMANTIC_ERROR_CODE)
+        }
+
+        val indexList: MutableList<ExprNode> = java.util.ArrayList()
+
+        for (exprContext in ctx.array_elem().expr()) {
+            val index: ExprNode = visit(exprContext) as ExprNode
+            semanticError = semanticError || typeCheck(exprContext, INT_T, index.type!!)
+            indexList.add(index)
+        }
+
+        val arrayType = array.type as ArrayType
+
+        return ArrayElemNode(array, indexList, arrayType.getContentType())
+    }
+
+    override fun visitArrayExpr(ctx: ArrayExprContext?): Node {
         val arrayIdent: String = ctx!!.array_elem().ident().text
         val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
 
@@ -558,8 +581,13 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             // Check all type are same
             semanticError = semanticError or typeCheck(context, firstContentType, exprType!!)
             list.add(expr)
+
         }
         return ArrayNode(firstContentType, list, length)
+    }
+
+    override fun visitExprNode(ctx: ExprNodeContext): Node {
+        return super.visitExprNode(ctx)
     }
 
     /* =======================================================
