@@ -26,9 +26,14 @@ class Utils {
 
         @JvmStatic
         fun typeCheck(ctx: ParserRuleContext?, expected: Type?, actual: Type): Boolean {
-            if (actual != expected) {
-                ErrorHandler.typeMismatch(ctx!!, expected!!, actual)
-                return true
+            try {
+                if (actual != expected) {
+                    ErrorHandler.typeMismatch(ctx!!, expected!!, actual)
+                    return true
+                }
+            } catch (e: NullPointerException) {
+                // This is the special case when expected is Array<null> when declared
+                return false
             }
             return false
         }
@@ -38,9 +43,14 @@ class Utils {
             ctx: ParserRuleContext?, varName: String?, expected: Type?,
             actual: Type
         ): Boolean {
-            if (actual != expected) {
-                ErrorHandler.typeMismatch(ctx!!, varName!!, expected!!, actual)
-                return true
+            try {
+                if (actual != expected) {
+                    ErrorHandler.typeMismatch(ctx!!, varName!!, expected!!, actual)
+                    return true
+                }
+            } catch (e: NullPointerException) {
+                // This is the special case when expected is Array<null> when declared
+                return false
             }
             return false
         }

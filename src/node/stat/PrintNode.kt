@@ -7,5 +7,5 @@ import node.expr.ExprNode
  */
 
 class PrintNode(
-    private val expr: ExprNode
+    private val expr: ExprNode?
 ) : StatNode()

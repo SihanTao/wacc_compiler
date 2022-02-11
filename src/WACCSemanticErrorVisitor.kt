@@ -9,6 +9,7 @@ import node.*
 import node.expr.*
 import node.stat.*
 import type.*
+import type.Utils.Companion.ARRAY_T
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_T
 import type.Utils.Companion.CmpEnumMapping
@@ -219,7 +220,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitPrintStat(ctx: PrintStatContext?): Node {
-        val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val printContent: ExprNode? = visit(ctx!!.expr()) as ExprNode?
         val node: StatNode = PrintNode(printContent)
         node.scope = symbolTable
 
@@ -227,7 +228,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitPrintlnStat(ctx: PrintlnStatContext?): Node {
-        val printContent: ExprNode = visit(ctx!!.expr()) as ExprNode
+        val printContent: ExprNode? = visit(ctx!!.expr()) as ExprNode?
         val node: StatNode = PrintlnNode(printContent)
         node.scope = symbolTable
 
@@ -236,7 +237,6 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitIfStat(ctx: IfStatContext?): Node {
         // 'if' <expr> than <stat> else <stat>
-        println("In visitIfStat: before condition as ExprNode")
         val condition: ExprNode = visit(ctx!!.expr()) as ExprNode
         val conditionType = condition.type
 
@@ -278,10 +278,13 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitScopeStat(ctx: ScopeStatContext?): Node {
 
         /* simply create a new SymbolTable to represent a BEGIN ... END statement */
-        val curr = SymbolTable(symbolTable)
+
+        /* simply create a new SymbolTable to represent a BEGIN ... END statement */
+        symbolTable = SymbolTable(symbolTable)
         val body: StatNode = visit(ctx!!.stat()) as StatNode
         val scopeNode = ScopeNode(body)
-        scopeNode.scope = curr
+        scopeNode.scope = symbolTable
+        symbolTable = symbolTable!!.parentSymbolTable
 
         return scopeNode
     }
@@ -315,8 +318,11 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitArrayElem(ctx: ArrayElemContext?): Node {
         val arrayIdent: String = ctx!!.array_elem().ident().text
         val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
-        if (array == null) {
-            ErrorHandler.symbolNotExist(ctx, arrayIdent)
+
+        /* special case: if ident is not array, cannot call asArrayType on it, exit directly */
+        if (typeCheck(ctx, ARRAY_T, array!!.type!!)
+        ) {
+            exitProcess(SEMANTIC_ERROR_CODE)
         }
 
         val indexList: MutableList<ExprNode> = java.util.ArrayList()
@@ -327,7 +333,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             indexList.add(index)
         }
 
-        val arrayType = array?.type as ArrayType
+        val arrayType = array.type as ArrayType
 
         return ArrayElemNode(array, indexList, arrayType.getContentType())
     }
@@ -366,7 +372,8 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
         val expr: ExprNode = visit(ctx.expr()) as ExprNode
         val exprType = expr.type
-        semanticError = semanticError or typeCheck(ctx.expr(), targetType, exprType!!)
+
+        semanticError = semanticError || typeCheck(ctx.expr(), targetType, exprType!!)
 
         return UnopNode(expr, unop)
     }
@@ -487,7 +494,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
             /* given argument number is not 0, generate list */
             for ((exprIndex, e) in ctx.arglist().expr().withIndex()) {
-                val param: ExprNode = visit(e) as ExprNode
+                val param: ExprNode = visit(e) as ExprNode? ?: continue
                 val paramType = param.type
                 val targetType = function.paramList!![exprIndex]!!.type
 
@@ -508,8 +515,8 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitNewPair(ctx: NewPairContext?): Node {
-        val fst: ExprNode = visit(ctx!!.expr(0)) as ExprNode
-        val snd: ExprNode = visit(ctx.expr(1)) as ExprNode
+        val fst: ExprNode? = visit(ctx!!.expr(0)) as ExprNode?
+        val snd: ExprNode? = visit(ctx.expr(1)) as ExprNode?
         return PairNode(fst, snd)
     }
 
