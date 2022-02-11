@@ -11,8 +11,10 @@ import org.antlr.v4.runtime.ParserRuleContext
 import type.ArrayType
 import type.Type
 import type.Utils
+import type.Utils.Companion.CmpEnumMapping
 import type.Utils.Companion.INT_T
 import type.Utils.Companion.binopEnumMapping
+import type.Utils.Companion.compareStatAllowedTypes
 import type.Utils.Companion.unopEnumMapping
 import type.Utils.Companion.unopTypeMapping
 import kotlin.system.exitProcess
@@ -359,6 +361,42 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         return BinopNode(expr1, expr2, binop)
     }
 
+    override fun visitCmpExpr(ctx: CmpExprContext): Node {
+        val literal: String = ctx.binaryOper.text
+        val binop: Utils.Binop = CmpEnumMapping[literal]!!
+
+        val expr1: ExprNode = visit(ctx!!.expr(0)) as ExprNode
+        val expr1Type = expr1.type
+        val expr2: ExprNode = visit(ctx.expr(1)) as ExprNode
+        val expr2Type = expr2.type
+
+        semanticError = semanticError ||
+                typeCheck(ctx.expr(0), compareStatAllowedTypes, expr1Type!!) ||
+                typeCheck(ctx.expr(1), compareStatAllowedTypes, expr2Type!!) ||
+                typeCheck(ctx.expr(0), expr1Type, expr2Type)
+
+        return BinopNode(expr1, expr2, binop)
+    }
+
+    override fun visitEqExpr(ctx: EqExprContext?): Node {
+        return super.visitEqExpr(ctx)
+    }
+
+    override fun visitParenExpr(ctx: ParenExprContext?): Node {
+        return super.visitParenExpr(ctx)
+    }
+
+    // If program has error, return true
+    private fun typeCheck(ctx: ParserRuleContext?, expected: Set<Type>, actual: Type): Boolean {
+        for (expectedType in expected) {
+            if (expectedType != actual) {
+                ErrorHandler.typeMismatch(ctx!!, expected, actual)
+                return true
+            }
+        }
+        return false
+    }
+
     private fun typeCheck(ctx: ParserRuleContext?, expected: Type?, actual: Type): Boolean {
         if (actual != expected) {
             ErrorHandler.typeMismatch(ctx!!, expected!!, actual)
@@ -367,8 +405,7 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         return false
     }
 
-
-    fun typeCheck(
+    private fun typeCheck(
         ctx: ParserRuleContext?, varName: String?, expected: Type?,
         actual: Type
     ): Boolean {

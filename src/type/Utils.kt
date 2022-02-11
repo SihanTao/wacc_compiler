@@ -30,19 +30,24 @@ class Utils {
         @JvmStatic
         lateinit var CmpEnumMapping: Map<String, Binop>
 
+        /* a list of allowed types in read, free, cmp statement */
+        @JvmStatic
+        lateinit var readStatAllowedTypes: Set<Type>
+        @JvmStatic
+        lateinit var freeStatAllowedTypes: Set<Type>
+        @JvmStatic
+        lateinit var compareStatAllowedTypes: Set<Type>
+        @JvmStatic
+        lateinit var notPrintable: Set<Type>
+
         /* Basic Types */
         val INT_T: Type = BasicType(BasicTypeEnum.INTEGER)
         val BOOL_T: Type = BasicType(BasicTypeEnum.BOOLEAN)
         val CHAR_T: Type = BasicType(BasicTypeEnum.CHAR)
         val STRING_T: Type = BasicType(BasicTypeEnum.STRING)
         val ARRAY_T: Type = ArrayType()
-        val PAIR_T: Type = PairType()
 
-        /* a list of allowed types in read, free, cmp statement */
-        val readStatAllowedTypes: Set<Type> = setOf(STRING_T, INT_T, CHAR_T)
-        val freeStatAllowedTypes: Set<Type> = setOf(ARRAY_T, PAIR_T)
-        val compareStatAllowedTypes: Set<Type> = setOf(STRING_T, INT_T, CHAR_T)
-        val notPrintable: Set<Type> = setOf(ArrayType(CHAR_T))
+        val PAIR_T: Type = PairType()
     }
 
     init {
@@ -79,6 +84,11 @@ class Utils {
             "<" to Binop.LESS,
             "<=" to Binop.LESS_EQUAL
         )
+
+        readStatAllowedTypes = setOf(STRING_T, INT_T, CHAR_T)
+        freeStatAllowedTypes = setOf(ARRAY_T, PAIR_T)
+        compareStatAllowedTypes = setOf(STRING_T, INT_T, CHAR_T)
+        notPrintable = setOf(ArrayType(CHAR_T))
     }
 
 }
