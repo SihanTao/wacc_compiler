@@ -1,13 +1,13 @@
 stages:
   - build
   - test-syntax
-  - test-semantics
+  - test-semantic
   - test-general
 
 variables:
-  VALID_TEST_DIR: "test/wacc_examples/valid/"
-  INVALID_SYNTAX_TEST_DIR: "test/wacc_examples/invalid/syntaxErr/"
-  INVALID_SEMANTICS_TEST_DIR: "test/wacc_examples/invalid/semanticErr/"
+  VALID_TEST_DIR: "test/wacc_examples/valid"
+  INVALID_SYNTAX_TEST_DIR: "test/wacc_examples/invalid/syntaxErr"
+  INVALID_SEMANTICS_TEST_DIR: "test/wacc_examples/invalid/semanticErr"
 
 build-job:
   stage: build
