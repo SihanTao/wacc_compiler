@@ -11,8 +11,11 @@ import org.antlr.v4.runtime.ParserRuleContext
 import type.ArrayType
 import type.Type
 import type.Utils
+import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CmpEnumMapping
+import type.Utils.Companion.EqEnumMapping
 import type.Utils.Companion.INT_T
+import type.Utils.Companion.LogicOpEnumMapping
 import type.Utils.Companion.binopEnumMapping
 import type.Utils.Companion.compareStatAllowedTypes
 import type.Utils.Companion.unopEnumMapping
@@ -290,13 +293,15 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
     override fun visitArrayElem(ctx: ArrayElemContext?): Node {
         val arrayIdent: String = ctx!!.array_elem().ident().text
         val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
-        // TODO: typeCheck and Symbol find?
+        if (array == null) {
+            ErrorHandler.symbolNotFound(ctx, arrayIdent)
+        }
 
         val indexList: MutableList<ExprNode> = java.util.ArrayList()
 
         for (exprContext in ctx.array_elem().expr()) {
             val index: ExprNode = visit(exprContext) as ExprNode
-            // TODO: check every expr has type int
+            semanticError = semanticError || typeCheck(exprContext, INT_T, index.type!!)
             val elemType = index.type
             indexList.add(index)
         }
@@ -378,12 +383,46 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
         return BinopNode(expr1, expr2, binop)
     }
 
-    override fun visitEqExpr(ctx: EqExprContext?): Node {
-        return super.visitEqExpr(ctx)
+    override fun visitEqExpr(ctx: EqExprContext): Node {
+        val literal: String = ctx.binaryOper.text
+        val binop: Utils.Binop = EqEnumMapping.get(literal)!!
+
+        val expr1: ExprNode = visit(ctx.expr(0)) as ExprNode
+        val exrp1Type = expr1.type
+        val expr2: ExprNode = visit(ctx.expr(1)) as ExprNode
+        val expr2Type = expr2.type
+
+        semanticError = semanticError or typeCheck(ctx.expr(0), exrp1Type, expr2Type!!)
+
+        return BinopNode(expr1, expr2, binop)
     }
 
-    override fun visitParenExpr(ctx: ParenExprContext?): Node {
-        return super.visitParenExpr(ctx)
+    override fun visitAndOrExpr(ctx: AndOrExprContext): Node {
+        val literal: String = ctx.binaryOper.text
+        val binop: Utils.Binop = LogicOpEnumMapping[literal]!!
+
+        val expr1: ExprNode = visit(ctx.expr(0)) as ExprNode
+        val expr1Type = expr1.type
+        val expr2: ExprNode = visit(ctx.expr(1)) as ExprNode
+        val expr2Type = expr2.type
+
+        semanticError = semanticError ||
+                typeCheck(ctx.expr(0), BOOL_T, expr1Type!!) ||
+                typeCheck(ctx.expr(1), BOOL_T, expr2Type!!)
+
+        return BinopNode(expr1, expr2, binop)
+    }
+
+    override fun visitParenExpr(ctx: ParenExprContext): Node {
+        return visit(ctx.expr())
+    }
+
+    override fun visitFstExpr(ctx: FstExprContext): Node {
+        return super.visitFstExpr(ctx)
+    }
+
+    override fun visitSndExpr(ctx: SndExprContext): Node {
+        return super.visitSndExpr(ctx)
     }
 
     // If program has error, return true

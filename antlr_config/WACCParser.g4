@@ -91,7 +91,7 @@ expr : intLiter         #IntExpr
      | expr binaryOper=( PLUS | MINUS ) expr       #ArithmeticExpr
      | expr binaryOper=(GT | GEQ | LT | LEQ) expr  #CmpExpr
      | expr binaryOper=( EQ | NEQ ) expr           #EqExpr
-     | expr (AND | OR) expr                        #AndOrExpr
+     | expr binaryOper=(AND | OR) expr                        #AndOrExpr
      | OPEN_PARENTHESES expr CLOSE_PARENTHESES     #ParenExpr
      ;
 
