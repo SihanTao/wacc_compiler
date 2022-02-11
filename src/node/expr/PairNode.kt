@@ -4,6 +4,12 @@ import type.PairType
 
 class PairNode : ExprNode {
 
+    /**
+     * Represent a pair of expression nodes
+     * Examples: pair(<pair-elem-type>, <pair-elem-type>)
+     *           pair(1, 2)
+     */
+
     var fst: ExprNode?
     var snd: ExprNode?
 

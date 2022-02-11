@@ -3,7 +3,14 @@ package node.expr
 import type.ArrayType
 import type.Type
 
+
+
 class ArrayNode(
+    /**
+     * Represent an array with a set function for single digit and set all elements
+     * Examples: [a, b, c, d, e]
+     */
+
     contentType: Type?, private var content: MutableList<ExprNode>, var length: Int
 ) : ExprNode() {
 
