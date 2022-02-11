@@ -73,9 +73,9 @@ array_type: base_type OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS
 
 pair_type: PAIR OPEN_PARENTHESES pairElemType COMMA pairElemType CLOSE_PARENTHESES;
 
-pairElemType: base_type
-            | array_type
-            | PAIR
+pairElemType: base_type     #PairElemBaseType
+            | array_type    #PairElemArrayType
+            | PAIR          #PairElemPairType
             ;
 
 // expression

@@ -10,11 +10,13 @@ import node.expr.*
 import node.stat.*
 import type.*
 import type.Utils.Companion.BOOL_T
+import type.Utils.Companion.CHAR_T
 import type.Utils.Companion.CmpEnumMapping
 import type.Utils.Companion.EqEnumMapping
 import type.Utils.Companion.INT_T
 import type.Utils.Companion.LogicOpEnumMapping
 import type.Utils.Companion.PAIR_T
+import type.Utils.Companion.STRING_T
 import type.Utils.Companion.binopEnumMapping
 import type.Utils.Companion.compareStatAllowedTypes
 import type.Utils.Companion.freeStatAllowedTypes
@@ -110,9 +112,9 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         return IdentNode(type.type, ctx.ident().IDENT().text)
     }
 
-    override fun visitType(ctx: TypeContext?): Node? {
-        return visitChildren(ctx)
-    }
+//    override fun visitType(ctx: TypeContext?): Node? {
+//        return visitChildren(ctx)
+//    }
 
     /* =========================================================
     *                   Statement Visitors
@@ -549,5 +551,44 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             list.add(expr)
         }
         return ArrayNode(firstContentType, list, length)
+    }
+
+    /* =======================================================
+   *                     Type visitors
+   * =======================================================
+   */
+    override fun visitIntType(ctx: IntTypeContext?): Node? {
+        return TypeNode(INT_T)
+    }
+
+    override fun visitBoolType(ctx: BoolTypeContext?): Node? {
+        return TypeNode(BOOL_T)
+    }
+
+    override fun visitCharType(ctx: CharTypeContext?): Node? {
+        return TypeNode(CHAR_T)
+    }
+
+    override fun visitStringType(ctx: StringTypeContext?): Node? {
+        return TypeNode(STRING_T)
+    }
+
+    override fun visitArrayType(ctx: ArrayTypeContext): Node? {
+        return visitArray_type(ctx.array_type())
+    }
+
+    override fun visitPairType(ctx: PairTypeContext): Node? {
+        return visitPair_type(ctx.pair_type())
+    }
+
+    override fun visitPairElemPairType(ctx: PairElemPairTypeContext?): Node? {
+        return TypeNode(PairType())
+    }
+
+    override fun visitPair_type(ctx: Pair_typeContext): Node? {
+        val leftChild: TypeNode = visit(ctx.pairElemType(0)) as TypeNode
+        val rightChild: TypeNode = visit(ctx.pairElemType(1)) as TypeNode
+        val type: Type = PairType(leftChild.type, rightChild.type)
+        return TypeNode(type)
     }
 }
