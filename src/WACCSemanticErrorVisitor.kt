@@ -78,6 +78,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         /* visit the body of the program and create the root SymbolTable here */
         isMainFunction = true
         symbolTable = SymbolTable(symbolTable)
+
         val body: StatNode = visit(ctx.stat()) as StatNode
         body.scope = symbolTable
         symbolTable = symbolTable!!.parentSymbolTable
