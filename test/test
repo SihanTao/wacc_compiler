@@ -34,7 +34,7 @@ for file in $(find "$INVALID_TEST_FOLDER" -name "*.wacc"); do
     # ./grun antlr.WACC program -tokens "$file" > tmp
     ret=$?
     if [ $ret -ne $((EXPECTED_ERROR_CODE)) ]; then
-      echo "${red}TEST" $COUNTER "FAILED: Expect" $((EXPECTED_ERROR_CODE)) "but got"  $ret "for" $file 
+      echo "${red}TEST" $COUNTER "FAILED: Expect" $((EXPECTED_ERROR_CODE)) "but got"  $ret "for" $file ${reset}
       FAILED=$((FAILED+1))
     else
       echo "${green}TEST" $COUNTER "PASSED:" $file "${reset}"
