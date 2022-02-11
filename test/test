@@ -1,11 +1,10 @@
 #!/bin/bash
-TEST_FOLDER=$2
-EXPECTED_CODE=$1
+INVALID_TEST_FOLDER=$3
+VALID_TEST_FOLDER=$2
+EXPECTED_ERROR_CODE=$1
 
-# counters to represent the total number of test files to be processed
-# shellcheck disable=SC2068
-TOTAL_COUNT=$(find ${TEST_FOLDER} -name "*.wacc" | wc -l)
-COUNTER=1
+
+COUNTER=0
 PASSED=0
 FAILED=0
 
@@ -14,14 +13,13 @@ green=`tput setaf 2`
 reset=`tput sgr0`
 
 echo "Start Testing"
-echo "Test Requirement: Program should have exit code" "$EXPECTED_CODE"
 
-for file in $(find "$TEST_FOLDER" -name "*.wacc"); do
+for file in $(find "$VALID_TEST_FOLDER" -name "*.wacc" 2> tmp); do
     ./compile "$file" >tmp 2>tmp
     # ./grun antlr.WACC program -tokens "$file" > tmp
     ret=$?
-    if [ $ret -ne $((EXPECTED_CODE)) ]; then
-      echo "${red}TEST" $COUNTER "FAILED: Exit Status of" $ret "for" $file "${reset}"
+    if [ $ret -ne 0 ]; then
+      echo "${red}TEST" $COUNTER "FAILED: Expect 0 but got" $ret "for" $file "${reset}"
       FAILED=$((FAILED+1))
     else
       echo "${green}TEST" $COUNTER "PASSED:" $file "${reset}"
@@ -31,8 +29,24 @@ for file in $(find "$TEST_FOLDER" -name "*.wacc"); do
     COUNTER=$((COUNTER+1))
 done
 
+for file in $(find "$INVALID_TEST_FOLDER" -name "*.wacc"); do
+    ./compile "$file" >tmp 2>tmp
+    # ./grun antlr.WACC program -tokens "$file" > tmp
+    ret=$?
+    if [ $ret -ne $((EXPECTED_ERROR_CODE)) ]; then
+      echo "${red}TEST" $COUNTER "FAILED: Expect" $((EXPECTED_ERROR_CODE)) "but got"  $ret "for" $file "${reset}"
+      FAILED=$((FAILED+1))
+    else
+      echo "${green}TEST" $COUNTER "PASSED:" $file "${reset}"
+      PASSED=$((PASSED+1))
+    fi
+
+    COUNTER=$((COUNTER+1))
+done
+
+
 echo "================================TEST RESULT============================================="
-echo "Total Test: " $TOTAL_COUNT
+echo "Total Test: " $COUNTER
 echo "Passed Test:" $PASSED
 echo "Failed Test:" $FAILED
 echo "========================================================================================"
