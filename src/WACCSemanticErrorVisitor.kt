@@ -1,5 +1,8 @@
 import ErrorHandler.Companion.SEMANTIC_ERROR_CODE
+import ErrorHandler.Companion.charOperatorRangeError
+import ErrorHandler.Companion.functionJunkAfterReturn
 import ErrorHandler.Companion.invalidFuncArgCount
+import ErrorHandler.Companion.invalidFunctionReturnExit
 import ErrorHandler.Companion.invalidPairError
 import ErrorHandler.Companion.returnFromMainError
 import ErrorHandler.Companion.symbolRedeclare
@@ -73,6 +76,12 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         for (f in ctx.func()) {
             val funcName: String = f.ident().IDENT().text
             val functionBody: StatNode = visitFunc(f) as StatNode
+
+            /* if the function declaration is not terminated with a return/exit statement, then throw the syntax error */
+            if (!functionBody.isReturned) {
+                invalidFunctionReturnExit(ctx, funcName)
+            }
+
             globalFuncTable!![funcName]!!.functionBody = functionBody
         }
 
@@ -293,6 +302,10 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val stat1: StatNode = visit(ctx!!.stat(0)) as StatNode
         val stat2: StatNode = visit(ctx.stat(1)) as StatNode
 
+        if (!isMainFunction && stat1.isReturned) {
+            functionJunkAfterReturn(ctx)
+        }
+
         val node: StatNode = SequenceNode(stat1, stat2)
 
         /* ensure all statNode has scope not null */
@@ -366,8 +379,26 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         /* parsed directly as a negative number(IntNode) */
         val exprText = ctx.expr().text
         if (unop!! == Utils.Unop.MINUS && exprText.toIntOrNull() != null) {
-            val intVal: Int = exprText.toInt()
-            return IntNode(intVal)
+            try {
+                val intVal: Int = exprText.toInt()
+                return IntNode(intVal)
+            } catch (e: NumberFormatException) {
+                ErrorHandler.integerRangeError(ctx, exprText)
+            }
+        }
+
+
+        /* Check the range of integer in the chr unary operator */
+        if (unop.equals(Utils.Unop.CHR) && exprText.toIntOrNull() != null) {
+            try {
+                val intVal: Int = exprText.toInt()
+                if (intVal < 0 || intVal >= 128) {
+                    charOperatorRangeError(ctx.expr(), exprText)
+                }
+            } catch (e: NumberFormatException) {
+                ErrorHandler.integerRangeError(ctx, exprText)
+            }
+
         }
 
         val expr: ExprNode = visit(ctx.expr()) as ExprNode
