@@ -2,6 +2,6 @@ package node
 
 import node.stat.StatNode
 
-class ProgramNode(functionList: ArrayList<FuncNode>, body: StatNode) : Node {
-
-}
+class ProgramNode(
+    private val functions: MutableMap<String, FuncNode>, private val body: StatNode
+) : Node

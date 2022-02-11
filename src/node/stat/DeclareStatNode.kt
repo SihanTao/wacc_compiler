@@ -1,7 +1,8 @@
 package node.stat
 
-import type.Type
+import node.expr.ExprNode
+import node.expr.IdentNode
 
-class DeclareStatNode(typeNode: Type, identNode: IdentNode, any: Any) : StatNode() {
+class DeclareStatNode(ident: String, exprNode: ExprNode) : StatNode() {
 
 }
