@@ -32,7 +32,7 @@ echo "==========================================================================
 for folder in ${VALID_EXAMPLES[@]}; do
   # shellcheck disable=SC2044
   for file in $(find "$folder" -name "*.wacc"); do
-    ./compile "$file" 
+    ./compile "$file" >tmp 2>tmp
     # ./grun antlr.WACC program -tokens "$file" > tmp
     ret=$?
     if [ $ret -ne 0 ]; then
@@ -53,3 +53,7 @@ echo "Total Test: " $TOTAL_COUNT
 echo "Passed Test:" $PASSED
 echo "Failed Test:" $FAILED
 echo "========================================================================================"
+
+if [[ $((FAILED)) -gt 0 ]]; then
+  exit -1
+fi
