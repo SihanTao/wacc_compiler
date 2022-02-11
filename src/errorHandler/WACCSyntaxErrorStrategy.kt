@@ -1,12 +1,11 @@
-package errorHandler;
+package errorHandler
 
-import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.DefaultErrorStrategy
+import org.antlr.v4.runtime.Parser
+import org.antlr.v4.runtime.RecognitionException
 
-public class WACCSyntaxErrorStrategy extends DefaultErrorStrategy {
-	
-	@Override
-	public void reportError(Parser parser, RecognitionException e) {
-		parser.notifyErrorListeners(e.getOffendingToken(), e.getMessage(), e);
-	}
-
+class WACCSyntaxErrorStrategy : DefaultErrorStrategy() {
+    override fun reportError(parser: Parser, e: RecognitionException) {
+        parser.notifyErrorListeners(e.offendingToken, e.message, e)
+    }
 }
