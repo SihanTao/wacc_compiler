@@ -236,10 +236,11 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitIfStat(ctx: IfStatContext?): Node {
         // 'if' <expr> than <stat> else <stat>
-
-        /* check that the condition of if statement is of type boolean */
+        println("In visitIfStat: before condition as ExprNode")
         val condition: ExprNode = visit(ctx!!.expr()) as ExprNode
         val conditionType = condition.type
+
+        /* check that the condition of if statement is of type boolean */
         semanticError = semanticError or typeCheck(ctx.expr(), BOOL_T, conditionType!!)
 
         symbolTable = SymbolTable(symbolTable)

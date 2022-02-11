@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
 
         val tree: WACCParser.ProgramContext = parser.program()
 
-        WACCSyntaxErrorVisitor(parser).visit(tree)
+//        WACCSyntaxErrorVisitor(parser).visit(tree)
         if (parser.numberOfSyntaxErrors > 0) {
             println(parser.numberOfSyntaxErrors.toString() + " syntax errors detected, "
               + " failing with exit code " + SYNTAX_ERROR_EXIT_CODE)

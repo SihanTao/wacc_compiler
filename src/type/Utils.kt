@@ -17,11 +17,9 @@ class Utils {
         // If program has error, return true
         @JvmStatic
         fun typeCheck(ctx: ParserRuleContext?, expected: Set<Type>, actual: Type): Boolean {
-            for (expectedType in expected) {
-                if (expectedType != actual) {
-                    ErrorHandler.typeMismatch(ctx!!, expected, actual)
-                    return true
-                }
+            if (expected.stream().noneMatch(actual::equals)) {
+                ErrorHandler.typeMismatch(ctx!!, expected, actual)
+                return true
             }
             return false
         }
