@@ -1,5 +1,8 @@
 import ErrorHandler.Companion.SEMANTIC_ERROR_CODE
+import ErrorHandler.Companion.charOperatorRangeError
+import ErrorHandler.Companion.functionJunkAfterReturn
 import ErrorHandler.Companion.invalidFuncArgCount
+import ErrorHandler.Companion.invalidFunctionReturnExit
 import ErrorHandler.Companion.invalidPairError
 import ErrorHandler.Companion.returnFromMainError
 import ErrorHandler.Companion.symbolRedeclare
@@ -8,6 +11,7 @@ import antlr.WACCParserBaseVisitor
 import node.*
 import node.expr.*
 import node.stat.*
+import org.antlr.v4.runtime.ParserRuleContext
 import type.*
 import type.Utils.Companion.ARRAY_T
 import type.Utils.Companion.BOOL_T
@@ -73,6 +77,11 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         for (f in ctx.func()) {
             val funcName: String = f.ident().IDENT().text
             val functionBody: StatNode = visitFunc(f) as StatNode
+
+            /* if the function declaration is not terminated with a return/exit statement, then throw the semantic error */
+            if (!functionBody.isReturned) {
+                invalidFunctionReturnExit(ctx, funcName)
+            }
             globalFuncTable!![funcName]!!.functionBody = functionBody
         }
 
@@ -294,6 +303,9 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val stat1: StatNode = visit(ctx!!.stat(0)) as StatNode
         val stat2: StatNode = visit(ctx.stat(1)) as StatNode
 
+        if (!isMainFunction && stat2.isReturned) {
+            functionJunkAfterReturn(ctx)
+        }
         val node: StatNode = SequenceNode(stat1, stat2)
 
         /* ensure all statNode has scope not null */
@@ -334,7 +346,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             indexList.add(index)
         }
 
-        val arrayType = array?.type as ArrayType
+        val arrayType = array.type as ArrayType
 
         return ArrayElemNode(array, indexList, arrayType.getContentType())
     }
@@ -367,8 +379,16 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         /* parsed directly as a negative number(IntNode) */
         val exprText = ctx.expr().text
         if (unop!! == Utils.Unop.MINUS && exprText.toIntOrNull() != null) {
-            val intVal: Int = exprText.toInt()
+            val intVal = intParse(ctx.expr(), "-$exprText")
             return IntNode(intVal)
+        }
+
+        /* Check the range of integer in the chr unary operator */
+        if (unop.equals(Utils.Unop.CHR) && exprText.toIntOrNull() != null) {
+            val intVal = intParse(ctx.expr(), exprText)
+            if (intVal < 0 || intVal >= 128) {
+                charOperatorRangeError(ctx.expr(), exprText)
+            }
         }
 
         val expr: ExprNode = visit(ctx.expr()) as ExprNode
@@ -600,5 +620,15 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val rightChild: TypeNode = visit(ctx.pairElemType(1)) as TypeNode
         val type: Type = PairType(leftChild.type, rightChild.type)
         return TypeNode(type)
+    }
+
+    private fun intParse(ctx: ParserRuleContext?, intExt: String): Int {
+        var integer = 0
+        try {
+            integer = intExt.toInt()
+        } catch (e: NumberFormatException) {
+            ErrorHandler.integerRangeError(ctx, intExt)
+        }
+        return integer
     }
 }
