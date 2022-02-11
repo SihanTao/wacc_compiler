@@ -1,14 +1,16 @@
 package node.stat
 
-class SequenceNode (stat1: StatNode, stat2: StatNode) : StatNode() {
+class SequenceNode (stat1: StatNode?, stat2: StatNode?) : StatNode() {
 
     private val body: MutableList<StatNode> = ArrayList()
 
-    private fun mergeScope(s: StatNode) {
+    private fun mergeScope(s: StatNode?) {
         if (s is SequenceNode) {
             body.addAll(s.body)
         } else if (s !is SkipNode) {
-            body.add(s)
+            if (s != null) {
+                body.add(s)
+            }
         }
     }
 

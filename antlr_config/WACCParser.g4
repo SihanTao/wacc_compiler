@@ -55,15 +55,15 @@ pair_elem: FST expr #FstExpr
          ;
 
 // type
-type : base_type
-     | array_type
-     | pair_type
+type : base_type    #BaseType
+     | array_type   #ArrayType
+     | pair_type    #PairType
      ;
 
-base_type: INT
-        | BOOL
-        | CHAR
-        | STRING
+base_type: INT      #IntType
+        | BOOL      #BoolType
+        | CHAR      #CharType
+        | STRING    #StringType
         ;
 
 array_type: base_type OPEN_SQUARE_BRACKETS CLOSE_SQUARE_BRACKETS

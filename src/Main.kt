@@ -1,9 +1,13 @@
 // import ANTLR package
 import antlr.*
 import errorHandler.WACCSyntaxErrorStrategy
+import errorHandler.WACCSyntaxErrorListener
 import org.antlr.v4.runtime.*
 import java.io.FileNotFoundException
 import kotlin.system.exitProcess
+
+private const val SYNTAX_ERROR_EXIT_CODE = 100
+private const val SEMANTIC_ERROR_EXIT_CODE = 200
 
 fun main(args: Array<String>) {
     try {
@@ -16,13 +20,23 @@ fun main(args: Array<String>) {
                 java.io.FileInputStream(file)
             CharStreams.fromStream(fileInputStream)
         }
+
         val lexer = WACCLexer(input)
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
+
         parser.errorHandler = WACCSyntaxErrorStrategy()
+
+        parser.removeErrorListeners()
+        parser.addErrorListener(WACCSyntaxErrorListener())
+
         val tree: WACCParser.ProgramContext = parser.program()
+
+        WACCSyntaxErrorVisitor(parser).visit(tree)
         if (parser.numberOfSyntaxErrors > 0) {
-            exitProcess(100)
+            println(parser.numberOfSyntaxErrors.toString() + " syntax errors detected, "
+              + " failing with exit code " + SYNTAX_ERROR_EXIT_CODE)
+            exitProcess(SYNTAX_ERROR_EXIT_CODE)
         }
 
         if (!args.contains("--parse-only")) {

@@ -53,12 +53,12 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             }
 
             /* get the return type of the function */
-            val returnType: Type = visit(f.type()) as Type
+            val returnType: Type = (visit(f.type()) as TypeNode).type
             /* store the parameters in a list of IdentNode */
             val paramList: MutableList<IdentNode> = ArrayList()
             if (f.paramlist() != null) {
                 for (param in f.paramlist().param()) {
-                    val paramType: Type = visit(param.type()) as Type
+                    val paramType: Type = (visit(param.type()) as TypeNode).type
                     val paramNode = IdentNode(paramType, param.ident().IDENT().text)
                     paramList.add(paramNode)
                 }
@@ -106,10 +106,11 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitParam(ctx: ParamContext?): Node {
-        return ParamNode(visit(ctx!!.type()) as Type, visit(ctx.ident()) as IdentNode)
+        val type: TypeNode = visit(ctx!!.type()) as TypeNode
+        return IdentNode(type.type, ctx.ident().IDENT().text)
     }
 
-    override fun visitType(ctx: TypeContext?): Node {
+    override fun visitType(ctx: TypeContext?): Node? {
         return visitChildren(ctx)
     }
 
@@ -123,14 +124,17 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitDeclareStat(ctx: DeclareStatContext): Node {
-        val expr: ExprNode = visit(ctx.assignrhs()) as ExprNode
+        val expr: ExprNode? = visit(ctx.assignrhs()) as ExprNode?
         val varName: String = ctx.ident().IDENT().text
-        val varType: Type = visit(ctx.type()) as Type
+        val varType: Type = (visit(ctx.type()) as TypeNode).type
         currDeclareType = varType
 
-        val exprType = expr.type
-        semanticError = semanticError or typeCheck(ctx.assignrhs(), varName, exprType, varType)
-        expr.type = varType
+        if (expr != null) {
+            val exprType = expr.type
+            semanticError = semanticError or typeCheck(ctx.assignrhs(), varName, exprType, varType)
+            /* need to set the type of the rhs expression */
+            expr.type = varType
+        }
 
         val node: StatNode = DeclareStatNode(varName, expr)
         node.scope = symbolTable
@@ -425,7 +429,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         return BinopNode(expr1, expr2, binop)
     }
 
-    override fun visitParenExpr(ctx: ParenExprContext): Node {
+    override fun visitParenExpr(ctx: ParenExprContext): Node? {
         return visit(ctx.expr())
     }
 
@@ -514,17 +518,19 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         return expr as Node
     }
 
-    override fun visitArray_type(ctx: Array_typeContext): Node {
+    override fun visitArray_type(ctx: Array_typeContext): Node? {
         var type: TypeNode? = null
         if (ctx.array_type() != null) {
-            type = visitArray_type(ctx.array_type()) as TypeNode
+            type = visitArray_type(ctx.array_type()) as TypeNode?
         } else if (ctx.base_type() != null) {
-            type = visit(ctx.base_type()) as TypeNode
+            type = visit(ctx.base_type()) as TypeNode?
         } else if (ctx.pair_type() != null) {
-            type = visitPair_type(ctx.pair_type()) as TypeNode
+            type = visitPair_type(ctx.pair_type()) as TypeNode?
         }
-
-        return TypeNode(ArrayType(type!!.type))
+        if (type == null) {
+            return null
+        }
+        return TypeNode(ArrayType(type.type))
     }
 
     override fun visitArrayLiter(ctx: ArrayLiterContext): Node {

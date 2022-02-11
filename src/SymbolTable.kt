@@ -14,13 +14,14 @@ class SymbolTable(parentSymbolTable: SymbolTable?) {
         this.parentSymbolTable = parentSymbolTable
     }
 
-    fun add(name: String, expr: ExprNode): Boolean {
+    fun add(name: String, expr: ExprNode?): Boolean {
         if (dictionary.containsKey(name)) {
             ErrorHandler.symbolRedeclare(null, name)
             return true
         }
-
-        dictionary[name] = expr
+        if (expr != null) {
+            dictionary[name] = expr
+        }
         return false
     }
 
