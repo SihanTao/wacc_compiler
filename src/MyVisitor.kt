@@ -1,5 +1,6 @@
 import ErrorHandler.Companion.SEMANTIC_ERROR_CODE
 import ErrorHandler.Companion.invalidFunctionReturnExit
+import ErrorHandler.Companion.invalidPairError
 import ErrorHandler.Companion.symbolRedeclared
 import antlr.WACCParser
 import antlr.WACCParser.*
@@ -9,6 +10,7 @@ import node.expr.*
 import node.stat.*
 import org.antlr.v4.runtime.ParserRuleContext
 import type.ArrayType
+import type.PairType
 import type.Type
 import type.Utils
 import type.Utils.Companion.BOOL_T
@@ -16,6 +18,7 @@ import type.Utils.Companion.CmpEnumMapping
 import type.Utils.Companion.EqEnumMapping
 import type.Utils.Companion.INT_T
 import type.Utils.Companion.LogicOpEnumMapping
+import type.Utils.Companion.PAIR_T
 import type.Utils.Companion.binopEnumMapping
 import type.Utils.Companion.compareStatAllowedTypes
 import type.Utils.Companion.unopEnumMapping
@@ -418,11 +421,31 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitFstExpr(ctx: FstExprContext): Node {
-        return super.visitFstExpr(ctx)
+        val exprNode: ExprNode = visit(ctx.expr()) as ExprNode
+        val pairType = exprNode.type
+        val pairElemType: Type? = (pairType as PairType).fstType
+
+        semanticError = semanticError or typeCheck(ctx.expr(), PAIR_T, pairType)
+
+        if (pairElemType == null) {
+            invalidPairError(ctx.expr())
+        }
+
+        return PairElemNode(exprNode, pairElemType).fst()
     }
 
     override fun visitSndExpr(ctx: SndExprContext): Node {
-        return super.visitSndExpr(ctx)
+        val exprNode: ExprNode = visit(ctx.expr()) as ExprNode
+        val pairType = exprNode.type
+        val pairElemType: Type? = (pairType as PairType).sndType
+
+        semanticError = semanticError or typeCheck(ctx.expr(), PAIR_T, pairType)
+
+        if (pairElemType == null) {
+            invalidPairError(ctx.expr())
+        }
+
+        return PairElemNode(exprNode, pairElemType).snd()
     }
 
     // If program has error, return true
