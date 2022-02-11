@@ -511,7 +511,21 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitArrayLiter(ctx: ArrayLiterContext): Node {
-        return super.visitArrayLiter(ctx)
+        val length: Int = ctx.expr().size
+        if (length == 0) {
+            return ArrayNode(currDeclareType, length)
+        }
+        val firstExpr: ExprNode = visit(ctx.expr(0)) as ExprNode
+        val firstContentType = firstExpr.type
+        val list: MutableList<ExprNode> = mutableListOf()
+        for (context in ctx.expr()) {
+            val expr: ExprNode = visit(context) as ExprNode
+            val exprType = expr.type
+            // Check all type are same
+            semanticError = semanticError or typeCheck(context, firstContentType, exprType!!)
+            list.add(expr)
+        }
+        return ArrayNode(firstContentType, list, length)
     }
 
     // If program has error, return true
