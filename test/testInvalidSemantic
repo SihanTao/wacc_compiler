@@ -51,3 +51,7 @@ echo "Total Test: " $TOTAL_COUNT
 echo "Passed Test:" $PASSED
 echo "Failed Test:" $FAILED
 echo "========================================================================================"
+
+if [[ $((FAILED)) -gt 0 ]]; then
+  exit -1
+fi
