@@ -1,0 +1,42 @@
+#!/bin/bash
+TEST_FOLDER=$2
+EXPECTED_CODE=$1
+
+# counters to represent the total number of test files to be processed
+# shellcheck disable=SC2068
+TOTAL_COUNT=$(find ${TEST_FOLDER} -name "*.wacc" | wc -l)
+COUNTER=1
+PASSED=0
+FAILED=0
+
+red=`tput setaf 1`
+green=`tput setaf 2`
+reset=`tput sgr0`
+
+echo "Start Testing"
+echo "Test Requirement: Program should have exit code" "$EXPECTED_CODE"
+
+for file in $(find "$TEST_FOLDER" -name "*.wacc"); do
+    ./compile "$file" >tmp 2>tmp
+    # ./grun antlr.WACC program -tokens "$file" > tmp
+    ret=$?
+    if [ $ret -ne $((EXPECTED_CODE)) ]; then
+      echo "${red}TEST" $COUNTER "FAILED: Exit Status of" $ret "for" $file "${reset}"
+      FAILED=$((FAILED+1))
+    else
+      echo "${green}TEST" $COUNTER "PASSED:" $file "${reset}"
+      PASSED=$((PASSED+1))
+    fi
+
+    COUNTER=$((COUNTER+1))
+done
+
+echo "================================TEST RESULT============================================="
+echo "Total Test: " $TOTAL_COUNT
+echo "Passed Test:" $PASSED
+echo "Failed Test:" $FAILED
+echo "========================================================================================"
+
+if [[ $((FAILED)) -gt 0 ]]; then
+  exit -1
+fi

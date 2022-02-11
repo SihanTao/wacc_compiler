@@ -1,30 +1,149 @@
 stages:
   - build
-  - test
+  - test-syntax
+  - test-semantics
+  - test-general
+
+variables:
+  VALID_TEST_DIR: "test/wacc_examples/valid/"
+  INVALID_SYNTAX_TEST_DIR: "test/wacc_examples/invalid/syntaxErr/"
+  INVALID_SEMANTICS_TEST_DIR: "test/wacc_examples/invalid/semanticErr/"
 
 build-job:
   stage: build
   script:
     - make
+  artifacts:
+    paths:
+      - bin/
 
-valid-test-job:
-  stage: test
+array-syntax-test:
+  stage: test-syntax
   script:
-    - pwd
-    - ./testValid
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/array
+    - /bin/bash test/test 100 "$INVALID_SYNTAX_TEST_DIR"/array
 
-invalid_syntax-test-job:
-  stage: test
+basic-syntax-test:
+  stage: test-syntax
   script:
-    - ./testInvalidSyntax
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/basic
+    - /bin/bash test/test 100 "$INVALID_SYNTAX_TEST_DIR"/basic
 
-invalid_semantic-test-job:
-  stage: test
+expressions-syntax-test:
+  stage: test-syntax
   script:
-    - ./testInvalidSemantic
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/expressions
+    - /bin/bash test/test 100 "$INVALID_SYNTAX_TEST_DIR"/expressions
 
+function-syntax-test:
+  stage: test-syntax
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/function
+    - /bin/bash test/test 100 "$INVALID_SYNTAX_TEST_DIR"/function
 
+if-syntax-test:
+  stage: test-syntax
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/if
+    - /bin/bash test/test 100 "$INVALID_SYNTAX_TEST_DIR"/if
 
+pairs-syntax-test:
+  stage: test-syntax
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/pairs
+    - /bin/bash test/test 100 "$INVALID_SYNTAX_TEST_DIR"/pairs
 
-  
+print-syntax-test:
+  stage: test-syntax
+  script:
+    - /bin/bash test/test 100 print
 
+sequence-syntax-test:
+  stage: test-syntax
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/sequence
+    - /bin/bash test/test 100 "$INVALID_SYNTAX_TEST_DIR"/sequence
+
+variables-syntax-test:
+  stage: test-syntax
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/variables
+    - /bin/bash test/test 100 "$INVALID_SYNTAX_TEST_DIR"/variables
+
+while-syntax-test:
+  stage: test-syntax
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/while
+    - /bin/bash test/test 100 "$INVALID_SYNTAX_TEST_DIR"/while
+
+exit-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 exit
+
+expressions-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 expressions
+
+function-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 function
+
+if-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 if
+
+io-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/io
+    - /bin/bash test/test 200 "$INVALID_SEMANTIC_TEST_DIR"/io
+
+multiple-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 multiple
+
+pairs-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 pairs
+
+print-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 print
+
+read-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 read
+
+scope-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/scope
+    - /bin/bash test/test 200 "$INVALID_SEMANTIC_TEST_DIR"/scope
+
+variables-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 variables
+
+while-semantic-test:
+  stage: test-semantic
+  script:
+    - /bin/bash test/test 200 while
+
+advanced-general-test:
+  stage: test-general
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/advanced
+
+runtimeErr-general-test:
+  stage: test-general
+  script:
+    - /bin/bash test/test 0 "$VALID_TEST_DIR"/runtimeErr
