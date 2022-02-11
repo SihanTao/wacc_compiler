@@ -1,5 +1,7 @@
 package type
 
+import org.antlr.v4.runtime.ParserRuleContext
+
 class Utils {
 
 
@@ -12,6 +14,39 @@ class Utils {
     }
 
     companion object {
+        // If program has error, return true
+        @JvmStatic
+        fun typeCheck(ctx: ParserRuleContext?, expected: Set<Type>, actual: Type): Boolean {
+            for (expectedType in expected) {
+                if (expectedType != actual) {
+                    ErrorHandler.typeMismatch(ctx!!, expected, actual)
+                    return true
+                }
+            }
+            return false
+        }
+
+        @JvmStatic
+        fun typeCheck(ctx: ParserRuleContext?, expected: Type?, actual: Type): Boolean {
+            if (actual != expected) {
+                ErrorHandler.typeMismatch(ctx!!, expected!!, actual)
+                return true
+            }
+            return false
+        }
+
+        @JvmStatic
+        fun typeCheck(
+            ctx: ParserRuleContext?, varName: String?, expected: Type?,
+            actual: Type
+        ): Boolean {
+            if (actual != expected) {
+                ErrorHandler.typeMismatch(ctx!!, varName!!, expected!!, actual)
+                return true
+            }
+            return false
+        }
+
         @JvmStatic
         lateinit var unopEnumMapping: Map<String, Unop>
 
@@ -33,10 +68,13 @@ class Utils {
         /* a list of allowed types in read, free, cmp statement */
         @JvmStatic
         lateinit var readStatAllowedTypes: Set<Type>
+
         @JvmStatic
         lateinit var freeStatAllowedTypes: Set<Type>
+
         @JvmStatic
         lateinit var compareStatAllowedTypes: Set<Type>
+
         @JvmStatic
         lateinit var notPrintable: Set<Type>
 
@@ -89,6 +127,8 @@ class Utils {
         freeStatAllowedTypes = setOf(ARRAY_T, PAIR_T)
         compareStatAllowedTypes = setOf(STRING_T, INT_T, CHAR_T)
         notPrintable = setOf(ArrayType(CHAR_T))
+
     }
+
 
 }

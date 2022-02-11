@@ -1,4 +1,4 @@
-package WACCSyntaxAnalyser;
+package errorHandler;
 
 import org.antlr.v4.runtime.*;
 

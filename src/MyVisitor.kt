@@ -8,7 +8,6 @@ import antlr.WACCParserBaseVisitor
 import node.*
 import node.expr.*
 import node.stat.*
-import org.antlr.v4.runtime.ParserRuleContext
 import type.*
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CmpEnumMapping
@@ -20,6 +19,7 @@ import type.Utils.Companion.binopEnumMapping
 import type.Utils.Companion.compareStatAllowedTypes
 import type.Utils.Companion.freeStatAllowedTypes
 import type.Utils.Companion.readStatAllowedTypes
+import type.Utils.Companion.typeCheck
 import type.Utils.Companion.unopEnumMapping
 import type.Utils.Companion.unopTypeMapping
 import kotlin.system.exitProcess
@@ -543,35 +543,5 @@ class MyVisitor : WACCParserBaseVisitor<Node>() {
             list.add(expr)
         }
         return ArrayNode(firstContentType, list, length)
-    }
-
-    // If program has error, return true
-    private fun typeCheck(ctx: ParserRuleContext?, expected: Set<Type>, actual: Type): Boolean {
-        for (expectedType in expected) {
-            if (expectedType != actual) {
-                ErrorHandler.typeMismatch(ctx!!, expected, actual)
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun typeCheck(ctx: ParserRuleContext?, expected: Type?, actual: Type): Boolean {
-        if (actual != expected) {
-            ErrorHandler.typeMismatch(ctx!!, expected!!, actual)
-            return true
-        }
-        return false
-    }
-
-    private fun typeCheck(
-        ctx: ParserRuleContext?, varName: String?, expected: Type?,
-        actual: Type
-    ): Boolean {
-        if (actual != expected) {
-            ErrorHandler.typeMismatch(ctx!!, varName!!, expected!!, actual)
-            return true
-        }
-        return false
     }
 }
