@@ -2,6 +2,7 @@
 import org.antlr.v4.runtime.*
 import org.antlr.v4.runtime.tree.*
 import antlr.*
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
     val input: CharStream = if (args.isEmpty()) {
@@ -16,5 +17,9 @@ fun main(args: Array<String>) {
     val tokens = CommonTokenStream(lexer)
     val parser = WACCParser(tokens)
     val tree: ParseTree = parser.program()
-    println(tree.toStringTree(parser)) // Print LISP-style tree
+    if (parser.getNumberOfSyntaxErrors() > 0) {
+        exitProcess(100)
+    }
+    val visitor = MyVisitor()
+    visitor.visit(tree)
 }
