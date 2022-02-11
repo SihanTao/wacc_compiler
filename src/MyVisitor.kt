@@ -10,10 +10,7 @@ import node.*
 import node.expr.*
 import node.stat.*
 import org.antlr.v4.runtime.ParserRuleContext
-import type.ArrayType
-import type.PairType
-import type.Type
-import type.Utils
+import type.*
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CmpEnumMapping
 import type.Utils.Companion.EqEnumMapping
@@ -507,7 +504,16 @@ class MyVisitor() : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitArray_type(ctx: Array_typeContext): Node {
-        return super.visitArray_type(ctx)
+        var type: TypeNode? = null
+        if (ctx.array_type() != null) {
+            type = visitArray_type(ctx.array_type()) as TypeNode
+        } else if (ctx.base_type() != null) {
+            type = visit(ctx.base_type()) as TypeNode
+        } else if (ctx.pair_type() != null) {
+            type = visitPair_type(ctx.pair_type()) as TypeNode
+        }
+
+        return TypeNode(ArrayType(type!!.type))
     }
 
     override fun visitArrayLiter(ctx: ArrayLiterContext): Node {
