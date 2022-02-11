@@ -557,19 +557,19 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
    *                     Type visitors
    * =======================================================
    */
-    override fun visitIntType(ctx: IntTypeContext?): Node? {
+    override fun visitIntType(ctx: IntTypeContext?): Node {
         return TypeNode(INT_T)
     }
 
-    override fun visitBoolType(ctx: BoolTypeContext?): Node? {
+    override fun visitBoolType(ctx: BoolTypeContext?): Node {
         return TypeNode(BOOL_T)
     }
 
-    override fun visitCharType(ctx: CharTypeContext?): Node? {
+    override fun visitCharType(ctx: CharTypeContext?): Node {
         return TypeNode(CHAR_T)
     }
 
-    override fun visitStringType(ctx: StringTypeContext?): Node? {
+    override fun visitStringType(ctx: StringTypeContext?): Node {
         return TypeNode(STRING_T)
     }
 
@@ -577,15 +577,15 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         return visitArray_type(ctx.array_type())
     }
 
-    override fun visitPairType(ctx: PairTypeContext): Node? {
+    override fun visitPairType(ctx: PairTypeContext): Node {
         return visitPair_type(ctx.pair_type())
     }
 
-    override fun visitPairElemPairType(ctx: PairElemPairTypeContext?): Node? {
+    override fun visitPairElemPairType(ctx: PairElemPairTypeContext?): Node {
         return TypeNode(PairType())
     }
 
-    override fun visitPair_type(ctx: Pair_typeContext): Node? {
+    override fun visitPair_type(ctx: Pair_typeContext): Node {
         val leftChild: TypeNode = visit(ctx.pairElemType(0)) as TypeNode
         val rightChild: TypeNode = visit(ctx.pairElemType(1)) as TypeNode
         val type: Type = PairType(leftChild.type, rightChild.type)
