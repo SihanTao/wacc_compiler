@@ -15,7 +15,9 @@ import node.expr.IntNode
 import node.stat.*
 import type.Utils.Companion.notPrintable
 
-class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVisitor<Node>() {
+typealias isEndReturnedOrExited = Boolean
+
+class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVisitor<isEndReturnedOrExited>() {
 //    private var isMainFunction = false
 //    override fun visitProgram(ctx: ProgramContext): Node? {
 //        isMainFunction = true
@@ -34,24 +36,25 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
 //        return null
 //    }
 
-    override fun visitFunc(ctx: WACCParser.FuncContext): Node {
+    override fun visitFunc(ctx: WACCParser.FuncContext): isEndReturnedOrExited {
 
         /* visit the function body */
 
-        val functionBody: StatNode = visit(ctx.stat()) as StatNode
-        if (!functionBody.isReturned) {
+        val functionBody: isEndReturnedOrExited = visit(ctx.stat())
+        if (!functionBody) {
             parser.notifyErrorListeners(
                     ctx.getStart(),
-                    "Function func is not ended with a return or an exit statement",
+                    "Function "+ ctx.ident().IDENT().text + " is not ended with a return or an exit statement",
                     null
             )
+            return false
         }
 
 
-        return functionBody
+        return true
     }
 
-    override fun visitIntLiter(ctx: IntLiterContext): Node? {
+    override fun visitIntLiter(ctx: IntLiterContext): isEndReturnedOrExited {
 //        println("In IntLiter")
 //        println(ctx.getStart().text)
         try {
@@ -59,14 +62,14 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
         } catch (e: NumberFormatException) {
             parser.notifyErrorListeners(
                 ctx.getStart(),
-                "Int Literal " + ctx.text + " overflowed as it is too large",
+                "Integer value " + ctx.text + " is too large for a 32-bit signed integer",
                 null
             )
         }
-        return IntNode(0)
+        return false
     }
 
-    override fun visitCharLiter(ctx: CharLiterContext): Node {
+    override fun visitCharLiter(ctx: CharLiterContext): isEndReturnedOrExited {
         val c = ctx.text[0]
         /*
             Fixed an error
@@ -78,55 +81,55 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
                 null
             )
         }
-        return CharNode('x')
+        return false
     }
 
-    override fun visitSkipStat(ctx: WACCParser.SkipStatContext?): Node {
-        return SkipNode()
+    override fun visitSkipStat(ctx: WACCParser.SkipStatContext?): isEndReturnedOrExited {
+        return false
     }
 
-    override fun visitDeclareStat(ctx: WACCParser.DeclareStatContext?): Node {
+    override fun visitDeclareStat(ctx: WACCParser.DeclareStatContext?): isEndReturnedOrExited {
         super.visitDeclareStat(ctx)
-        return DeclareStatNode("some identifier", null);
+        return false
     }
 
-    override fun visitAssignStat(ctx: WACCParser.AssignStatContext?): Node {
+    override fun visitAssignStat(ctx: WACCParser.AssignStatContext?): isEndReturnedOrExited {
         super.visitAssignStat(ctx)
-        return AssignNode(null, null)
+        return false
     }
 
-    override fun visitReadStat(ctx: WACCParser.ReadStatContext?): Node {
+    override fun visitReadStat(ctx: WACCParser.ReadStatContext?): isEndReturnedOrExited {
         super.visitReadStat(ctx)
-        return ReadNode(IntNode(0))
+        return false
     }
 
-    override fun visitFreeStat(ctx: WACCParser.FreeStatContext?): Node {
+    override fun visitFreeStat(ctx: WACCParser.FreeStatContext?): isEndReturnedOrExited {
         super.visitFreeStat(ctx)
-        return FreeNode(IntNode(0))
+        return false
     }
 
-    override fun visitReturnStat(ctx: WACCParser.ReturnStatContext?): Node {
+    override fun visitReturnStat(ctx: WACCParser.ReturnStatContext?): isEndReturnedOrExited {
         super.visitReturnStat(ctx)
-        return ReturnNode(IntNode(0))
+        return false
     }
 
-    override fun visitExitStat(ctx: WACCParser.ExitStatContext?): Node {
+    override fun visitExitStat(ctx: WACCParser.ExitStatContext?): isEndReturnedOrExited {
         super.visitExitStat(ctx)
-        return ExitNode(IntNode(0))
+        return false
     }
 
-    override fun visitWhileStat(ctx: WACCParser.WhileStatContext?): Node {
+    override fun visitWhileStat(ctx: WACCParser.WhileStatContext?): isEndReturnedOrExited {
         super.visitWhileStat(ctx)
-        return WhileNode(IntNode(0), SkipNode())
+        return false
     }
 
-    override fun visitScopeStat(ctx: WACCParser.ScopeStatContext?): Node {
+    override fun visitScopeStat(ctx: WACCParser.ScopeStatContext?): isEndReturnedOrExited {
         super.visitScopeStat(ctx)
-        return ScopeNode(SkipNode());
+        return false;
     }
 
 
-    override fun visitSequenceStat(ctx: SequenceStatContext): Node {
+    override fun visitSequenceStat(ctx: SequenceStatContext): isEndReturnedOrExited {
 //        println("HERE!!!!!!!!!!!!")
 //        println(ctx.stat().toString())
 //        val after = visit(ctx.stat(1)) as StatNode?
@@ -134,31 +137,22 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
 //            parser.notifyErrorListeners(ctx.getStart(), "Code after return statement", null)
 //        }
 //        return SequenceNode(before, after)
-        val stat2: StatNode = visit(ctx.stat(1)) as StatNode
-        val statNode: StatNode = SequenceNode(null, stat2)
+        var res = false
+        if (ctx.stat(1) != null && visit(ctx.stat(1))  != null) res = visit(ctx.stat(1))
 
-        if (stat2.isReturned) {
-            statNode.isReturned = true;
-        }
-
-        return statNode
+        return res
     }
 
-    override fun visitIfStat(ctx: WACCParser.IfStatContext): Node {
-
+    override fun visitIfStat(ctx: WACCParser.IfStatContext): isEndReturnedOrExited {
         super.visitIfStat(ctx)
-        val ifBody: StatNode = visit(ctx.stat(0)) as StatNode
-        val elseBody: StatNode = visit(ctx.stat(1)) as StatNode
-        val ifNode = IfNode(IntNode(0), ifBody, elseBody)
+        val ifBody = if (ctx.stat(0) != null) visit(ctx.stat(0)) else false
+        val elseBody = if (ctx.stat(1) != null) visit(ctx.stat(1)) else false
 
-        if (ifBody.isReturned && elseBody.isReturned) {
-            ifNode.isReturned = true
-        }
-        return ifNode
+        return ifBody && elseBody
     }
 
 
-    override fun visitPrintlnStat(ctx: PrintlnStatContext): Node? {
+    override fun visitPrintlnStat(ctx: PrintlnStatContext): isEndReturnedOrExited {
 //        val printContent = visit(ctx.expr()) as ExprNode?
 //        val type = printContent?.type!!
 //        if (typeCheck(ctx, notPrintable, type)) {
@@ -166,10 +160,10 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
 //        }
 //        return visitChildren(ctx)
         super.visitPrintlnStat(ctx)
-        return PrintlnNode(null);
+        return false
     }
 
-    override fun visitPrintStat(ctx: PrintStatContext): Node? {
+    override fun visitPrintStat(ctx: PrintStatContext): isEndReturnedOrExited {
 //        println("In visitPrintStat")
 //        println(ctx.getStart().line.toString() + ":" + ctx.getStart().charPositionInLine + ctx.expr().text)
 //        val printContent = visit(ctx.expr()) as ExprNode?
@@ -179,7 +173,7 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
 //            parser.notifyErrorListeners(ctx.getStart(), "Cannot print char[] directly in WACC", null)
 //        }
 //        return visitChildren(ctx)
-        return PrintNode(null);
+        return false
     }
 
 //
