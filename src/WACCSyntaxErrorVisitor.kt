@@ -110,12 +110,12 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
 
     override fun visitReturnStat(ctx: WACCParser.ReturnStatContext?): isEndReturnedOrExited {
         super.visitReturnStat(ctx)
-        return false
+        return true
     }
 
     override fun visitExitStat(ctx: WACCParser.ExitStatContext?): isEndReturnedOrExited {
         super.visitExitStat(ctx)
-        return false
+        return true
     }
 
     override fun visitWhileStat(ctx: WACCParser.WhileStatContext?): isEndReturnedOrExited {
@@ -173,6 +173,8 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
 //            parser.notifyErrorListeners(ctx.getStart(), "Cannot print char[] directly in WACC", null)
 //        }
 //        return visitChildren(ctx)
+        super.visitPrintStat(ctx)
+
         return false
     }
 
