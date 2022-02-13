@@ -1,7 +1,7 @@
 #!/bin/bash
 SRC_DIR="$(pwd)"
 
-INVALID_SEMANTIC_EXAMPLES=$(find "${SRC_DIR}/wacc_examples/invalid/semanticErr" -iname '*.wacc')
+INVALID_SEMANTIC_EXAMPLES=$(find "${SRC_DIR}/test/wacc_examples/invalid/semanticErr" -iname '*.wacc')
 
 
 TOTAL_COUNT=$(find ${INVALID_SEMANTIC_EXAMPLES[@]} -name "*.wacc" | wc -l)

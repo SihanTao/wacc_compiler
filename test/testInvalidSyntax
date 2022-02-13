@@ -1,7 +1,7 @@
 #!/bin/bash
 SRC_DIR="$(pwd)"
 
-INVALID_SYNTAX_EXAMPLES=$(find "${SRC_DIR}/wacc_examples/invalid/syntaxErr" -iname '*.wacc')
+INVALID_SYNTAX_EXAMPLES=$(find "${SRC_DIR}/test/wacc_examples/invalid/syntaxErr" -iname '*.wacc')
 
 # counters to represent the total number of test files to be processed
 # shellcheck disable=SC2068
@@ -21,7 +21,7 @@ echo "==========================================================================
 for folder in ${INVALID_SYNTAX_EXAMPLES[@]}; do
   # shellcheck disable=SC2044
   for file in $(find "$folder" -name "*.wacc"); do
-    ./compile "$file" >tmp 2>tmp
+    ./compile "$file"
     # ./grun antlr.WACC program -tokens "$file" >tmp 2>tmp
     ret=$?
     if [ $ret -ne 100 ]; then
