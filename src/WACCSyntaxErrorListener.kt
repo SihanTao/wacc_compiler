@@ -4,6 +4,6 @@ import org.antlr.v4.runtime.Recognizer
 
 class WACCSyntaxErrorListener : BaseErrorListener() {
     override fun syntaxError(recognizer: Recognizer<*, *>?, offendingSymbol: Any?, line: Int, charPositionInLine: Int, msg: String?, e: RecognitionException?) {
-        println("Syntax Error line $line:$charPositionInLine $msg")
+        println("Syntax Error on line $line:$charPositionInLine $msg")
     }
 }
