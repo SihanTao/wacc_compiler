@@ -1,7 +1,9 @@
 package backend.instructionGenerator;
 
+import backend.ARMRegister;
 import backend.instructions.Instruction;
 import backend.instructions.Label;
+import backend.instructions.Push;
 import node.Node;
 import node.ProgramNode;
 import node.stat.SkipNode;
@@ -38,6 +40,7 @@ public class InstructionGenerator implements ASTVisitor<Void> {
         // main:
         instructions.add(new Label("main"));
         // PUSH {lr}
+        instructions.add(new Push(ARMRegister.LR));
 
         return null;
     }
