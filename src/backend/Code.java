@@ -17,7 +17,7 @@ public class Code implements Directive {
     StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("\t.global main");
     for (Instruction instruction : instructions) {
-      stringBuilder.append(instruction.toString());
+      stringBuilder.append(instruction.toString()).append("\n");
     }
     return stringBuilder.toString();
   }
