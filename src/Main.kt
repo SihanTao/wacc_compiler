@@ -32,36 +32,30 @@ fun main(args: Array<String>) {
 
         val tree: WACCParser.ProgramContext = parser.program()
 
-        if (parser.numberOfSyntaxErrors > 0 ) {
-//            println(parser.numberOfSyntaxErrors.toString() + " syntax errors detected, "
-//              + " failing with exit code " + SYNTAX_ERROR_EXIT_CODE)
-            exitProcess(SYNTAX_ERROR_EXIT_CODE)
-        }
-
         WACCSyntaxErrorVisitor(parser).visit(tree)
 
         if (parser.numberOfSyntaxErrors > 0 ) {
-//            println(parser.numberOfSyntaxErrors.toString() + " syntax errors detected, "
-//              + " failing with exit code " + SYNTAX_ERROR_EXIT_CODE)
             exitProcess(SYNTAX_ERROR_EXIT_CODE)
         }
 
 
         if (!args.contains("--parse-only")) {
             val semanticChecker = WACCSemanticErrorVisitor()
-            val ast = semanticChecker.visitProgram(tree) as ProgramNode
-            val writer = PrintWriter("output.s")
-            val representation = WACCAssembleRepresentation()
-            val codeGenerator = WACCCodeGeneratorVisitor(representation)
-            codeGenerator.visitProgramNode(ast)
-            representation.generateAssembleCode(writer)
-            writer.close()
+            val ast = semanticChecker.visitProgram(tree)
+
+            if (args.contains("--print_ast")) {
+                println(tree.toStringTree(parser)) // Print LISP-style tree
+            }
+//            val writer = PrintWriter("output.s")
+//            val representation = WACCAssembleRepresentation()
+//            val codeGenerator = WACCCodeGeneratorVisitor(representation)
+//            codeGenerator.visitProgramNode(ast)
+//            representation.generateAssembleCode(writer)
+//            writer.close()
         }
 
 
-        if (args.contains("--print_ast")) {
-            println(tree.toStringTree(parser)) // Print LISP-style tree
-        }
+
     } catch (e: FileNotFoundException) {
         println("FileNotFoundException in Main.kt: Cannot find the file")
     }
