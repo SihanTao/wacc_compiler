@@ -1,50 +1,54 @@
 #!/bin/bash
 SRC_DIR="$(pwd)"
 
-#mkdir "${SRC_DIR}/log/expectedArmCompilerOutput"
-#mkdir "${SRC_DIR}/log/actualExecuteOutput"
+VALID_EXAMPLES=$(find "${SRC_DIR}/wacc_examples/valid")
 
-VALID_EXAMPLES=$(find "${SRC_DIR}/test/wacc_examples/valid")
-EXPECTED_OUTPUT_DIR= "${SRC_DIR}/log/expectedOutput"
-EXECUTE_OUTPUT_DIR= "${SRC_DIR}/log/actualExecuteOutput"
+mkdir -p "${SRC_DIR}/log"
+mkdir -p "${SRC_DIR}/log/assemblerOutput"
+mkdir -p "${SRC_DIR}/log/actualExecuteOutput"
+mkdir -p "${SRC_DIR}/log/refAssemblerOutput"
+mkdir -p "${SRC_DIR}/log/refExecuteOutput"
 
-TOTAL_COUNT=$(find ${VALID_EXAMPLES[@]} -name "*.wacc" | wc -l)
+ASSEMBLER_OUTPUT_DIR= "${SRC_DIR}/log/assemblerOutput"
+EXECUTOR_OUTPUT_DIR= "${SRC_DIR}/log/actualExecuteOutput"
+REFERENCE_COMPILER= "${SRC_DIR}/wacc_examples/refCompile"
+REFERENCE_EMULATOR= "${SRC_DIR}/wacc_examples/refEmulate"
+REF_ASSEMBLER_OUTPUT_DIR= "${SRC_DIR}/log/refAssemblerOutput"
+REF_EXECUTOR_OUTPUT_DIR= "${SRC_DIR}/log/refExecuteOutput"
+
+TOTAL_COUNT=$(find ${VALID_EXAMPLES} -name "*.wacc" | wc -l)
 COUNTER=0
+COMPILED=0
 PASSED=0
-FAILED=0
-
 
 echo "=============================Valid Case Test============================================"
 echo "Correct Program must have expected output matches the execute output"
 echo "========================================================================================"
 
-for folder in ${VALID_EXAMPLES[@]}; do
-    EXPECTED_OUTPUT_FOLDER="${SRC_DIR}/log/expectedOutput/$(basename folder)"
-    EXECUTE_OUTPUT_FOLDER="${SRC_DIR}/log/actualExecuteOutput/$(basename folder)"
+for file in ${VALID_EXAMPLES}/*.wacc; do
 
-  for file in $(find "$folder" -name "*.wacc"); do
-    FILEBASENAME=$(basename -s .wacc "${file}")
-    EXPECTED_FILE_NAME="${EXPECTED_OUTPUT_FOLDER}/${FILE_NAME}"
-    EXECUTE_FILE_NAME="${EXECUTE_OUTPUT_FOLDER}/${FILE_NAME}"
-    ./compile $file > "${EXPECTED_FILE_NAME}.log.txt"
-    mv "${FILE_NAME}.s" "${EXPECTED_FILE_NAME}.s"
+    NAME=$(basename -s .wacc "${file}")
+    bash ../compile $file > "$SRC_DIR/log/assemblerOutput/$NAME.s"
+    arm-linux-gnueabi-gcc -o "$NAME*.s" -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "$ASSEMBLER_OUTPUT_DIR/$NAME.s" > "$ASSEMBLER_OUTPUT_DIR/$NAME*.s"
+    qemu-arm -L /usr/arm-linux-gnueabi/ "$EXECUTOR_OUTPUT_DIR/$NAME*.s" > "$EXECUTOR_OUTPUT_DIR/$NAME.out"
 
-    arm-linux-gnueabi-gcc -o $EXECUTE_FILE_NAME -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "${EXPECTED_FILE_NAME}.s" > "${EXECUTE_FILE_NAME}.log.txt"
-    qemu-arm -L /usr/arm-linux-gnueabi/ $EXECUTE_FILE_NAME > "${EXECUTE_FILE_NAME}.output.txt"
+    COMPILED=$((COMPILED+1))
+
+    $REFERENCE_COMPILER $file > "$REF_ASSEMBLER_OUTPUT_DIR/$NAME.s"
+    $REFERENCE_EMULATOR "$REF_ASSEMBLER_OUTPUT_FOLDER/$NAME.s" > "$REF_EXECUTOR_OUTPUT_DIR/$NAME.out"
 
     (( COUNTER += 1 ))
-    if [[$EXECUTE_FILE_NAME == $EXPECTED_FILE_NAME]]; then
+    if cmp -s "$EXECUTOR_OUTPUT_DIR/$NAME.out" == "$REF_EXECUTOR_OUTPUT_DIR/$NAME.out"; then
       (( PASSED += 1 ))
+    else
+      cat diff "$EXECUTOR_OUTPUT_DIR/$NAME.out" "$REF_EXECUTOR_OUTPUT_DIR/$NAME.out"
     fi
-
-  done
 done
 
 
 echo "================================TEST RESULT============================================="
-echo "Total Test: " $TOTAL_COUNT
-echo "Passed Test:" $PASSED
-echo "Failed Test:" $(TOTAL_COUNT - PASSED)
+echo "Total Test: $TOTAL_COUNT"
+echo "Compiled Test: $PASSED"
 echo "========================================================================================"
 
 if [[ $((FAILED)) -gt 0 ]]; then
