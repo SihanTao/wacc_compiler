@@ -12,6 +12,10 @@ import java.util.List;
 
 public class InstructionGenerator implements ASTVisitor<Void> {
 
+    public List<Instruction> getInstructions() {
+        return instructions;
+    }
+
     private final List<Instruction> instructions;
 
     public InstructionGenerator() {
