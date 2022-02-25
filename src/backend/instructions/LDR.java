@@ -1,6 +1,7 @@
 package backend.instructions;
 
 import backend.ARMRegister;
+import backend.instructions.Addressing.Addressing;
 
 public class LDR extends Instruction {
     private final ARMRegister register;
