@@ -45,7 +45,7 @@ public class InstructionGenerator implements ASTVisitor<Void> {
         // POP {pc}
         instructions.add(new Pop(ARMRegister.PC));
         // .ltorg
-
+        instructions.add(new LTORG());
         return null;
     }
 
