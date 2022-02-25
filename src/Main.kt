@@ -1,7 +1,9 @@
 // import ANTLR package
 import antlr.*
+import node.ProgramNode
 import org.antlr.v4.runtime.*
 import java.io.FileNotFoundException
+import java.io.PrintWriter
 import kotlin.system.exitProcess
 
 private const val SYNTAX_ERROR_EXIT_CODE = 100
@@ -47,8 +49,15 @@ fun main(args: Array<String>) {
 
         if (!args.contains("--parse-only")) {
             val semanticChecker = WACCSemanticErrorVisitor()
-            semanticChecker.visitProgram(tree)
+            val ast = semanticChecker.visitProgram(tree) as ProgramNode
+            val writer = PrintWriter("output.s")
+            val representation = WACCAssembleRepresentation()
+            val codeGenerator = WACCCodeGeneratorVisitor(representation)
+            codeGenerator.visitProgramNode(ast)
+            representation.generateAssembleCode(writer)
+            writer.close()
         }
+
 
         if (args.contains("--print_ast")) {
             println(tree.toStringTree(parser)) // Print LISP-style tree

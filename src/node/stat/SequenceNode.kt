@@ -8,7 +8,7 @@ package node.stat
 
 class SequenceNode (stat1: StatNode?, stat2: StatNode?) : StatNode() {
 
-    private val body: MutableList<StatNode> = ArrayList()
+    val body: MutableList<StatNode> = ArrayList()
 
     private fun mergeScope(s: StatNode?) {
         if (s is SequenceNode) {

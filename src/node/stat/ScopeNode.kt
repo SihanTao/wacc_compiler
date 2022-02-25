@@ -7,7 +7,7 @@ package node.stat
 
 class ScopeNode(node: StatNode) : StatNode() {
 
-    private val body: MutableList<StatNode> = ArrayList()
+    val body: MutableList<StatNode> = ArrayList()
 
     private fun mergeScope(s: StatNode) {
         if (s is ScopeNode) {

@@ -7,7 +7,7 @@ import node.expr.ExprNode
  * set return to true and exit
  */
 
-class ExitNode(exitCode: ExprNode) : StatNode() {
+class ExitNode(val exitCode: ExprNode) : StatNode() {
     init {
         isReturned = true
     }

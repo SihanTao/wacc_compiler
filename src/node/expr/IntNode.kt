@@ -9,7 +9,7 @@ class IntNode(
      * Examples: 1, 2, 3
      */
 
-    private val value: Int
+    val value: Int
 ) : ExprNode() {
     init {
         type = BasicType(BasicTypeEnum.INTEGER)
