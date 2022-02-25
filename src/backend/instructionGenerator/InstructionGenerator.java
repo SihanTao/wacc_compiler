@@ -1,10 +1,21 @@
 package backend.instructionGenerator;
 
+import backend.instructions.Instruction;
+import backend.instructions.Label;
 import node.Node;
 import node.ProgramNode;
 import node.stat.SkipNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InstructionGenerator implements ASTVisitor<Void> {
+
+    private final List<Instruction> instructions;
+
+    public InstructionGenerator() {
+        this.instructions = new ArrayList<>();
+    }
 
     @Override
     public Void visit(Node node) {
@@ -23,6 +34,11 @@ public class InstructionGenerator implements ASTVisitor<Void> {
         *   POP {pc}
         *   .ltorg
         * */
+
+        // main:
+        instructions.add(new Label("main"));
+        // PUSH {lr}
+
         return null;
     }
 
