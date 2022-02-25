@@ -1,6 +1,7 @@
 package backend.instructionGenerator
 
 import node.Node
+import node.ProgramNode
 import node.stat.SkipNode
 
 interface ASTVisitor<T> {
@@ -9,5 +10,6 @@ interface ASTVisitor<T> {
         return null
     }
 
+    fun visitProgramNode(node: ProgramNode?): T
     fun visitSkipNode(node: SkipNode?): T
 }
