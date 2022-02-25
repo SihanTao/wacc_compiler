@@ -1,11 +1,8 @@
 package backend.instructionGenerator;
 
 import backend.ARMRegister;
+import backend.instructions.*;
 import backend.instructions.Addressing.ImmAddressing;
-import backend.instructions.Instruction;
-import backend.instructions.LDR;
-import backend.instructions.Label;
-import backend.instructions.Push;
 import node.Node;
 import node.ProgramNode;
 import node.stat.SkipNode;
@@ -46,7 +43,7 @@ public class InstructionGenerator implements ASTVisitor<Void> {
         // set the exit value:
         instructions.add(new LDR(ARMRegister.R0, new ImmAddressing(0)));
         // POP {pc}
-
+        instructions.add(new Pop(ARMRegister.PC));
         // .ltorg
 
         return null;
