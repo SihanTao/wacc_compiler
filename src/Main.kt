@@ -46,6 +46,12 @@ fun main(args: Array<String>) {
             if (args.contains("--print_ast")) {
                 println(tree.toStringTree(parser)) // Print LISP-style tree
             }
+
+            if (args.contains("--assembly") || args.contains("--execute")) {
+                // In this case, we need the assembly code
+                // TODO: Want a ASTVisiter to generate intermeidate representation
+                //         Then use a code generator, and write the generated code into .s files
+            }
 //            val writer = PrintWriter("output.s")
 //            val representation = WACCAssembleRepresentation()
 //            val codeGenerator = WACCCodeGeneratorVisitor(representation)
