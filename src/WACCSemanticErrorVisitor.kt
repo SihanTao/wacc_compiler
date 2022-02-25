@@ -371,7 +371,8 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitCharExpr(ctx: CharExprContext): Node {
-        return CharNode(ctx.charLiter().text[1])
+        println(ctx.charLiter().text)
+        return CharNode(ctx.charLiter().text)
     }
 
     override fun visitStrExpr(ctx: StrExprContext): Node {

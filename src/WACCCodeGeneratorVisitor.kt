@@ -35,7 +35,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     }
 
     private fun visitFuncNode(node: FuncNode) {
-        TODO()
+
     }
 
     private fun visitParamNode(node: ParamNode) {}
@@ -123,7 +123,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                                     representation.addPrintStringFunc()
                                 }
                             }
-            is PairType -> TODO()
+            is PairType -> {}
         }
 
     }
@@ -154,7 +154,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     private fun visitBinopNode(node: BinopNode) {}
     private fun visitBoolNode(node: BoolNode) {}
     private fun visitCharNode(node: CharNode) {
-        representation.addCode("\tMOV r4, #'${node.ch}'")
+        representation.addCode("\tMOV r4, #'${node.char}'")
     }
     private fun visitFunctionCallNode(node: FunctionCallNode) {}
     private fun visitIdentNode(node: IdentNode) {}
@@ -177,19 +177,19 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
      */
 
     private fun printArrayType(expr: ExprNode) {
-        TODO()
+
     }
 
     private fun printIntegerType(expr: ExprNode) {
-        TODO()
+
     }
 
     private fun printBooleanType(expr: ExprNode) {
-        TODO()
+
     }
 
     private fun printCharType(expr: ExprNode) {
-        TODO()
+
     }
 
     private fun generatePrintStringCode() {
