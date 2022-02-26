@@ -11,9 +11,10 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
             = mutableListOf<Register>(Register.R4,
                 Register.R5, Register.R6, Register.R7, Register.R8, Register.R9,
                 Register.R10, Register.R11)
-    private var symbolTable: SymbolTable<Int>? = null
+    private var symbolTable: SymbolTable<Pair<Int, Int>>? = null
     private var currStackOffset = 0
-    private val offset = 0
+    private var currScopeDepth = 0
+    private val scopeStackSize = 0
     private var labelCounter = 0
 
     fun visitProgramNode(node: ProgramNode) {
@@ -105,9 +106,14 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         when (node.lhs!!) {
             is IdentNode -> {
                 val ident = node.lhs as IdentNode
-                val pos = symbolTable!!.lookupAll(ident.name)
+                val res = symbolTable!!.lookupAll(ident.name)!!
+                val destScopeDepth = res.second
+                var offset = res.first
+                for (i in currScopeDepth downTo destScopeDepth + 1) {
+                    offset += symbolTable!!.lookupAll("#localVariableNo_$i")!!.first
+                }
                 val opcode = if (typeSize(node.rhs!!.type!!) == 1) "STRB" else "STR"
-                val operand = if (pos == 0) "[sp]" else "[sp, #$pos]"
+                val operand = if (offset == 0) "[sp]" else "[sp, #$offset]"
                 representation.addCode("\t" + opcode + " ${availableRegister[0].name}, " + operand)
             }
         }
@@ -115,7 +121,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     private fun visitDeclareStatNode(node: DeclareStatNode) {
         visitExprNode(node.rhs!!)
         val pos = currStackOffset - typeSize(node.rhs!!.type!!)
-        symbolTable!!.add(node.identifier, pos)
+        symbolTable!!.add(node.identifier, Pair(pos, currScopeDepth))
         val opcode = if (typeSize(node.rhs!!.type!!) == 1) "STRB" else "STR"
         val operand = if (pos == 0) "[sp]" else "[sp, #$pos]"
         representation.addCode("\t" + opcode + " ${availableRegister[0].name}, " + operand)
@@ -192,12 +198,14 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         }
         val prevStackOffset = currStackOffset
         currStackOffset = temp
-        symbolTable = SymbolTable<Int>(symbolTable)
-        symbolTable!!.add("#localVariableNo", temp)
+        symbolTable = SymbolTable(symbolTable)
+        currScopeDepth += 1
+        symbolTable!!.add("#localVariableNo_$currScopeDepth", Pair(temp, currScopeDepth))
         if (temp > 0) representation.addCode("\tSUB sp, sp, #$temp")
         node.body.forEach{stat -> visitStatNode(stat)}
         if (temp > 0) representation.addCode("\tADD sp, sp, #$temp")
         symbolTable = symbolTable!!.parentSymbolTable
+        currScopeDepth -= 1
         currStackOffset = prevStackOffset
     }
 
@@ -343,9 +351,15 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     private fun visitFunctionCallNode(node: FunctionCallNode) {}
 
     private fun visitIdentNode(node: IdentNode) {
-        val pos = symbolTable!!.lookupAll(node.name)
+        val res = symbolTable!!.lookupAll(node.name)!!
+        val destScopeDepth = res.second
+        var offset = res.first
+        for (i in currScopeDepth downTo (destScopeDepth + 1)) {
+            println(i)
+            offset += symbolTable!!.lookupAll("#localVariableNo_$i")!!.first
+        }
         val opcode = if (typeSize(node.type!!)==1) "LDRSB" else "LDR"
-        val operand = if (pos == 0) "[sp]" else "[sp, #$pos]"
+        val operand = if (offset == 0) "[sp]" else "[sp, #$offset]"
         val dest = nextAvailableRegister()
         representation.addCode("\t$opcode $dest, $operand")
         freeRegister(dest)
