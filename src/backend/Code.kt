@@ -14,7 +14,9 @@ class Code(instructions: MutableList<Instruction>) : Directive {
         val stringBuilder = StringBuilder()
         stringBuilder.append("\t.global main\n")
         for (instruction in instructions) {
-            stringBuilder.append(instruction.toString()).append("\n")
+            val tabs = StringBuilder()
+            tabs.append("\t".repeat(instruction.indentLevel()))
+            stringBuilder.append(tabs).append(instruction.toString()).append('\n')
         }
         return stringBuilder.toString()
     }

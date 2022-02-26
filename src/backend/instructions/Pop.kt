@@ -2,7 +2,7 @@ package backend.instructions
 
 import backend.ARMRegister
 
-class Pop(register: ARMRegister) : Instruction() {
+class Pop(register: ARMRegister) : Instruction {
     private val register: ARMRegister
 
     init {
@@ -11,6 +11,6 @@ class Pop(register: ARMRegister) : Instruction() {
 
     @Override
     override fun toString(): String {
-        return "POP {" + register.toString().toString() + "}"
+        return "POP {$register}"
     }
 }

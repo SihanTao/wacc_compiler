@@ -1,6 +1,6 @@
 package backend.instructions
 
-class LTORG : Instruction() {
+class LTORG : Instruction {
     @Override
     override fun toString(): String {
         return ".ltorg"
