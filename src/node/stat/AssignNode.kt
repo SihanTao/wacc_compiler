@@ -12,5 +12,5 @@ import node.expr.ExprNode
 
 class AssignNode(
 
-    private val lhs: ExprNode?, private val rhs: ExprNode?
+    val lhs: ExprNode?, val rhs: ExprNode?
 ) : StatNode()

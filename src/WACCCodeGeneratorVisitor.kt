@@ -100,7 +100,16 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     */
 
     private fun visitAssignNode(node: AssignNode) {
-
+        visitExprNode(node.rhs!!)
+        when (node.lhs!!) {
+            is IdentNode -> {
+                val ident = node.lhs as IdentNode
+                val pos = symbolTable!!.lookup(ident.name)
+                val opcode = if (typeSize(node.rhs!!.type!!) == 1) "STRB" else "STR"
+                val operand = if (pos == 0) "[sp]" else "[sp, #$pos]"
+                representation.addCode("\t" + opcode + " ${availableRegister[0].name}, " + operand)
+            }
+        }
     }
     private fun visitDeclareStatNode(node: DeclareStatNode) {
         visitExprNode(node.rhs!!)
