@@ -12,7 +12,7 @@ class Code(instructions: MutableList<Instruction>) : Directive {
     @Override
     override fun toString(): String {
         val stringBuilder = StringBuilder()
-        stringBuilder.append("\t.global main")
+        stringBuilder.append("\t.global main\n")
         for (instruction in instructions) {
             stringBuilder.append(instruction.toString()).append("\n")
         }
