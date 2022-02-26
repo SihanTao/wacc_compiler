@@ -93,7 +93,7 @@ class WACCAssembleRepresentation {
     }
 
     fun addStringToTable(literal: String, length: Int): Int {
-        return (msgTable.putIfAbsent(literal, Pair(msgTable.size, length))?.first ?: msgTable.size) -1
+        return msgTable.putIfAbsent(literal, Pair(msgTable.size, length))?.first ?: (msgTable.size -1)
     }
 
 

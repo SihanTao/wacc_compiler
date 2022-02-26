@@ -426,7 +426,26 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tLDR r4, =msg_$msgInt")
     }
 
-    private fun visitUnopNode(node: UnopNode) {}
+    private fun visitUnopNode(node: UnopNode) {
+        when (node.operator) {
+            Utils.Unop.NOT -> {
+                visitExprNode(node.expr)
+                representation.addCode("\tEOR ${availableRegister[0]}, ${availableRegister[0]}, #1")
+            }
+            Utils.Unop.LEN -> {
+                visitExprNode(node.expr)
+                representation.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}]")
+            }
+            Utils.Unop.MINUS -> {
+                visitExprNode(node.expr)
+                representation.addCode("\tRSBS ${availableRegister[0]}, ${availableRegister[0]}, #0");
+                representation.addCode("\tBLVS p_throw_overflow_error");
+                representation.addPrintThrowErrorOverflowFunc()
+            }
+            Utils.Unop.ORD -> { visitExprNode(node.expr) }
+            Utils.Unop.CHR -> { visitExprNode(node.expr) }
+        }
+    }
 
     /* =======================================================
      *                  Print Helper
