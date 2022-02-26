@@ -1,5 +1,3 @@
-package backend.instructions;
+package backend.instructions
 
-public abstract class Instruction {
-
-}
+abstract class Instruction 

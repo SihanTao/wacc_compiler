@@ -1,18 +1,9 @@
-package backend.instructions;
+package backend.instructions
 
-public class Label extends Instruction {
-    private final String label;
-
-    public Label(String label) {
-        this.label = label;
-    }
+class Label(val label: String) : Instruction() {
 
     @Override
-    public String toString() {
-        return label + ":";
-    }
-
-    public String getLabel() {
-        return label;
+    override fun toString(): String {
+        return "$label:"
     }
 }

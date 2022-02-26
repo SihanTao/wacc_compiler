@@ -1,8 +1,8 @@
-package backend.instructions;
+package backend.instructions
 
-public class LTORG extends Instruction {
+class LTORG : Instruction() {
     @Override
-    public String toString() {
-        return ".ltorg";
+    override fun toString(): String {
+        return ".ltorg"
     }
 }

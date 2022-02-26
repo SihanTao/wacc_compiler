@@ -1,4 +1,3 @@
-package backend.instructions.Addressing;
+package backend.instructions.Addressing
 
-public interface Addressing {
-}
+interface Addressing 

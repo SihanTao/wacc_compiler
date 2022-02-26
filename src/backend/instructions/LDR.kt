@@ -1,21 +1,21 @@
-package backend.instructions;
+package backend.instructions
 
-import backend.ARMRegister;
-import backend.instructions.Addressing.Addressing;
+import backend.ARMRegister
+import backend.instructions.Addressing.Addressing
 
-public class LDR extends Instruction {
-    private final ARMRegister register;
-    private final Addressing addressing;
+class LDR(register: ARMRegister, addressing: Addressing) : Instruction() {
+    private val register: ARMRegister
+    private val addressing: Addressing
 
-    public LDR(ARMRegister register, Addressing addressing) {
-        this.register = register;
-        this.addressing = addressing;
+    init {
+        this.register = register
+        this.addressing = addressing
     }
 
     @Override
-    public String toString() {
-        String stringBuilder = register + ", " +
-                addressing;
-        return "LDR " + stringBuilder;
+    override fun toString(): String {
+        val stringBuilder: String = register.toString() + ", " +
+                addressing
+        return "LDR $stringBuilder"
     }
 }

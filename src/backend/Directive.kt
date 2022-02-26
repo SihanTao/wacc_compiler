@@ -1,4 +1,3 @@
-package backend;
+package backend
 
-public interface Directive {
-}
+interface Directive 

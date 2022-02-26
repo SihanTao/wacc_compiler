@@ -1,14 +1,8 @@
-package backend.instructions.Addressing;
+package backend.instructions.Addressing
 
-public class ImmAddressing implements Addressing {
-    private int imm;
-
-    public ImmAddressing(int value) {
-        this.imm = value;
-    }
-
+class ImmAddressing(private val imm: Int) : Addressing {
     @Override
-    public String toString() {
-        return "=" + imm;
+    override fun toString(): String {
+        return "=$imm"
     }
 }

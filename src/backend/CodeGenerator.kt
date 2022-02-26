@@ -1,20 +1,20 @@
-package backend;
+package backend
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayList
+import java.util.List
 
-public class CodeGenerator {
-  private List<Directive> directives;
+class CodeGenerator(data: Data?, text: Text?, code: Code?) {
+    private val directives: List<Directive>
 
-  public CodeGenerator(Data data, Text text, Code code) {
-    this.directives = List.of(data, text, code);
-  }
-
-  public String generate() {
-    StringBuilder assemblyCodeBuilder = new StringBuilder();
-    for (Directive directive : directives) {
-      assemblyCodeBuilder.append(directive.toString());
+    init {
+        directives = List.of(data, text, code)
     }
-    return assemblyCodeBuilder.toString();
-  }
+
+    fun generate(): String {
+        val assemblyCodeBuilder = StringBuilder()
+        for (directive in directives) {
+            assemblyCodeBuilder.append(directive.toString())
+        }
+        return assemblyCodeBuilder.toString()
+    }
 }

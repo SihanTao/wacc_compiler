@@ -1,4 +1,3 @@
-package backend;
+package backend
 
-public class Data implements Directive {
-}
+class Data : Directive

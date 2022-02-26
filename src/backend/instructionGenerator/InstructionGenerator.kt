@@ -1,34 +1,32 @@
-package backend.instructionGenerator;
+package backend.instructionGenerator
 
-import backend.ARMRegister;
-import backend.instructions.*;
-import backend.instructions.Addressing.ImmAddressing;
-import node.Node;
-import node.ProgramNode;
-import node.stat.SkipNode;
+import backend.ARMRegister
+import backend.instructions.*
+import backend.instructions.Addressing.ImmAddressing
+import node.Node
+import node.ProgramNode
+import node.stat.SkipNode
+import java.util.ArrayList
+import java.util.List
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class InstructionGenerator implements ASTVisitor<Void> {
-
-    public List<Instruction> getInstructions() {
-        return instructions;
+class InstructionGenerator : ASTVisitor<Void?> {
+    fun getInstructions(): List<Instruction> {
+        return instructions
     }
 
-    private final List<Instruction> instructions;
+    private val instructions: List<Instruction>
 
-    public InstructionGenerator() {
-        this.instructions = new ArrayList<>();
-    }
-
-    @Override
-    public Void visit(Node node) {
-        return ASTVisitor.super.visit(node);
+    init {
+        instructions = ArrayList()
     }
 
     @Override
-    public Void visitProgramNode(ProgramNode node) {
+    fun visit(node: Node?): Void {
+        return super@ASTVisitor.visit(node)
+    }
+
+    @Override
+    fun visitProgramNode(node: ProgramNode?): Void? {
         /*
         * .text
         *
@@ -41,20 +39,20 @@ public class InstructionGenerator implements ASTVisitor<Void> {
         * */
 
         // main:
-        instructions.add(new Label("main"));
+        instructions.add(Label("main"))
         // PUSH {lr}
-        instructions.add(new Push(ARMRegister.LR));
+        instructions.add(Push(ARMRegister.LR))
         // set the exit value:
-        instructions.add(new LDR(ARMRegister.R0, new ImmAddressing(0)));
+        instructions.add(LDR(ARMRegister.R0, ImmAddressing(0)))
         // POP {pc}
-        instructions.add(new Pop(ARMRegister.PC));
+        instructions.add(Pop(ARMRegister.PC))
         // .ltorg
-        instructions.add(new LTORG());
-        return null;
+        instructions.add(LTORG())
+        return null
     }
 
     @Override
-    public Void visitSkipNode(SkipNode node) {
-        return null;
+    fun visitSkipNode(node: SkipNode?): Void? {
+        return null
     }
 }

@@ -1,16 +1,16 @@
-package backend.instructions;
+package backend.instructions
 
-import backend.ARMRegister;
+import backend.ARMRegister
 
-public class Pop extends Instruction {
-    private ARMRegister register;
+class Pop(register: ARMRegister) : Instruction() {
+    private val register: ARMRegister
 
-    public Pop(ARMRegister register) {
-        this.register = register;
+    init {
+        this.register = register
     }
 
     @Override
-    public String toString() {
-        return "POP {" + register.toString() + "}";
+    override fun toString(): String {
+        return "POP {" + register.toString().toString() + "}"
     }
 }

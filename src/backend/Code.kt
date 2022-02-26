@@ -1,24 +1,22 @@
-package backend;
+package backend
 
-import backend.instructions.Instruction;
+import backend.instructions.Instruction
+import java.util.List
 
-import java.util.List;
+class Code(instructions: List<Instruction>) : Directive {
+    private val instructions: List<Instruction>
 
-public class Code implements Directive {
-
-  private final List<Instruction> instructions;
-
-  public Code(List<Instruction> instructions) {
-    this.instructions = instructions;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append("\t.global main");
-    for (Instruction instruction : instructions) {
-      stringBuilder.append(instruction.toString()).append("\n");
+    init {
+        this.instructions = instructions
     }
-    return stringBuilder.toString();
-  }
+
+    @Override
+    override fun toString(): String {
+        val stringBuilder = StringBuilder()
+        stringBuilder.append("\t.global main")
+        for (instruction in instructions) {
+            stringBuilder.append(instruction.toString()).append("\n")
+        }
+        return stringBuilder.toString()
+    }
 }
