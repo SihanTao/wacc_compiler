@@ -48,7 +48,7 @@ fun main(args: Array<String>) {
                 // In this case, we need the assembly code
                 // TODO: Want a ASTVisiter to generate intermeidate representation
                 //         Then use a code generator, and write the generated code into .s files
-                val instructionGenerator: InstructionGenerator = InstructionGenerator()
+                val instructionGenerator = InstructionGenerator()
                 instructionGenerator.visit(ast)
                 // TODO: .data directive not implemented
                 val text: Text = Text()
