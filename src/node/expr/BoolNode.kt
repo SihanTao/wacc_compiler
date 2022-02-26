@@ -9,7 +9,7 @@ class BoolNode(
      * Represent a boolean
      * Examples: true, false
      */
-    private val `val`: Boolean
+    val `val`: Boolean
 ) : ExprNode() {
     init {
         type = BasicType(BasicTypeEnum.BOOLEAN)

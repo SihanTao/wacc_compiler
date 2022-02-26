@@ -11,6 +11,8 @@ class WACCAssembleRepresentation {
     private var hasPrintIn = false
     private var hasPrintInt = false
     private var hasPrintBool = false
+    private var hasThrowErrorOverflow = false
+    private var hasDivByZeroError = false
 
     fun addCode(str: String) {
         code.addLast(str)
@@ -26,6 +28,18 @@ class WACCAssembleRepresentation {
 
     fun addPrintBoolFunc() {
         hasPrintBool = true
+    }
+
+    fun addPrintIntFunc() {
+        hasPrintInt = true
+    }
+
+    fun addPrintThrowErrorOverflowFunc() {
+        hasThrowErrorOverflow = true
+    }
+
+    fun addPrintDivByZeroFunc() {
+        hasDivByZeroError = true
     }
 
     fun hasPrintStringFunc(): Boolean {
@@ -44,9 +58,14 @@ class WACCAssembleRepresentation {
         return hasPrintInt
     }
 
-    fun addPrintIntFunc() {
-        hasPrintInt = true
+    fun hasPrintThrowOverflowErrorFunc(): Boolean {
+        return hasThrowErrorOverflow
     }
+
+    fun hasPrintDivByZeroErrorFunc(): Boolean {
+        return hasDivByZeroError
+    }
+
 
     fun generateAssembleCode(writer: PrintWriter) {
         if (!msgTable.isEmpty()) {
@@ -67,7 +86,6 @@ class WACCAssembleRepresentation {
     fun addStringToTable(literal: String, length: Int): Int {
         return (msgTable.putIfAbsent(literal, Pair(msgTable.size, length))?.first ?: msgTable.size) -1
     }
-
 
 
 }

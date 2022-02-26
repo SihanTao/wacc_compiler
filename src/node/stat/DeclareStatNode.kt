@@ -9,5 +9,5 @@ import node.expr.ExprNode
  */
 
 class DeclareStatNode(
-    private val identifier: String, private val rhs: ExprNode?
+    val identifier: String, val rhs: ExprNode?
 ) : StatNode()
