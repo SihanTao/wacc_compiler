@@ -140,7 +140,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tBL L${fiLabel}")
         representation.addCode("L${elseLabel}:")
         visitStatNode(node.elseBody!!)
-        representation.addCode("${fiLabel}:")
+        representation.addCode("L${fiLabel}:")
 
     }
     private fun visitPrintlnNode(node: PrintlnNode) {
@@ -182,6 +182,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
 
     private fun visitScopeNode(node: ScopeNode) {
         var temp = 0
+        if (node.body.isEmpty()) return
         if (node.body[0] is DeclareStatNode) {
             val dec = node.body[0] as DeclareStatNode
             temp+=typeSize(dec.rhs!!.type!!)
@@ -192,6 +193,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         val prevStackOffset = currStackOffset
         currStackOffset = temp
         symbolTable = SymbolTable<Int>(symbolTable)
+        symbolTable!!.add("#localVariableNo", temp)
         if (temp > 0) representation.addCode("\tSUB sp, sp, #$temp")
         node.body.forEach{stat -> visitStatNode(stat)}
         if (temp > 0) representation.addCode("\tADD sp, sp, #$temp")
