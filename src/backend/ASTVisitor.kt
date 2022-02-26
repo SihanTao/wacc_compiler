@@ -2,6 +2,7 @@ package backend
 
 import node.Node
 import node.ProgramNode
+import node.stat.ExitNode
 import node.stat.SkipNode
 
 interface ASTVisitor<T> {
@@ -10,6 +11,7 @@ interface ASTVisitor<T> {
         return null
     }
 
-    fun visitProgramNode(node: ProgramNode?): T?
-    fun visitSkipNode(node: SkipNode?): T?
+    fun visitProgramNode(node: ProgramNode): T?
+    fun visitSkipNode(node: SkipNode): T?
+    fun visitExitNode(node: ExitNode): T?
 }

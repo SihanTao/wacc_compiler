@@ -4,10 +4,12 @@ import backend.ARMRegister
 import backend.ASTVisitor
 import backend.instructions.*
 import backend.instructions.Addressing.ImmAddressing
+import backend.instructions.operand.Operand2
 import node.Node
 import node.ProgramNode
+import node.expr.IntNode
+import node.stat.ExitNode
 import node.stat.SkipNode
-import java.util.ArrayList
 
 class InstructionGenerator : ASTVisitor<Void?> {
 
@@ -21,7 +23,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return super.visit(node)
     }
 
-    override fun visitProgramNode(node: ProgramNode?): Void? {
+    override fun visitProgramNode(node: ProgramNode): Void? {
         /*
         * .text
         *
@@ -37,6 +39,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(Label("main"))
         // PUSH {lr}
         instructions.add(Push(ARMRegister.LR))
+        // Load the main body
+        visit(node.body)
         // set the exit value:
         instructions.add(LDR(ARMRegister.R0, ImmAddressing(0)))
         // POP {pc}
@@ -46,7 +50,25 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return null
     }
 
-    override fun visitSkipNode(node: SkipNode?): Void? {
+    override fun visitSkipNode(node: SkipNode): Void? {
+        return null
+    }
+
+    override fun visitExitNode(node: ExitNode): Void? {
+        /*
+            LDR r4, $EXIT_CODE
+            MOV r0, r4
+            BL exit
+         */
+        val exitVal = (node.exitCode as IntNode).value
+
+        // LDR r4, $EXIT_CODE
+        instructions.add(LDR(ARMRegister.R4, ImmAddressing(exitVal)))
+        // MOV r0, r4
+        instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegister.R4)))
+        // BL exit
+        instructions.add(BL("exit"))
+
         return null
     }
 }
