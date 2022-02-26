@@ -1,9 +1,9 @@
 package node
 
-import backend.instructionGenerator.ASTVisitor
+import backend.ASTVisitor
 
 interface Node {
-    fun <T> accept(astVisiter: ASTVisitor<T>) {
-
+    fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return null
     }
 }

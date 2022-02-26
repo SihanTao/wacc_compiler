@@ -7,7 +7,8 @@ class CodeGenerator(data: Data?, text: Text?, code: Code?) {
     fun generate(): String {
         val assemblyCodeBuilder = StringBuilder()
         for (directive in directives) {
-            assemblyCodeBuilder.append(directive.toString())
+            if (directive != null)
+                assemblyCodeBuilder.append(directive.toString())
         }
         return assemblyCodeBuilder.toString()
     }
