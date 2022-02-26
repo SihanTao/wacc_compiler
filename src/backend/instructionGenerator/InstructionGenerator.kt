@@ -7,26 +7,20 @@ import node.Node
 import node.ProgramNode
 import node.stat.SkipNode
 import java.util.ArrayList
-import java.util.List
 
 class InstructionGenerator : ASTVisitor<Void?> {
-    fun getInstructions(): List<Instruction> {
-        return instructions
-    }
 
-    private val instructions: List<Instruction>
+    val instructions: MutableList<Instruction>
 
     init {
-        instructions = ArrayList()
+        instructions = ArrayList<Instruction>()
     }
 
-    @Override
-    fun visit(node: Node?): Void {
-        return super@ASTVisitor.visit(node)
+    override fun visit(node: Node): Void? {
+        return super.visit(node)
     }
 
-    @Override
-    fun visitProgramNode(node: ProgramNode?): Void? {
+    override fun visitProgramNode(node: ProgramNode?): Void? {
         /*
         * .text
         *
@@ -51,8 +45,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return null
     }
 
-    @Override
-    fun visitSkipNode(node: SkipNode?): Void? {
+    override fun visitSkipNode(node: SkipNode?): Void? {
         return null
     }
 }

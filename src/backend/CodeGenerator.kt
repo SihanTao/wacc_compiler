@@ -1,14 +1,8 @@
 package backend
 
-import java.util.ArrayList
-import java.util.List
-
 class CodeGenerator(data: Data?, text: Text?, code: Code?) {
-    private val directives: List<Directive>
 
-    init {
-        directives = List.of(data, text, code)
-    }
+    private val directives: MutableList<Directive?>
 
     fun generate(): String {
         val assemblyCodeBuilder = StringBuilder()
@@ -16,5 +10,9 @@ class CodeGenerator(data: Data?, text: Text?, code: Code?) {
             assemblyCodeBuilder.append(directive.toString())
         }
         return assemblyCodeBuilder.toString()
+    }
+
+    init {
+        directives = listOf(data, text, code).toMutableList()
     }
 }

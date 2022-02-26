@@ -1,10 +1,9 @@
 package backend
 
 import backend.instructions.Instruction
-import java.util.List
 
-class Code(instructions: List<Instruction>) : Directive {
-    private val instructions: List<Instruction>
+class Code(instructions: MutableList<Instruction>) : Directive {
+    private val instructions: MutableList<Instruction>
 
     init {
         this.instructions = instructions

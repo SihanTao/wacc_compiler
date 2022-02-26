@@ -4,12 +4,10 @@ import backend.Code
 import backend.CodeGenerator
 import backend.Text
 import backend.instructionGenerator.InstructionGenerator
-import node.ProgramNode
 import org.antlr.v4.runtime.*
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileWriter
-import java.io.PrintWriter
 import kotlin.system.exitProcess
 
 private const val SYNTAX_ERROR_EXIT_CODE = 100
