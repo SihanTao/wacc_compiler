@@ -9,7 +9,9 @@ import node.Node
 import node.ProgramNode
 import node.expr.IntNode
 import node.stat.ExitNode
+import node.stat.ScopeNode
 import node.stat.SkipNode
+import node.stat.StatNode
 
 class InstructionGenerator : ASTVisitor<Void?> {
 
@@ -68,6 +70,17 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegister.R4)))
         // BL exit
         instructions.add(BL("exit"))
+
+        return null
+    }
+
+    override fun visitScopeNode(node: ScopeNode): Void? {
+        val nodes: List<StatNode> = node.body
+
+        // visit all the nodes
+        for (elem in nodes) {
+            visit(elem)
+        }
 
         return null
     }

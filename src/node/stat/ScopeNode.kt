@@ -1,5 +1,7 @@
 package node.stat
 
+import backend.ASTVisitor
+
 /**
  * Represent a scope statement 
  * has a function mergeScope to go through all the statement nodes in the list to form the body
@@ -23,5 +25,9 @@ class ScopeNode(node: StatNode) : StatNode() {
     init {
         mergeScope(node)
         isReturned = endValue
+    }
+
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitScopeNode(this)
     }
 }
