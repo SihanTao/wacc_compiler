@@ -30,7 +30,8 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tLDR r0, =0")
         representation.addCode("\tPOP {pc}")
 
-        if (representation.hasPrintStringFunc() || representation.hasPrintThrowOverflowErrorFunc() || representation.hasPrintDivByZeroErrorFunc()) {
+        if (representation.hasPrintStringFunc() || representation.hasPrintThrowOverflowErrorFunc()
+                || representation.hasPrintDivByZeroErrorFunc() || representation.hasCheckArrayBoundsFunc()) {
             generatePrintStringCode()
         }
         if (representation.hasPrintInFunc()) {
@@ -51,8 +52,13 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
             generateDivideByZeroError()
         }
 
-        if (representation.hasPrintDivByZeroErrorFunc() || representation.hasPrintThrowOverflowErrorFunc()) {
+        if (representation.hasPrintDivByZeroErrorFunc() || representation.hasPrintThrowOverflowErrorFunc()
+                || representation.hasCheckArrayBoundsFunc()) {
             generateThrowRuntimeError()
+        }
+
+        if (representation.hasCheckArrayBoundsFunc()) {
+            generateCheckArrayBoundFunc()
         }
     }
 
@@ -239,8 +245,46 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         CONTRACT: result of evaluated expression will be on nextAvailableRegister
      */
 
-    private fun visitArrayElemNode(node: ArrayElemNode) {}
-    private fun visitArrayNode(node: ArrayNode) {}
+    private fun visitArrayElemNode(node: ArrayElemNode) {
+        val res = symbolTable!!.lookupAll(node.arrayIdent)!!
+        val destScopeDepth = res.second
+        var offset = res.first
+        for (i in currScopeDepth downTo (destScopeDepth + 1)) {
+            println(i)
+            offset += symbolTable!!.lookupAll("#localVariableNo_$i")!!.first
+        }
+        val reg = nextAvailableRegister()
+        representation.addCode("\tADD ${reg.name}, sp, #${offset}")
+        visitExprNode(node.index[0])
+        representation.addCode("\tLDR ${reg.name}, [${reg.name}]")
+        representation.addCode("\tMOV r0, ${availableRegister[0]}")
+        representation.addCode("\tMOV r1, ${reg.name}")
+        representation.addCode("\tBL p_check_array_bounds")
+        representation.addCode("\tADD ${reg.name}, ${reg.name}, #4")
+        representation.addCode("\tADD ${reg.name}, ${reg.name}, ${availableRegister[0]}, LSL #${log2(typeSize(node.type!!))}")
+        representation.addCode("\tLDR ${reg.name}, [${reg.name}]")
+        freeRegister(reg)
+        representation.addCheckErrorBoundsFunc()
+    }
+
+    private fun visitArrayNode(node: ArrayNode) {
+        val arraySize = node.length * typeSize(node.type!!) + typeSize(BasicType(BasicTypeEnum.INTEGER))
+        representation.addCode("\tLDR r0, =$arraySize")
+        representation.addCode("\tBL malloc")
+        val arrayDest = nextAvailableRegister()
+        representation.addCode("\tMOV ${arrayDest.name}, r0")
+        var exprDest = 4
+        for (expr in node.content) {
+            visitExprNode(expr)
+            val opcode = if (typeSize(node.type!!) == 1) "STRB" else "STR"
+            representation.addCode("\t$opcode ${availableRegister[0]}, [${arrayDest.name}, #$exprDest]")
+            exprDest += typeSize(node.type!!)
+        }
+        representation.addCode("\tLDR ${availableRegister[0]}, =${node.length}")
+        representation.addCode("\tSTR ${availableRegister[0]}, [${arrayDest.name}]")
+        freeRegister(arrayDest)
+    }
+
     private fun visitBinopNode(node: BinopNode) {
         when (node.operator) {
             Utils.Binop.PLUS -> {
@@ -472,6 +516,21 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tPOP {pc}")
     }
 
+    private fun generateCheckArrayBoundFunc() {
+        val code1 = representation.addStringToTable("\"ArrayIndexOutOfBoundsError: negative index\\n\\0\"", 44)
+        val code2 = representation.addStringToTable("\"ArrayIndexOutOfBoundsError: index too large\\n\\0\"", 45)
+        representation.addCode("p_check_array_bounds:")
+        representation.addCode("\tPUSH {lr}")
+        representation.addCode("\tCMP r0, #0")
+        representation.addCode("\tLDRLT r0, =msg_$code1")
+        representation.addCode("\tBLLT p_throw_runtime_error")
+        representation.addCode("\tLDR r1, [r1]")
+        representation.addCode("\tCMP r0, r1")
+        representation.addCode("\tLDRCS r0, =msg_$code2")
+        representation.addCode("\tBLCS p_throw_runtime_error")
+        representation.addCode("\tPOP {pc}")
+    }
+
 
 
     /* =======================================================
@@ -528,8 +587,17 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                 BasicTypeEnum.CHAR -> return 1
                 BasicTypeEnum.STRING -> return 4
             }
+            is ArrayType -> return 4
         }
         return 0
+    }
+
+    private fun log2(x: Int): Int {
+        return when (x) {
+            4 -> 2
+            1 -> 0
+            else -> -1
+        }
     }
 
 

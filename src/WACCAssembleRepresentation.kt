@@ -13,6 +13,7 @@ class WACCAssembleRepresentation {
     private var hasPrintBool = false
     private var hasThrowErrorOverflow = false
     private var hasDivByZeroError = false
+    private var hasCheckArrayBounds = false
 
     fun addCode(str: String) {
         code.addLast(str)
@@ -42,6 +43,10 @@ class WACCAssembleRepresentation {
         hasDivByZeroError = true
     }
 
+    fun addCheckErrorBoundsFunc() {
+        hasCheckArrayBounds = true
+    }
+
     fun hasPrintStringFunc(): Boolean {
         return hasPrintString
     }
@@ -66,6 +71,10 @@ class WACCAssembleRepresentation {
         return hasDivByZeroError
     }
 
+    fun hasCheckArrayBoundsFunc(): Boolean {
+        return hasCheckArrayBounds
+    }
+
 
     fun generateAssembleCode(writer: PrintWriter) {
         if (!msgTable.isEmpty()) {
@@ -86,6 +95,8 @@ class WACCAssembleRepresentation {
     fun addStringToTable(literal: String, length: Int): Int {
         return (msgTable.putIfAbsent(literal, Pair(msgTable.size, length))?.first ?: msgTable.size) -1
     }
+
+
 
 
 }

@@ -11,7 +11,7 @@ class ArrayNode(
      * Examples: [a, b, c, d, e]
      */
 
-    contentType: Type?, private var content: MutableList<ExprNode>, var length: Int
+    contentType: Type?, var content: MutableList<ExprNode>, var length: Int
 ) : ExprNode() {
 
     constructor(contentType: Type?, length: Int) : this(contentType, mutableListOf(), length)

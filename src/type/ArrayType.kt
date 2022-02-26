@@ -14,6 +14,7 @@ class ArrayType constructor(private val type: Type? = null) : Type {
             subType = subType.getContentType()
             dimension++
         }
+        println(Thread.dumpStack())
         this.dimension = dimension
     }
 
