@@ -29,7 +29,7 @@ import kotlin.system.exitProcess
 
 class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
-    private var symbolTable: SymbolTable? = null
+    private var symbolTable: SymbolTable<ExprNode>? = null
     private var globalFuncTable: MutableMap<String, FuncNode>? = null
     private var isMainFunction = false
     private var expectedFunctionReturn: Type? = null
@@ -551,7 +551,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         if (expr == null) {
             ErrorHandler.symbolNotExist(ctx, name)
         }
-        return expr as Node
+        return IdentNode(expr!!.type, name)
     }
 
     override fun visitArray_type(ctx: Array_typeContext): Node? {

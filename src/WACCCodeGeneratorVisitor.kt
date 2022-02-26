@@ -1,3 +1,4 @@
+import com.sun.source.tree.Scope
 import node.FuncNode
 import node.ParamNode
 import node.ProgramNode
@@ -10,6 +11,9 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
             = mutableListOf<Register>(Register.R4,
                 Register.R5, Register.R6, Register.R7, Register.R8, Register.R9,
                 Register.R10, Register.R11)
+    private var symbolTable: SymbolTable<Int>? = null
+    private var currStackOffset = 0
+    private val offset = 0
 
     fun visitProgramNode(node: ProgramNode) {
         representation.addCode(".global main")
@@ -51,7 +55,6 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     }
 
     private fun visitFuncNode(node: FuncNode) {
-
     }
 
     private fun visitParamNode(node: ParamNode) {}
@@ -101,6 +104,12 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     }
     private fun visitDeclareStatNode(node: DeclareStatNode) {
         visitExprNode(node.rhs!!)
+        val pos = currStackOffset - typeSize(node.rhs!!.type!!)
+        symbolTable!!.add(node.identifier, pos)
+        val opcode = if (typeSize(node.rhs!!.type!!) == 1) "STRB" else "STR"
+        val operand = if (pos == 0) "[sp]" else "[sp, #$pos]"
+        representation.addCode("\t" + opcode + " ${availableRegister[0].name}, " + operand)
+        currStackOffset -= typeSize(node.rhs!!.type!!)
     }
 
     private fun visitExitNode(node: ExitNode) {
@@ -149,7 +158,22 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     private fun visitReturnNode(node: ReturnNode) {}
 
     private fun visitScopeNode(node: ScopeNode) {
+        var temp = 0
+        if (node.body[0] is DeclareStatNode) {
+            val dec = node.body[0] as DeclareStatNode
+            temp+=typeSize(dec.rhs!!.type!!)
+        } else if (node.body[0] is SequenceNode){
+            val seq = node.body[0] as SequenceNode
+            for (stat in seq.body) { if (stat is DeclareStatNode) temp+=typeSize(stat.rhs!!.type!!) }
+        }
+        val prevStackOffset = currStackOffset
+        currStackOffset = temp
+        symbolTable = SymbolTable<Int>(symbolTable)
+        representation.addCode("\tSUB sp, sp, #$temp")
         node.body.forEach{stat -> visitStatNode(stat)}
+        representation.addCode("\tADD sp, sp, #$temp")
+        symbolTable = symbolTable!!.parentSymbolTable
+        currStackOffset = prevStackOffset
     }
 
     private fun visitSequenceNode(node: SequenceNode) {
@@ -199,7 +223,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                     representation.addCode("\tMOV r1, $r");
                     representation.addCode("\tBL p_check_divide_by_zero")
                     representation.addCode("\tBL __aeabi_idiv")
-                    representation.addCode("\tMOV $l, r0")
+                    representation.addCode("\tMOV ${l.name}, r0")
                 }
                 binOpAlgo2(node.expr1, node.expr2, div)
                 representation.addPrintDivByZeroFunc()
@@ -208,16 +232,16 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                 val mod = {l:Register,r:Register -> representation.addCode("\tMOV r0, $l");
                     representation.addCode("\tMOV r1, $r");
                     representation.addCode("\tBL p_check_divide_by_zero")
-                    representation.addCode("\tBL __aeabi_imod")
-                    representation.addCode("\tMOV $l, r0")
+                    representation.addCode("\tBL __aeabi_idivmod")
+                    representation.addCode("\tMOV ${l.name}, r0")
                 }
                 binOpAlgo2(node.expr1, node.expr2, mod)
                 representation.addPrintDivByZeroFunc()
             }
             Utils.Binop.GREATER -> {
                 val gt = {l:Register,r:Register -> representation.addCode("\tCMP $l, $r");
-                    representation.addCode("\tMOVGT $l, #1");
-                    representation.addCode("\tMOVLE $l, #0");
+                    representation.addCode("\tMOVGT ${l.name}, #1");
+                    representation.addCode("\tMOVLE ${l.name}, #0");
                 }
                 binOpAlgo2(node.expr1, node.expr2, gt)
             }
@@ -257,11 +281,11 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                 binOpAlgo2(node.expr1, node.expr2, gt)
             }
             Utils.Binop.AND -> {
-                val add = {l:Register,r:Register -> representation.addCode("\tAND $l, $l, $r")}
+                val add = {l:Register,r:Register -> representation.addCode("\tAND $l, $r")}
                 binOpAlgo2(node.expr1, node.expr2, add)
             }
             Utils.Binop.OR -> {
-                val add = {l:Register,r:Register -> representation.addCode("\tOR $l, $l, $r")}
+                val add = {l:Register,r:Register -> representation.addCode("\tORR $l, $l, $r")}
                 binOpAlgo2(node.expr1, node.expr2, add)
             }
         }
@@ -276,10 +300,21 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     }
 
     private fun visitCharNode(node: CharNode) {
-        representation.addCode("\tMOV r4, #'${node.char}'")
+        val dest = nextAvailableRegister()
+        representation.addCode("\tMOV ${dest.name}, #'${node.char}'")
+        freeRegister(dest)
     }
     private fun visitFunctionCallNode(node: FunctionCallNode) {}
-    private fun visitIdentNode(node: IdentNode) {}
+
+    private fun visitIdentNode(node: IdentNode) {
+        val pos = symbolTable!!.lookup(node.name)
+        val opcode = if (typeSize(node.type!!)==1) "LDRSB" else "LDR"
+        val operand = if (pos == 0) "[sp]" else "[sp, #$pos]"
+        val dest = nextAvailableRegister()
+        representation.addCode("\t$opcode $dest, $operand")
+        freeRegister(dest)
+    }
+
     private fun visitIntNode(node: IntNode) {
         val dest = nextAvailableRegister()
         representation.addCode("\tLDR ${dest.name}, =${node.value}")
@@ -430,6 +465,23 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
             freeRegister(dest)
         }
     }
+
+    /* =======================================================
+     *             Variable Assignment Helper
+     * =======================================================
+ */
+    private fun typeSize(type: Type): Int {
+        when (type) {
+            is BasicType -> when (type.typeEnum) {
+                BasicTypeEnum.INTEGER -> return 4
+                BasicTypeEnum.BOOLEAN -> return 1
+                BasicTypeEnum.CHAR -> return 1
+                BasicTypeEnum.STRING -> return 4
+            }
+        }
+        return 0
+    }
+
 
 }
 
