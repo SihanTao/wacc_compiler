@@ -3,7 +3,9 @@ package backend
 import node.Node
 import node.ProgramNode
 import node.expr.IntNode
+import node.expr.StringNode
 import node.stat.ExitNode
+import node.stat.PrintNode
 import node.stat.ScopeNode
 import node.stat.SkipNode
 
@@ -18,4 +20,6 @@ interface ASTVisitor<T> {
     fun visitExitNode(node: ExitNode): T?
     fun visitScopeNode(node: ScopeNode): T?
     fun visitIntNode(node: IntNode): T?
+    fun visitPrintNode(node: PrintNode): T?
+    fun visitStringNode(node: StringNode): T?
 }

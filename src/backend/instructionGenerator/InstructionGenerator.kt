@@ -4,27 +4,37 @@ import backend.ARMRegister
 import backend.ARMRegisterAllocator
 import backend.ASTVisitor
 import backend.instructions.*
-import backend.instructions.Addressing.ImmAddressing
+import backend.instructions.addressing.ImmAddressing
+import backend.instructions.addressing.LabelAddressing
 import backend.instructions.operand.Operand2
-import node.Node
 import node.ProgramNode
 import node.expr.IntNode
-import node.stat.ExitNode
-import node.stat.ScopeNode
-import node.stat.SkipNode
-import node.stat.StatNode
+import node.expr.StringNode
+import node.stat.*
+import type.Type
+import type.Utils.Companion.BOOL_T
+import type.Utils.Companion.CHAR_T
+import type.Utils.Companion.INT_T
+import type.Utils.Companion.STRING_T
 
 class InstructionGenerator : ASTVisitor<Void?> {
 
     val instructions: MutableList<Instruction>
+    val msgLabelGenerator: LabelGenerator = LabelGenerator("msg_")
+    private val dataSegment: MutableMap<Label, String>
 
     init {
-        instructions = ArrayList<Instruction>()
+        instructions = ArrayList()
+        dataSegment = HashMap()
     }
 
-    override fun visit(node: Node): Void? {
-        return super.visit(node)
-    }
+    private val typeRoutineMap: Map<Type, IOInstruction> =
+        mapOf(
+            INT_T to IOInstruction.PRINT_INT,
+            CHAR_T to IOInstruction.PRINT_CHAR,
+            BOOL_T to IOInstruction.PRINT_BOOL,
+            STRING_T to IOInstruction.PRINT_STRING,
+        )
 
     override fun visitProgramNode(node: ProgramNode): Void? {
         /*
@@ -90,6 +100,70 @@ class InstructionGenerator : ASTVisitor<Void?> {
         // First allocate the register: start from R4 if
         val register: ARMRegister = ARMRegisterAllocator.allocate()
         instructions.add(LDR(register, ImmAddressing(node.value)))
+        return null
+    }
+
+    override fun visitPrintNode(node: PrintNode): Void? {
+        /*
+            0	.data
+            1
+            2	msg_0:
+            3		.word 13
+            4		.ascii	"Hello World!\n"
+            5	msg_1:
+            6		.word 5
+            7		.ascii	"%.*s\0"
+            8
+            9	.text
+            10
+            11	.global main
+            12	main:
+            13		PUSH {lr}
+            14		LDR r4, =msg_0
+            15		MOV r0, r4
+            16		BL p_print_string
+            17		LDR r0, =0
+            18		POP {pc}
+            19		.ltorg
+            20	p_print_string:
+            21		PUSH {lr}
+            22		LDR r1, [r0]
+            23		ADD r2, r0, #4
+            24		LDR r0, =msg_1
+            25		ADD r0, r0, #4
+            26		BL printf
+            27		MOV r0, #0
+            28		BL fflush
+            29		POP {pc}
+            30
+        * */
+        visit(node.expr!!)
+        instructions.add(
+            Mov(
+                ARMRegister.R0,
+                Operand2(ARMRegisterAllocator.curr())
+            )
+        )
+
+        val type: Type = node.expr.type!!
+        val io: IOInstruction? = typeRoutineMap[type]
+
+        instructions.add(BL(io.toString()))
+
+        // TODO: branch not added
+
+        ARMRegisterAllocator.free()
+
+        return null
+    }
+
+    override fun visitStringNode(node: StringNode): Void? {
+        val str = node.string
+        val label = msgLabelGenerator.getLabel()
+        dataSegment[label] = str
+
+        instructions.add(LDR(ARMRegisterAllocator.allocate(), LabelAddressing(label)))
+
         return null
     }
 }
