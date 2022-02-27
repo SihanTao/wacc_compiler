@@ -16,8 +16,6 @@ FAILS_DIR="${SRC_DIR}/log/fails"
 rm -r $OUT_DIR/*
 rm -r $FAILS_DIR/*
 
-VALID_TEST=$(find ${VALID_EXAMPLES} -name "*.wacc")
-
 TOTAL_COUNT=0
 PASSED=0
 
@@ -35,6 +33,7 @@ while getopts 'i:f:d:' flag; do
     i) INPUT="${OPTARG}" ;;
     f) SINGLE_FILE="${OPTARG}" ;;
     d) DIRECTORY="${OPTARG}" ;;
+    *) echo "Invalid option: -$flag" ;;
   esac
 done
 
@@ -42,21 +41,17 @@ echo "=============================Valid Case Test==============================
 echo "Correct Program must have expected output matches the execute output"
 echo "========================================================================================"
 
-if [[ $SINGLE_FILE -ne "" ]]; then
-  testFile($(find ${VALID_EXAMPLES} -name $SINGLE_FILE))
-elif [[ $DIRECTORY -ne "" ]]; then
-  for file in $(find "${VALID_EXAMPLES}/$DIRECTORY" -name "*.wacc"); do
-    testFile(file)
-  done
+if [[ $SINGLE_FILE != "" ]]; then
+  FILES_TO_TEST=$(find ${VALID_EXAMPLES} -name "$SINGLE_FILE*")
+elif [[ $DIRECTORY != "" ]]; then
+  FILES_TO_TEST=$(find "${VALID_EXAMPLES}/$DIRECTORY" -name "*.wacc")
 else
-  for file in $VALID_TEST; do
-    testFile(file)
-  done
+  FILES_TO_TEST=$(find ${VALID_EXAMPLES} -name "*.wacc")
 fi
 
-testFile() {
+for file in $FILES_TO_TEST;do
 
-    file=$1
+    let TOTAL_COUNT+=1
     NAME=$(basename -s .wacc "${file}")
 
     echo "testing $NAME"
@@ -73,14 +68,12 @@ testFile() {
     awk '/===========================================================/{n++}
       {
         if ( n == 1 )
-          print >"out" tmp ".s";
+          print >"tmp.s";
         else if ( n == 3)
-          print > "out" tmp ".out";
+          print > "tmp.out";
       }' "$OUT_DIR/${NAME}_REF.txt"
     sed -i '1d' tmp.s && mv tmp.s "$OUT_DIR/${NAME}_REF.s"
     sed -i '1d' tmp.out && mv tmp.out "$OUT_DIR/${NAME}_REF.out"
-
-    let COUNTER+=1
     
     # compare our output and reference output
     if cmp -s "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out"; then
@@ -90,12 +83,11 @@ testFile() {
       echo "FAILED"
       diff "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out" > "$FAILS_DIR/$NAME.txt"
     fi
-
-}
+done
 
 echo "================================TEST RESULT============================================="
 echo "Total Test: $TOTAL_COUNT"
-echo "Compiled Test: $PASSED"
+echo "Passed Test: $PASSED"
 echo "========================================================================================"
 
 if [[ $PASSED -ne $TOTAL_COUNT ]]; then
