@@ -56,7 +56,8 @@ fun main(args: Array<String>) {
                 val codeGenerator = CodeGenerator(null, text, code)
 
                 // To write the code into a .s file
-                val assemblyFile = File(file.name.replaceFirst(Regex("[.][^.]+$"), ".s"))
+                val assemblyFile =
+                    File(file.name.replaceFirst(Regex("[.][^.]+$"), ".s"))
                 println("Assembly file created successfully!")
                 val fileWriter = FileWriter(assemblyFile)
                 fileWriter.write(codeGenerator.generate())

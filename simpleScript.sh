@@ -1,4 +1,4 @@
-FILENAME="exitWrap"
+FILENAME="exit-1"
 TEST_FOLDER_PATH="test/wacc_examples/valid/basic/exit"
 
 #make clean
