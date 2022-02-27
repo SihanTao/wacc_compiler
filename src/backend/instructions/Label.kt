@@ -1,6 +1,6 @@
 package backend.instructions
 
-class Label(private val label: String) : Instruction {
+class Label(val label: String) : Instruction {
 
     @Override
     override fun toString(): String {

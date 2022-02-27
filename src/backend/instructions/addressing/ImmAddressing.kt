@@ -1,4 +1,4 @@
-package backend.instructions.Addressing
+package backend.instructions.addressing
 
 class ImmAddressing(private val imm: Int) : Addressing {
     @Override
