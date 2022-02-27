@@ -6,6 +6,11 @@ class Data(private val messages: Map<Label, String>) : Directive {
 
     override fun toString(): String {
         val sb = StringBuilder()
+
+        if (messages.isEmpty()) {
+            return ""
+        }
+
         sb.append("\t.data\n\n")
         for ((key, value) in messages) {
             sb.append("\t$key\n").append("\t\t.word ${getLength(value)}\n")
