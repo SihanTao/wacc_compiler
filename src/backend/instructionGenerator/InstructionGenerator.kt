@@ -73,10 +73,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             MOV r0, r4
             BL exit
          */
-        val exitVal = (node.exitCode as IntNode).value
-
-        // LDR r4, $EXIT_CODE
-        instructions.add(LDR(ARMRegister.R4, ImmAddressing(exitVal)))
+        visit(node.exitCode)
         // MOV r0, r4
         instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegister.R4)))
         // BL exit
