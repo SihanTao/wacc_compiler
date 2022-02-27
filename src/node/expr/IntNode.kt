@@ -1,5 +1,6 @@
 package node.expr
 
+import backend.ASTVisitor
 import type.BasicType
 import type.BasicTypeEnum
 
@@ -13,5 +14,9 @@ class IntNode(
 ) : ExprNode() {
     init {
         type = BasicType(BasicTypeEnum.INTEGER)
+    }
+
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitIntNode(this)
     }
 }

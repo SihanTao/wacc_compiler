@@ -1,6 +1,7 @@
 package backend.instructionGenerator
 
 import backend.ARMRegister
+import backend.ARMRegisterAllocator
 import backend.ASTVisitor
 import backend.instructions.*
 import backend.instructions.Addressing.ImmAddressing
@@ -82,6 +83,13 @@ class InstructionGenerator : ASTVisitor<Void?> {
             visit(elem)
         }
 
+        return null
+    }
+
+    override fun visitIntNode(node: IntNode): Void? {
+        // First allocate the register: start from R4 if
+        val register: ARMRegister = ARMRegisterAllocator.allocate()
+        instructions.add(LDR(register, ImmAddressing(node.value)))
         return null
     }
 }
