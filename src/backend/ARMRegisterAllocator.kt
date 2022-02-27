@@ -10,7 +10,7 @@ class ARMRegisterAllocator() {
         val GENERAL_REG_END = 12
     }
 
-    val registers: List<ARMRegister> = listOf(
+    private val registers: List<ARMRegister> = listOf(
         ARMRegister.R0,
         ARMRegister.R1,
         ARMRegister.R2,
