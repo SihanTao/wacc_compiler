@@ -20,6 +20,10 @@ class ARMRegisterAllocator() {
             return registers[counter--]
         }
 
+        fun curr(): ARMRegister {
+            return registers[counter]
+        }
+
         private val registers: List<ARMRegister> = listOf(
             ARMRegister.R0,
             ARMRegister.R1,
