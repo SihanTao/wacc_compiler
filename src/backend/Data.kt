@@ -1,4 +1,4 @@
-package backend.directives
+package backend
 
 import backend.Directive
 import backend.instructions.Label
