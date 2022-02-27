@@ -2,6 +2,7 @@
 import antlr.*
 import backend.Code
 import backend.CodeGenerator
+import backend.Data
 import backend.Text
 import backend.instructionGenerator.InstructionGenerator
 import org.antlr.v4.runtime.*
@@ -46,14 +47,12 @@ fun main(args: Array<String>) {
 
             if (args.contains("--assembly") || args.contains("--execute")) {
                 // In this case, we need the assembly code
-                // TODO: Want a ASTVisiter to generate intermeidate representation
-                //         Then use a code generator, and write the generated code into .s files
                 val instructionGenerator = InstructionGenerator()
                 instructionGenerator.visit(ast)
-                // TODO: .data directive not implemented
-                val text: Text = Text()
-                val code: Code = Code(instructionGenerator.instructions)
-                val codeGenerator = CodeGenerator(null, text, code)
+                val data = Data(instructionGenerator.dataSegment)
+                val text = Text()
+                val code = Code(instructionGenerator.instructions)
+                val codeGenerator = CodeGenerator(data, text, code)
 
                 // To write the code into a .s file
                 val assemblyFile = File(file.name.replaceFirst(Regex("[.][^.]+$"), ".s"))
