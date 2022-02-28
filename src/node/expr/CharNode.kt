@@ -1,5 +1,6 @@
 package node.expr
 
+import backend.ASTVisitor
 import type.BasicType
 import type.BasicTypeEnum
 
@@ -27,6 +28,10 @@ class CharNode(private val liter: String) : ExprNode() {
         } else {
             char = liter[1]
         }
+    }
+
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitCharNode(this)
     }
 
 }

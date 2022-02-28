@@ -3,6 +3,7 @@ package backend
 import node.Node
 import node.ProgramNode
 import node.expr.BoolNode
+import node.expr.CharNode
 import node.expr.IntNode
 import node.expr.StringNode
 import node.stat.*
@@ -23,4 +24,5 @@ interface ASTVisitor<T> {
     fun visitPrintNode(node: PrintNode): T?
     fun visitPrintlnNode(node: PrintlnNode): T?
     fun visitStringNode(node: StringNode): T?
+    fun visitCharNode(node: CharNode): T?
 }
