@@ -29,7 +29,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
     val dataSegment: MutableMap<Label, String>
     private val existedHelperFunction: Set<IOInstruction>
     // The list stores the instructions of helper functions
-    private val armHelperFunctions: List<Instruction>
+    private val armHelperFunctions: MutableList<Instruction>
 
     init {
         instructions = ArrayList()
@@ -123,7 +123,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         instructions.add(BL(io.toString()))
 
-        addPrint(io, labelGenerator = msgLabelGenerator, dataSegment = dataSegment)
+        armHelperFunctions.addAll(addPrint(io, labelGenerator = msgLabelGenerator, dataSegment = dataSegment))
 
         ARMRegisterAllocator.free()
 
