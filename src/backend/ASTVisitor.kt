@@ -16,6 +16,7 @@ interface ASTVisitor<T> {
     fun visitSkipNode(node: SkipNode): T?
     fun visitExitNode(node: ExitNode): T?
     fun visitScopeNode(node: ScopeNode): T?
+    fun visitSequenceNode(node: SequenceNode): T?
     fun visitIntNode(node: IntNode): T?
     fun visitPrintNode(node: PrintNode): T?
     fun visitPrintlnNode(node: PrintlnNode): T?

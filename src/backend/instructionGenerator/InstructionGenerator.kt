@@ -85,6 +85,17 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return null
     }
 
+    override fun visitSequenceNode(node: SequenceNode): Void? {
+        val nodes: List<StatNode> = node.body
+
+        // visit all the nodes
+        for (elem in nodes) {
+            visit(elem)
+        }
+
+        return null
+    }
+
     override fun visitScopeNode(node: ScopeNode): Void? {
         val nodes: List<StatNode> = node.body
 
