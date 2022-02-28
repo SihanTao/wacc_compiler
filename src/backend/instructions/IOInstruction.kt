@@ -34,8 +34,8 @@ enum class IOInstruction {
                 labelGenerator
             )
 
-            val instructions = ArrayList(
-                listOf( /* add the helper function label */
+            val instructions: MutableList<Instruction> =
+                mutableListOf( /* add the helper function label */
                     Label(PRINT_STRING.toString()),
                     Push(ARMRegister.LR),  /* put the string length into r1 as snd arg */
                     LDR(
@@ -50,9 +50,19 @@ enum class IOInstruction {
                     LDR(ARMRegister.R0, LabelAddressing(msg))
 
                 )
-            )
-            // instructions.addAll(addCommonPrint())
+
+            instructions.addAll(addCommonPrint())
             return instructions
+        }
+
+        private fun addCommonPrint(): MutableList<Instruction> {
+            return mutableListOf( /* skip the first 4 byte of the msg which is the length of it */
+                Add(ARMRegister.R0, ARMRegister.R0, Operand2(4)),
+                BL(SyscallInstruction.PRINTF.toString()),  /* refresh the r0 and buffer */
+                Mov(ARMRegister.R0, Operand2(0)),
+                BL(SyscallInstruction.FFLUSH.toString()),
+                Pop(ARMRegister.PC)
+            )
         }
 
         private fun addMsg(
