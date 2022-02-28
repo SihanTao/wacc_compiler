@@ -66,7 +66,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
                     paramList.add(paramNode)
                 }
             }
-            globalFuncTable!![funcName] = FuncNode(returnType, paramList)
+            globalFuncTable!![funcName] = FuncNode(funcName, returnType, paramList)
         }
 
         /* then iterate through a list of function declarations to visit the function body */

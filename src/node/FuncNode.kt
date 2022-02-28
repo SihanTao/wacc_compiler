@@ -4,10 +4,10 @@ import node.expr.IdentNode
 import node.stat.StatNode
 import type.Type
 
-class FuncNode(val returnType: Type?, var functionBody: StatNode?, params: List<IdentNode?>?) : Node {
+class FuncNode(val identifier: String, val returnType: Type?, var functionBody: StatNode?, params: List<IdentNode?>?) : Node {
     private val parameters: List<IdentNode?>?
 
-    constructor(returnType: Type?, params: List<IdentNode?>?) : this(returnType, null, params) {}
+    constructor(ident: String, returnType: Type?, params: List<IdentNode?>?) : this(ident, returnType, null, params) {}
 
     init {
         parameters = params

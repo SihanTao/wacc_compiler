@@ -3,7 +3,7 @@ package node.expr
 import node.FuncNode
 import SymbolTable
 
-class FunctionCallNode(private val function: FuncNode, private val params: List<ExprNode>, currScope: SymbolTable<ExprNode>?) :
+class FunctionCallNode(val function: FuncNode, val params: List<ExprNode>, currScope: SymbolTable<ExprNode>?) :
     
     /**
      * Represent a function call with a list of parameters and a SymbolTable

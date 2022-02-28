@@ -14,6 +14,8 @@ class WACCAssembleRepresentation {
     private var hasThrowErrorOverflow = false
     private var hasDivByZeroError = false
     private var hasCheckArrayBounds = false
+    private var hasReadInt = false
+    private var hasReadChar = false
 
     fun addCode(str: String) {
         code.addLast(str)
@@ -96,7 +98,21 @@ class WACCAssembleRepresentation {
         return msgTable.putIfAbsent(literal, Pair(msgTable.size, length))?.first ?: (msgTable.size -1)
     }
 
+    fun addReadInt() {
+        hasReadInt = true
+    }
 
+    fun hasReadIntFunc(): Boolean {
+        return hasReadInt
+    }
+
+    fun hasReadCharFunc(): Boolean {
+        return hasReadChar
+    }
+
+    fun addReadCharFunc() {
+        hasReadChar = true
+    }
 
 
 }

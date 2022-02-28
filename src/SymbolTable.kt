@@ -17,6 +17,7 @@ class SymbolTable<T>(parentSymbolTable: SymbolTable<T>?) {
     fun add(name: String, expr: T?): Boolean {
         if (dictionary.containsKey(name)) {
             ErrorHandler.symbolRedeclare(null, name)
+            Thread.dumpStack()
             return true
         }
         if (expr != null) {
