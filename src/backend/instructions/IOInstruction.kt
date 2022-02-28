@@ -39,7 +39,7 @@ enum class IOInstruction {
                 PRINT_STRING -> addPrintString(dataSegment, labelGenerator)
                 PRINT_LN -> addPrintln(dataSegment, labelGenerator)
                 PRINT_INT -> addPrintInt(dataSegment, labelGenerator)
-                PRINT_BOOL -> TODO("Print bool not implemented.")
+                PRINT_BOOL -> addPrintBool(dataSegment, labelGenerator)
                 PRINT_CHAR -> TODO("Print char not implemented")
                 PRINT_REFERENCE -> TODO("Print ref not implemented.")
                 else -> TODO("NOT IMPLEMENTED")
@@ -116,6 +116,40 @@ enum class IOInstruction {
 
                 )
 
+            instructions.addAll(addCommonPrint())
+            return instructions
+        }
+
+        /* print bool */
+        private fun addPrintBool(
+            dataSegment: MutableMap<Label, String>,
+            labelGenerator: LabelGenerator
+        ): List<Instruction> {
+            /* add the msgTrue into the data list */
+            val msgTrue: Label = addMsg(
+                PRINT_BOOL_TRUE,
+                dataSegment,
+                labelGenerator
+            )
+
+            /* add the msgFalse into the data list */
+            val msgFalse: Label = addMsg(
+                PRINT_BOOL_FALSE,
+                dataSegment,
+                labelGenerator
+            )
+
+            val instructions: MutableList<Instruction> = ArrayList(
+                listOf(
+                    /* add the helper function label */
+                    Label(PRINT_BOOL.toString()),
+                    Push(ARMRegister.LR),
+                    /* cmp the content in r0 with 0 */
+                    Cmp(ARMRegister.R0, Operand2(0)),  /* if not equal to 0 LDR true */
+                    LDR(ARMRegister.R0, LabelAddressing(msgTrue), LDR.LdrMode.LDRNE),
+                    LDR(ARMRegister.R0, LabelAddressing(msgFalse), LDR.LdrMode.LDREQ)
+                )
+            )
             instructions.addAll(addCommonPrint())
             return instructions
         }
