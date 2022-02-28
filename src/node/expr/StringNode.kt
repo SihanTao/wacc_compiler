@@ -1,5 +1,6 @@
 package node.expr
 
+import backend.ASTVisitor
 import type.BasicType
 import type.BasicTypeEnum
 
@@ -10,10 +11,13 @@ class StringNode(val string: String) : ExprNode() {
      * Examples: "string"
      */
 
-    val length: Int
+    val length: Int = string.length
 
     init {
-        length = string.length
         type = BasicType(BasicTypeEnum.STRING)
+    }
+
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitStringNode(this)
     }
 }

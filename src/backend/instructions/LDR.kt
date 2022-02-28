@@ -1,7 +1,7 @@
 package backend.instructions
 
 import backend.ARMRegister
-import backend.instructions.Addressing.Addressing
+import backend.instructions.addressing.Addressing
 
 class LDR(register: ARMRegister, addressing: Addressing) : Instruction {
     private val register: ARMRegister

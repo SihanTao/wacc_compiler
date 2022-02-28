@@ -1,5 +1,7 @@
 package backend.instructions.operand
 
-class Immediate(value: Int) {
-
+class Immediate(val value: Int) {
+    override fun toString(): String {
+        return "#$value"
+    }
 }

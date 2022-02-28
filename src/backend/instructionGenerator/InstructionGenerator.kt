@@ -4,26 +4,40 @@ import backend.ARMRegister
 import backend.ARMRegisterAllocator
 import backend.ASTVisitor
 import backend.instructions.*
-import backend.instructions.Addressing.ImmAddressing
+import backend.instructions.IOInstruction.Companion.addPrint
+import backend.instructions.addressing.ImmAddressing
+import backend.instructions.addressing.LabelAddressing
 import backend.instructions.operand.Operand2
-import node.Node
 import node.ProgramNode
 import node.expr.IntNode
-import node.stat.ExitNode
-import node.stat.ScopeNode
-import node.stat.SkipNode
-import node.stat.StatNode
+import node.expr.StringNode
+import node.stat.*
+import type.Type
+import type.Utils.Companion.BOOL_T
+import type.Utils.Companion.CHAR_T
+import type.Utils.Companion.INT_T
+import type.Utils.Companion.STRING_T
 
 class InstructionGenerator : ASTVisitor<Void?> {
 
-    val instructions: MutableList<Instruction>
+    private val instructions: MutableList<Instruction>
+    private val msgLabelGenerator: LabelGenerator = LabelGenerator("msg_")
+    val dataSegment: MutableMap<Label, String>
+    private val existedHelperFunction: MutableSet<IOInstruction>
+
+    // The list stores the instructions of helper functions
+    private val armHelperFunctions: MutableList<Instruction>
 
     init {
-        instructions = ArrayList<Instruction>()
+        instructions = ArrayList()
+        dataSegment = HashMap()
+        existedHelperFunction = HashSet()
+        armHelperFunctions = ArrayList()
     }
 
-    override fun visit(node: Node): Void? {
-        return super.visit(node)
+    fun getInstructions(): MutableList<Instruction> {
+        instructions.addAll(armHelperFunctions)
+        return instructions
     }
 
     override fun visitProgramNode(node: ProgramNode): Void? {
@@ -63,10 +77,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             MOV r0, r4
             BL exit
          */
-        val exitVal = (node.exitCode as IntNode).value
-
-        // LDR r4, $EXIT_CODE
-        instructions.add(LDR(ARMRegister.R4, ImmAddressing(exitVal)))
+        visit(node.exitCode)
         // MOV r0, r4
         instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegister.R4)))
         // BL exit
@@ -90,6 +101,48 @@ class InstructionGenerator : ASTVisitor<Void?> {
         // First allocate the register: start from R4 if
         val register: ARMRegister = ARMRegisterAllocator.allocate()
         instructions.add(LDR(register, ImmAddressing(node.value)))
+        return null
+    }
+
+    override fun visitPrintNode(node: PrintNode): Void? {
+        visit(node.expr!!)
+        instructions.add(
+            Mov(
+                ARMRegister.R0,
+                Operand2(ARMRegisterAllocator.curr())
+            )
+        )
+
+        val type: Type = node.expr.type!!
+
+        val io: IOInstruction = when (type) {
+            STRING_T -> IOInstruction.PRINT_STRING
+            INT_T -> IOInstruction.PRINT_INT
+            CHAR_T -> IOInstruction.PRINT_CHAR
+            BOOL_T -> IOInstruction.PRINT_BOOL
+            else -> TODO("NOT IMPLEMENTED YET in visitPrintNode")
+        }
+
+        instructions.add(BL(io.toString()))
+
+        if (!existedHelperFunction.contains(io)) {
+            existedHelperFunction.add(io)
+            val helperFunctions = addPrint(io, labelGenerator = msgLabelGenerator, dataSegment = dataSegment)
+            armHelperFunctions.addAll(helperFunctions)
+        }
+
+        ARMRegisterAllocator.free()
+
+        return null
+    }
+
+    override fun visitStringNode(node: StringNode): Void? {
+        val str = node.string
+        val label = msgLabelGenerator.getLabel()
+        dataSegment[label] = str
+
+        instructions.add(LDR(ARMRegisterAllocator.allocate(), LabelAddressing(label)))
+
         return null
     }
 }

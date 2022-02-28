@@ -20,6 +20,11 @@ class ARMRegisterAllocator() {
             return registers[counter--]
         }
 
+        // The counter points to the next free reg to be used
+        fun curr(): ARMRegister {
+            return registers[counter - 1]
+        }
+
         private val registers: List<ARMRegister> = listOf(
             ARMRegister.R0,
             ARMRegister.R1,
