@@ -61,7 +61,7 @@ class Utils {
         val CHAR_T: Type = BasicType(BasicTypeEnum.CHAR)
         val STRING_T: Type = BasicType(BasicTypeEnum.STRING)
         val ARRAY_T: Type = ArrayType()
-
+        val CHAR_ARRAY_T: Type = ArrayType(CHAR_T)
         val PAIR_T: Type = PairType()
 
         @JvmStatic

@@ -16,6 +16,7 @@ import node.expr.IntNode
 import node.expr.StringNode
 import node.stat.*
 import type.Utils.Companion.BOOL_T
+import type.Utils.Companion.CHAR_ARRAY_T
 import type.Utils.Companion.CHAR_T
 import type.Utils.Companion.INT_T
 import type.Utils.Companion.STRING_T
@@ -127,7 +128,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )
 
         val io: IOInstruction = when (node.expr.type!!) {
-            STRING_T -> IOInstruction.PRINT_STRING
+            STRING_T, CHAR_ARRAY_T -> IOInstruction.PRINT_STRING
             INT_T -> IOInstruction.PRINT_INT
             CHAR_T -> IOInstruction.PRINT_CHAR
             BOOL_T -> IOInstruction.PRINT_BOOL
