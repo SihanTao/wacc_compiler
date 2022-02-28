@@ -185,4 +185,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(Mov(register, Operand2(Immediate(node.char.code, true))))
         return null
     }
+
+    override fun visitIfNode(node: IfNode): Void? {
+        TODO("Not yet implemented")
+    }
 }
