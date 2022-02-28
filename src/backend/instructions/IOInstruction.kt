@@ -10,7 +10,7 @@ import java.util.*
 
 enum class IOInstruction {
     // Print
-    PRINT_INT, PRINT_BOOL, PRINT_CHAR, PRINT_STRING, PRINT_LN;
+    PRINT_INT, PRINT_BOOL, PRINT_CHAR, PRINT_STRING, PRINT_LN, PRINT_REFERENCE;
 
     override fun toString(): String {
         if (this == PRINT_CHAR) {
@@ -21,9 +21,13 @@ enum class IOInstruction {
     }
 
     companion object {
+        private const val PRINT_BOOL_TRUE = "\"true\\0\""
+        private const val PRINT_BOOL_FALSE = "\"false\\0\""
         private const val PRINT_INT_MSG = "\"%d\\0\""
         private const val PRINT_STRING_MSG = "\"%.*s\\0\""
         private const val PRINT_LN_MSG = "\"\\0\""
+        private const val PRINT_REF_MSG = "\"%p\\0\""
+        private const val PRINT_CHAR_MSG = "\" %c\\0\""
 
         // The main print function
         fun addPrint(
@@ -35,6 +39,9 @@ enum class IOInstruction {
                 PRINT_STRING -> addPrintString(dataSegment, labelGenerator)
                 PRINT_LN -> addPrintln(dataSegment, labelGenerator)
                 PRINT_INT -> addPrintInt(dataSegment, labelGenerator)
+                PRINT_BOOL -> TODO("Print bool not implemented.")
+                PRINT_CHAR -> TODO("Print char not implemented")
+                PRINT_REFERENCE -> TODO("Print ref not implemented.")
                 else -> TODO("NOT IMPLEMENTED")
             }
         }
