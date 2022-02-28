@@ -12,7 +12,7 @@ class LDR(val register: ARMRegister, val addressing: Addressing, val mode: LdrMo
         val str = StringBuilder()
         str.append("$register, ")
         str.append(addressing)
-        return "${mode.name}  $register, $addressing"
+        return "${mode.name} $register, $addressing"
     }
 
     enum class LdrMode {
