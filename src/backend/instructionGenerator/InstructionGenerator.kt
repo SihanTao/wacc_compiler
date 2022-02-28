@@ -23,11 +23,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
     private val msgLabelGenerator: LabelGenerator = LabelGenerator("msg_")
     val dataSegment: MutableMap<Label, String>
     private val existedHelperFunction: Set<IOInstruction>
+    // The list stores the instructions of helper functions
+    private val armHelperFunctions: List<Instruction>
 
     init {
         instructions = ArrayList()
         dataSegment = HashMap()
         existedHelperFunction = HashSet()
+        armHelperFunctions = ArrayList()
     }
 
     private val typeRoutineMap: Map<Type, IOInstruction> =
