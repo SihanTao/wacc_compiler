@@ -3,6 +3,7 @@ package backend.instructionGenerator
 import backend.ARMRegister
 import backend.ARMRegisterAllocator
 import backend.ASTVisitor
+import backend.Cond
 import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
 import backend.instructions.addressing.ImmAddressing
@@ -25,6 +26,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     private val instructions: MutableList<Instruction>
     private val msgLabelGenerator: LabelGenerator = LabelGenerator("msg_")
+    private val branchLabelGenerator = LabelGenerator("L")
     val dataSegment: MutableMap<Label, String>
     private val existedHelperFunction: MutableSet<IOInstruction>
 
@@ -187,6 +189,27 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitIfNode(node: IfNode): Void? {
-        TODO("Not yet implemented")
+        val ifLabel = branchLabelGenerator.getLabel()
+        val exitIfStatLabel = branchLabelGenerator.getLabel()
+
+        visit(node.condition)
+        val condRegister = ARMRegisterAllocator.curr()
+        instructions.add(Cmp(condRegister, Operand2(0)))
+        instructions.add(B(ifLabel, Cond.EQ))
+
+        ARMRegisterAllocator.free()
+
+        // First add the instructions from else
+        visit(node.elseBody)
+        instructions.add(B(exitIfStatLabel.label))
+
+        // Then add ifBody
+        instructions.add(ifLabel)
+        visit(node.ifBody)
+
+        // Add if stat end label
+        instructions.add(exitIfStatLabel)
+
+        return null
     }
 }
