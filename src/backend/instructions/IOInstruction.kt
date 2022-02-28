@@ -10,7 +10,7 @@ import java.util.*
 
 enum class IOInstruction {
     // Print
-    PRINT_INT, PRINT_BOOL, PRINT_CHAR, PRINT_STRING, PRINT_LN;
+    PRINT_INT, PRINT_BOOL, PRINT_CHAR, PRINT_STRING, PRINT_LN, PRINT_REFERENCE;
 
     override fun toString(): String {
         if (this == PRINT_CHAR) {
@@ -21,8 +21,13 @@ enum class IOInstruction {
     }
 
     companion object {
+        private const val PRINT_BOOL_TRUE = "\"true\\0\""
+        private const val PRINT_BOOL_FALSE = "\"false\\0\""
+        private const val PRINT_INT_MSG = "\"%d\\0\""
         private const val PRINT_STRING_MSG = "\"%.*s\\0\""
         private const val PRINT_LN_MSG = "\"\\0\""
+        private const val PRINT_REF_MSG = "\"%p\\0\""
+        private const val PRINT_CHAR_MSG = "\" %c\\0\""
 
         // The main print function
         fun addPrint(
@@ -33,8 +38,31 @@ enum class IOInstruction {
             return when (ioInstruction) {
                 PRINT_STRING -> addPrintString(dataSegment, labelGenerator)
                 PRINT_LN -> addPrintln(dataSegment, labelGenerator)
+                PRINT_INT -> addPrintInt(dataSegment, labelGenerator)
+                PRINT_BOOL -> addPrintBool(dataSegment, labelGenerator)
+                PRINT_CHAR -> TODO("Print char not implemented")
+                PRINT_REFERENCE -> TODO("Print ref not implemented.")
                 else -> TODO("NOT IMPLEMENTED")
             }
+        }
+
+        private fun addPrintInt(
+            dataSegment: MutableMap<Label, String>,
+            labelGenerator: LabelGenerator
+        ): List<Instruction> {
+            val printIntLabel = addMsg(PRINT_INT_MSG, dataSegment, labelGenerator)
+            val instructions: MutableList<Instruction> = ArrayList(
+                listOf(
+                    /* add the helper function label */
+                    Label(PRINT_INT.toString()),
+                    Push(ARMRegister.LR),  /* put the content in r0 int o r1 as the snd arg of printf */
+                    Mov(ARMRegister.R1, Operand2(ARMRegister.R0)),  /* fst arg of printf is the format */
+                    LDR(ARMRegister.R0, LabelAddressing(printIntLabel))
+                )
+            )
+            instructions.addAll(addCommonPrint())
+
+            return instructions
         }
 
         private fun addPrintln(
@@ -88,6 +116,40 @@ enum class IOInstruction {
 
                 )
 
+            instructions.addAll(addCommonPrint())
+            return instructions
+        }
+
+        /* print bool */
+        private fun addPrintBool(
+            dataSegment: MutableMap<Label, String>,
+            labelGenerator: LabelGenerator
+        ): List<Instruction> {
+            /* add the msgTrue into the data list */
+            val msgTrue: Label = addMsg(
+                PRINT_BOOL_TRUE,
+                dataSegment,
+                labelGenerator
+            )
+
+            /* add the msgFalse into the data list */
+            val msgFalse: Label = addMsg(
+                PRINT_BOOL_FALSE,
+                dataSegment,
+                labelGenerator
+            )
+
+            val instructions: MutableList<Instruction> = ArrayList(
+                listOf(
+                    /* add the helper function label */
+                    Label(PRINT_BOOL.toString()),
+                    Push(ARMRegister.LR),
+                    /* cmp the content in r0 with 0 */
+                    Cmp(ARMRegister.R0, Operand2(0)),  /* if not equal to 0 LDR true */
+                    LDR(ARMRegister.R0, LabelAddressing(msgTrue), LDR.LdrMode.LDRNE),
+                    LDR(ARMRegister.R0, LabelAddressing(msgFalse), LDR.LdrMode.LDREQ)
+                )
+            )
             instructions.addAll(addCommonPrint())
             return instructions
         }

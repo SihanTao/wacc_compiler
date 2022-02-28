@@ -1,7 +1,5 @@
 package backend
 
-import java.lang.IllegalArgumentException
-
 class ARMRegisterAllocator() {
     companion object {
         // R0-R12 is the general purpose register. start from R4 to be the same
@@ -17,12 +15,12 @@ class ARMRegisterAllocator() {
         }
 
         fun free(): ARMRegister {
-            return registers[counter--]
+            return registers[--counter]
         }
 
         // The counter points to the next free reg to be used
         fun curr(): ARMRegister {
-            return registers[counter - 1]
+            return registers[if (counter > GENERAL_REG_START) counter - 1 else counter]
         }
 
         private val registers: List<ARMRegister> = listOf(

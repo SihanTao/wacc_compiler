@@ -3,19 +3,19 @@ package backend.instructions
 import backend.ARMRegister
 import backend.instructions.addressing.Addressing
 
-class LDR(register: ARMRegister, addressing: Addressing) : Instruction {
-    private val register: ARMRegister
-    private val addressing: Addressing
+class LDR(val register: ARMRegister, val addressing: Addressing, val mode: LdrMode) : Instruction {
 
-    init {
-        this.register = register
-        this.addressing = addressing
-    }
+    constructor(register: ARMRegister, addressing: Addressing) : this(register, addressing, LdrMode.LDR)
 
     @Override
     override fun toString(): String {
-        val stringBuilder: String = register.toString() + ", " +
-                addressing
-        return "LDR $stringBuilder"
+        val str = StringBuilder()
+        str.append("$register, ")
+        str.append(addressing)
+        return "${mode.name}  $register, $addressing"
+    }
+
+    enum class LdrMode {
+        LDR, LDRB, LDRSB, LDREQ, LDRNE, LDRLT, LDRCS
     }
 }

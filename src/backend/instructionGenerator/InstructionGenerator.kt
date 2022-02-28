@@ -9,6 +9,7 @@ import backend.instructions.addressing.ImmAddressing
 import backend.instructions.addressing.LabelAddressing
 import backend.instructions.operand.Operand2
 import node.ProgramNode
+import node.expr.BoolNode
 import node.expr.IntNode
 import node.expr.StringNode
 import node.stat.*
@@ -85,6 +86,17 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return null
     }
 
+    override fun visitSequenceNode(node: SequenceNode): Void? {
+        val nodes: List<StatNode> = node.body
+
+        // visit all the nodes
+        for (elem in nodes) {
+            visit(elem)
+        }
+
+        return null
+    }
+
     override fun visitScopeNode(node: ScopeNode): Void? {
         val nodes: List<StatNode> = node.body
 
@@ -154,6 +166,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         instructions.add(LDR(ARMRegisterAllocator.allocate(), LabelAddressing(label)))
 
+        return null
+    }
+
+    override fun visitBoolNode(node: BoolNode): Void? {
+        val register = ARMRegisterAllocator.allocate()
+        val boolValue: Int = if (node.value) 1 else 0
+        val operand2 = Operand2(boolValue)
+        instructions.add(Mov(register, operand2))
         return null
     }
 }

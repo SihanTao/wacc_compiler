@@ -1,4 +1,4 @@
-FILENAME="print"
+FILENAME="printBool"
 TEST_FOLDER_PATH="test/wacc_examples/valid/IO/print"
 
 #make clean
