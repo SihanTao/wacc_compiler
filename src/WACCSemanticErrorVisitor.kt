@@ -237,7 +237,6 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitIfStat(ctx: IfStatContext?): Node {
         // 'if' <expr> than <stat> else <stat>
-        println("In visitIfStat: before condition as ExprNode")
         val condition: ExprNode = visit(ctx!!.expr()) as ExprNode
         val conditionType = condition.type
 
@@ -334,7 +333,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             indexList.add(index)
         }
 
-        val arrayType = array?.type as ArrayType
+        val arrayType = array.type as ArrayType
 
         return ArrayElemNode(array, indexList, arrayType.getContentType())
     }
@@ -371,7 +370,6 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitCharExpr(ctx: CharExprContext): Node {
-        println(ctx.charLiter().text)
         return CharNode(ctx.charLiter().text)
     }
 
