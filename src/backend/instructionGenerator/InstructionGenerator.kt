@@ -12,7 +12,6 @@ import node.ProgramNode
 import node.expr.IntNode
 import node.expr.StringNode
 import node.stat.*
-import type.Type
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_T
 import type.Utils.Companion.INT_T
@@ -81,7 +80,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         // MOV r0, r4
         instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegister.R4)))
         // BL exit
-        instructions.add(BL("exit"))
+        instructions.add(BL(SyscallInstruction.EXIT.toString()))
 
         return null
     }
@@ -113,9 +112,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             )
         )
 
-        val type: Type = node.expr.type!!
-
-        val io: IOInstruction = when (type) {
+        val io: IOInstruction = when (node.expr.type!!) {
             STRING_T -> IOInstruction.PRINT_STRING
             INT_T -> IOInstruction.PRINT_INT
             CHAR_T -> IOInstruction.PRINT_CHAR
@@ -125,15 +122,29 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         instructions.add(BL(io.toString()))
 
+        checkAndAddPrint(io)
+
+        ARMRegisterAllocator.free()
+
+        return null
+    }
+
+    override fun visitPrintlnNode(node: PrintlnNode): Void? {
+        visit(PrintNode(node.expr))
+        instructions.add(BL(IOInstruction.PRINT_LN.toString()))
+        val io = IOInstruction.PRINT_LN
+
+        checkAndAddPrint(io)
+
+        return null
+    }
+
+    private fun checkAndAddPrint(io: IOInstruction) {
         if (!existedHelperFunction.contains(io)) {
             existedHelperFunction.add(io)
             val helperFunctions = addPrint(io, labelGenerator = msgLabelGenerator, dataSegment = dataSegment)
             armHelperFunctions.addAll(helperFunctions)
         }
-
-        ARMRegisterAllocator.free()
-
-        return null
     }
 
     override fun visitStringNode(node: StringNode): Void? {
