@@ -7,9 +7,11 @@ import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
 import backend.instructions.addressing.ImmAddressing
 import backend.instructions.addressing.LabelAddressing
+import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import node.ProgramNode
 import node.expr.BoolNode
+import node.expr.CharNode
 import node.expr.IntNode
 import node.expr.StringNode
 import node.stat.*
@@ -174,6 +176,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val boolValue: Int = if (node.value) 1 else 0
         val operand2 = Operand2(boolValue)
         instructions.add(Mov(register, operand2))
+        return null
+    }
+
+    override fun visitCharNode(node: CharNode): Void? {
+        val register = ARMRegisterAllocator.allocate()
+        instructions.add(Mov(register, Operand2(Immediate(node.char.code, true))))
         return null
     }
 }
