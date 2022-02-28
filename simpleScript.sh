@@ -1,5 +1,5 @@
-FILENAME="exitWrap"
-TEST_FOLDER_PATH="test/wacc_examples/valid/basic/exit"
+FILENAME="print"
+TEST_FOLDER_PATH="test/wacc_examples/valid/IO/print"
 
 #make clean
 #make

@@ -20,14 +20,11 @@ import type.Utils.Companion.STRING_T
 
 class InstructionGenerator : ASTVisitor<Void?> {
 
-    val instructions: MutableList<Instruction>
-        get() {
-            field.addAll(armHelperFunctions)
-            return field
-        }
+    private val instructions: MutableList<Instruction>
     private val msgLabelGenerator: LabelGenerator = LabelGenerator("msg_")
     val dataSegment: MutableMap<Label, String>
-    private val existedHelperFunction: Set<IOInstruction>
+    private val existedHelperFunction: MutableSet<IOInstruction>
+
     // The list stores the instructions of helper functions
     private val armHelperFunctions: MutableList<Instruction>
 
@@ -36,6 +33,11 @@ class InstructionGenerator : ASTVisitor<Void?> {
         dataSegment = HashMap()
         existedHelperFunction = HashSet()
         armHelperFunctions = ArrayList()
+    }
+
+    fun getInstructions(): MutableList<Instruction> {
+        instructions.addAll(armHelperFunctions)
+        return instructions
     }
 
     override fun visitProgramNode(node: ProgramNode): Void? {
@@ -123,7 +125,11 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         instructions.add(BL(io.toString()))
 
-        armHelperFunctions.addAll(addPrint(io, labelGenerator = msgLabelGenerator, dataSegment = dataSegment))
+        if (!existedHelperFunction.contains(io)) {
+            existedHelperFunction.add(io)
+            val helperFunctions = addPrint(io, labelGenerator = msgLabelGenerator, dataSegment = dataSegment)
+            armHelperFunctions.addAll(helperFunctions)
+        }
 
         ARMRegisterAllocator.free()
 

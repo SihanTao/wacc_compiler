@@ -51,7 +51,7 @@ fun main(args: Array<String>) {
                 instructionGenerator.visit(ast)
                 val data = Data(instructionGenerator.dataSegment)
                 val text = Text()
-                val code = Code(instructionGenerator.instructions)
+                val code = Code(instructionGenerator.getInstructions())
                 val codeGenerator = CodeGenerator(data, text, code)
 
                 // To write the code into a .s file
