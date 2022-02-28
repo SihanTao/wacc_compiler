@@ -21,6 +21,10 @@ import type.Utils.Companion.STRING_T
 class InstructionGenerator : ASTVisitor<Void?> {
 
     val instructions: MutableList<Instruction>
+        get() {
+            field.addAll(armHelperFunctions)
+            return field
+        }
     private val msgLabelGenerator: LabelGenerator = LabelGenerator("msg_")
     val dataSegment: MutableMap<Label, String>
     private val existedHelperFunction: Set<IOInstruction>
@@ -33,14 +37,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
         existedHelperFunction = HashSet()
         armHelperFunctions = ArrayList()
     }
-
-    private val typeRoutineMap: Map<Type, IOInstruction> =
-        mapOf(
-            INT_T to IOInstruction.PRINT_INT,
-            CHAR_T to IOInstruction.PRINT_CHAR,
-            BOOL_T to IOInstruction.PRINT_BOOL,
-            STRING_T to IOInstruction.PRINT_STRING,
-        )
 
     override fun visitProgramNode(node: ProgramNode): Void? {
         /*
@@ -116,11 +112,18 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )
 
         val type: Type = node.expr.type!!
-        val io: IOInstruction? = typeRoutineMap[type]
+
+        val io: IOInstruction = when (type) {
+            STRING_T -> IOInstruction.PRINT_STRING
+            INT_T -> IOInstruction.PRINT_INT
+            CHAR_T -> IOInstruction.PRINT_CHAR
+            BOOL_T -> IOInstruction.PRINT_BOOL
+            else -> TODO("NOT IMPLEMENTED YET in visitPrintNode")
+        }
 
         instructions.add(BL(io.toString()))
 
-        addPrint(io!!, labelGenerator = msgLabelGenerator, dataSegment = dataSegment)
+        addPrint(io, labelGenerator = msgLabelGenerator, dataSegment = dataSegment)
 
         ARMRegisterAllocator.free()
 
