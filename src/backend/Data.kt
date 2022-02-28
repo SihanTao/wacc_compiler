@@ -12,7 +12,7 @@ class Data(private val messages: Map<Label, String>) : Directive {
         }
 
         sb.append("\t.data\n\n")
-        for ((key, value) in messages) {
+        for ((key, value) in messages.toSortedMap()) {
             sb.append("\t$key\n").append("\t\t.word ${getLength(value)}\n")
                 .append("\t\t.ascii $value\n")
         }
