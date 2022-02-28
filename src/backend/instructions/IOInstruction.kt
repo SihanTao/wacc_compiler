@@ -21,6 +21,7 @@ enum class IOInstruction {
     }
 
     companion object {
+        private const val PRINT_INT_MSG = "\"%d\\0\""
         private const val PRINT_STRING_MSG = "\"%.*s\\0\""
         private const val PRINT_LN_MSG = "\"\\0\""
 
@@ -33,8 +34,28 @@ enum class IOInstruction {
             return when (ioInstruction) {
                 PRINT_STRING -> addPrintString(dataSegment, labelGenerator)
                 PRINT_LN -> addPrintln(dataSegment, labelGenerator)
+                PRINT_INT -> addPrintInt(dataSegment, labelGenerator)
                 else -> TODO("NOT IMPLEMENTED")
             }
+        }
+
+        private fun addPrintInt(
+            dataSegment: MutableMap<Label, String>,
+            labelGenerator: LabelGenerator
+        ): List<Instruction> {
+            val printIntLabel = addMsg(PRINT_INT_MSG, dataSegment, labelGenerator)
+            val instructions: MutableList<Instruction> = ArrayList(
+                listOf(
+                    /* add the helper function label */
+                    Label(PRINT_INT.toString()),
+                    Push(ARMRegister.LR),  /* put the content in r0 int o r1 as the snd arg of printf */
+                    Mov(ARMRegister.R1, Operand2(ARMRegister.R0)),  /* fst arg of printf is the format */
+                    LDR(ARMRegister.R0, LabelAddressing(printIntLabel))
+                )
+            )
+            instructions.addAll(addCommonPrint())
+
+            return instructions
         }
 
         private fun addPrintln(
