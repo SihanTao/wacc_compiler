@@ -20,12 +20,14 @@ import type.Utils.Companion.STRING_T
 class InstructionGenerator : ASTVisitor<Void?> {
 
     val instructions: MutableList<Instruction>
-    val msgLabelGenerator: LabelGenerator = LabelGenerator("msg_")
+    private val msgLabelGenerator: LabelGenerator = LabelGenerator("msg_")
     val dataSegment: MutableMap<Label, String>
+    private val existedHelperFunction: Set<IOInstruction>
 
     init {
         instructions = ArrayList()
         dataSegment = HashMap()
+        existedHelperFunction = HashSet()
     }
 
     private val typeRoutineMap: Map<Type, IOInstruction> =
