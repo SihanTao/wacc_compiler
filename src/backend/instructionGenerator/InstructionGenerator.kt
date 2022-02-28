@@ -4,6 +4,7 @@ import backend.ARMRegister
 import backend.ARMRegisterAllocator
 import backend.ASTVisitor
 import backend.instructions.*
+import backend.instructions.IOInstruction.Companion.addPrint
 import backend.instructions.addressing.ImmAddressing
 import backend.instructions.addressing.LabelAddressing
 import backend.instructions.operand.Operand2
@@ -119,7 +120,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         instructions.add(BL(io.toString()))
 
-        // TODO: branch not added
+        addPrint(io!!, labelGenerator = msgLabelGenerator, dataSegment = dataSegment)
 
         ARMRegisterAllocator.free()
 
