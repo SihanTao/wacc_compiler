@@ -26,4 +26,5 @@ interface ASTVisitor<T> {
     fun visitStringNode(node: StringNode): T?
     fun visitCharNode(node: CharNode): T?
     fun visitIfNode(node: IfNode): T?
+    fun visitWhileNode(node: WhileNode): T?
 }
