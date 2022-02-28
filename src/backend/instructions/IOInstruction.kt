@@ -14,7 +14,7 @@ enum class IOInstruction {
 
     override fun toString(): String {
         if (this == PRINT_CHAR) {
-            return "putchar"
+            return SyscallInstruction.PUTCHAR.toString()
         }
 
         return "p_${name.lowercase(Locale.getDefault())}"
@@ -22,6 +22,19 @@ enum class IOInstruction {
 
     companion object {
         private const val PRINT_STRING_MSG = "\"%.*s\\0\""
+
+        // The main print function
+        fun addPrint(
+            ioInstruction: IOInstruction,
+            labelGenerator: LabelGenerator,
+            dataSegment: MutableMap<Label, String>
+        ) : List<Instruction> {
+            val label = labelGenerator.getLabel()
+            return when(ioInstruction) {
+                PRINT_STRING -> addPrintString(dataSegment, labelGenerator)
+                else -> TODO("NOT IMPLEMENTED")
+            }
+        }
 
         private fun addPrintString(
             dataSegment: MutableMap<Label, String>,
