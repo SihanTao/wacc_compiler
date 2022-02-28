@@ -212,4 +212,26 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         return null
     }
+
+    override fun visitWhileNode(node: WhileNode): Void? {
+        val testLabel = branchLabelGenerator.getLabel()
+        instructions.add(B(testLabel, Cond.NONE))
+
+        val loopLabel = branchLabelGenerator.getLabel()
+        instructions.add(loopLabel)
+
+        // loop body
+        visit(node.body)
+
+        instructions.add(testLabel)
+
+        visit(node.cond)
+
+        instructions.add(Cmp(ARMRegisterAllocator.curr(), Operand2(1)))
+        instructions.add(B(cond = Cond.EQ, label = loopLabel))
+
+        ARMRegisterAllocator.free()
+
+        return null
+    }
 }
