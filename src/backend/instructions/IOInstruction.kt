@@ -22,18 +22,42 @@ enum class IOInstruction {
 
     companion object {
         private const val PRINT_STRING_MSG = "\"%.*s\\0\""
+        private const val PRINT_LN_MSG = "\"\\0\""
 
         // The main print function
         fun addPrint(
             ioInstruction: IOInstruction,
             labelGenerator: LabelGenerator,
             dataSegment: MutableMap<Label, String>
-        ) : List<Instruction> {
-            val label = labelGenerator.getLabel()
-            return when(ioInstruction) {
+        ): List<Instruction> {
+            return when (ioInstruction) {
                 PRINT_STRING -> addPrintString(dataSegment, labelGenerator)
+                PRINT_LN -> addPrintln(dataSegment, labelGenerator)
                 else -> TODO("NOT IMPLEMENTED")
             }
+        }
+
+        private fun addPrintln(
+            dataSegment: MutableMap<Label, String>,
+            labelGenerator: LabelGenerator
+        ): List<Instruction> {
+            val printlnLabel = labelGenerator.getLabel()
+            dataSegment[printlnLabel] = PRINT_LN_MSG
+
+            return listOf(
+                Label(PRINT_LN.toString()),
+                Push(ARMRegister.LR),
+                LDR(
+                    ARMRegister.R0,
+                    LabelAddressing(printlnLabel)
+                ),  /* skip the first 4 byte of the msg which is the length of it */
+                Add(ARMRegister.R0, ARMRegister.R0, Operand2(4)),
+                BL(SyscallInstruction.PUTS.toString()),  /* refresh the r0 and buffer */
+                Mov(ARMRegister.R0, Operand2(0)),
+                BL(SyscallInstruction.FFLUSH.toString()),
+                Pop(ARMRegister.PC)
+            )
+
         }
 
         private fun addPrintString(

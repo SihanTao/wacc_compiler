@@ -1,5 +1,6 @@
 package node.stat
 
+import backend.ASTVisitor
 import node.expr.ExprNode
 
 /**
@@ -8,4 +9,8 @@ import node.expr.ExprNode
 
 class PrintlnNode(
     val expr: ExprNode?
-) : StatNode()
+) : StatNode() {
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitPrintlnNode(this)
+    }
+}
