@@ -40,7 +40,7 @@ enum class IOInstruction {
                 PRINT_LN -> addPrintln(dataSegment, labelGenerator)
                 PRINT_INT -> addPrintInt(dataSegment, labelGenerator)
                 PRINT_BOOL -> addPrintBool(dataSegment, labelGenerator)
-                PRINT_CHAR -> TODO("Print char not implemented")
+                PRINT_CHAR -> return emptyList()
                 PRINT_REFERENCE -> TODO("Print ref not implemented.")
                 else -> TODO("NOT IMPLEMENTED")
             }

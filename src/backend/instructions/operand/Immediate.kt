@@ -5,7 +5,7 @@ class Immediate(val value: Int, val isChar: Boolean) {
 
     override fun toString(): String {
         if (isChar) {
-            return "#'$value'"
+            return "#'${value.toChar()}'"
         }
         return "#$value"
     }
