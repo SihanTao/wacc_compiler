@@ -159,7 +159,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             STR(
                 ARMRegisterAllocator.curr(),
                 AddressingMode2(
-                    AddressingMode2.AddrMode2.OFFSET,
+                    AddrMode2.OFFSET,
                     ARMRegister.SP,
                     offset
                 ),
@@ -336,7 +336,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 node.symbol!!
             )
 
-        val mode = if (typeSize > 1) LDR.LdrMode.LDR else LDR.LdrMode.LDRSB
+        val mode = if (typeSize > 1) LdrMode.LDR else LdrMode.LDRSB
 
         if (isExprLhs) {
             // only add address
@@ -352,7 +352,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 LDR(
                     ARMRegisterAllocator.allocate(),
                     AddressingMode2(
-                        AddressingMode2.AddrMode2.OFFSET,
+                        AddrMode2.OFFSET,
                         ARMRegister.SP,
                         offset
                     ),
@@ -383,7 +383,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             STR(
                 armRegister,
                 AddressingMode2(
-                    AddressingMode2.AddrMode2.OFFSET,
+                    AddrMode2.OFFSET,
                     ARMRegisterAllocator.curr()
                 ),
                 strMode
@@ -430,7 +430,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 indexReg = ARMRegisterAllocator.allocate()
                 instructions
                     .add(LDR(indexReg,
-                            ImmAddressing((index as IntNode).value)))
+                            ImmAddressing(index.value)))
             }
 
             /* check array bound */
