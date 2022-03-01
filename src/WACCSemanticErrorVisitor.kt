@@ -315,8 +315,8 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         return IdentNode(symbol!!.node.type!!, varName)
     }
 
-    override fun visitArray_elem(ctx: Array_elemContext?): Node {
-        val arrayIdent: String = ctx!!.ident().text
+    override fun visitArrayElem(ctx: ArrayElemContext?): Node {
+        val arrayIdent: String = ctx!!.array_elem().ident().text
         val symbol = symbolTable!!.lookupAll(arrayIdent)
 
         if (symbol == null) {
@@ -333,7 +333,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
         val indexList: MutableList<ExprNode> = java.util.ArrayList()
 
-        for (exprContext in ctx.expr()) {
+        for (exprContext in ctx.array_elem().expr()) {
             val index: ExprNode = visit(exprContext) as ExprNode
             semanticError = semanticError || typeCheck(exprContext, INT_T, index.type!!)
             indexList.add(index)
@@ -345,7 +345,32 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitArrayExpr(ctx: ArrayExprContext?): Node {
-        return visitArray_elem(ctx!!.array_elem())
+        val arrayIdent: String = ctx!!.array_elem().ident().text
+        val symbol = symbolTable!!.lookupAll(arrayIdent)
+
+        if (symbol == null) {
+            ErrorHandler.symbolNotExist(ctx, arrayIdent)
+        }
+
+        val array: ExprNode = symbol!!.node
+
+        /* special case: if ident is not array, cannot call asArrayType on it, exit directly */
+        if (typeCheck(ctx, ARRAY_T, array.type!!)
+        ) {
+            exitProcess(SEMANTIC_ERROR_CODE)
+        }
+
+        val indexList: MutableList<ExprNode> = java.util.ArrayList()
+
+        for (exprContext in ctx.array_elem().expr()) {
+            val index: ExprNode = visit(exprContext) as ExprNode
+            semanticError = semanticError || typeCheck(exprContext, INT_T, index.type!!)
+            indexList.add(index)
+        }
+
+        val arrayType = array.type as ArrayType
+
+        return ArrayElemNode(array, indexList, arrayType.getContentType())
     }
 
     override fun visitIntExpr(ctx: IntExprContext?): Node {
@@ -504,7 +529,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
             /* given argument number is not 0, generate list */
             for ((exprIndex, e) in ctx.arglist().expr().withIndex()) {
-                val param: ExprNode = visit(e) as ExprNode
+                val param: ExprNode = visit(e) as ExprNode? ?: continue
                 val paramType = param.type
                 val targetType = function.paramList!![exprIndex]!!.type
 
