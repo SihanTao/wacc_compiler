@@ -8,7 +8,7 @@ import backend.instructions.arithmeticLogic.Add
 import backend.instructions.operand.Operand2
 import java.util.*
 
-enum class IOInstruction {
+enum class IOInstruction: Instruction {
     // Print
     PRINT_INT, PRINT_BOOL, PRINT_CHAR, PRINT_STRING, PRINT_LN, PRINT_REFERENCE;
 
@@ -42,7 +42,6 @@ enum class IOInstruction {
                 PRINT_BOOL -> addPrintBool(dataSegment, labelGenerator)
                 PRINT_CHAR -> return emptyList()
                 PRINT_REFERENCE -> TODO("Print ref not implemented.")
-                else -> TODO("NOT IMPLEMENTED")
             }
         }
 
