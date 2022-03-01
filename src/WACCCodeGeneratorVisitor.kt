@@ -25,7 +25,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
 
         representation.addCode("main:")
         representation.addCode("\tPUSH {lr}")
-        visitStatNode(node.body)
+        visitStatNode(node.body, 0)
         representation.addCode("\tLDR r0, =0")
         representation.addCode("\tPOP {pc}")
 
@@ -83,26 +83,26 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         symbolTable = SymbolTable(symbolTable)
         currScopeDepth ++
         symbolTable!!.add("#localVariableNo_$currScopeDepth", Pair(4, currScopeDepth))
-        visitScopeNode(ScopeNode(node.functionBody!!))
+        visitScopeNode(ScopeNode(node.functionBody!!), 0)
         representation.addCode("\tPOP {pc}")
         currScopeDepth --
     }
 
-    private fun visitStatNode(node: StatNode, incStack:Int=0) {
+    private fun visitStatNode(node: StatNode, incStack:Int) {
         when (node) {
-            is AssignNode -> visitAssignNode(node)
-            is DeclareStatNode -> visitDeclareStatNode(node)
-            is ExitNode -> visitExitNode(node)
-            is FreeNode -> visitFreeNode(node)
-            is IfNode -> visitIfNode(node)
-            is PrintlnNode -> visitPrintlnNode(node)
-            is PrintNode -> visitPrintNode(node)
-            is ReadNode -> visitReadNode(node)
+            is AssignNode -> visitAssignNode(node, incStack)
+            is DeclareStatNode -> visitDeclareStatNode(node, incStack)
+            is ExitNode -> visitExitNode(node, incStack)
+            is FreeNode -> visitFreeNode(node, incStack)
+            is IfNode -> visitIfNode(node, incStack)
+            is PrintlnNode -> visitPrintlnNode(node, incStack)
+            is PrintNode -> visitPrintNode(node, incStack)
+            is ReadNode -> visitReadNode(node, incStack)
             is ReturnNode -> visitReturnNode(node, incStack)
-            is ScopeNode -> visitScopeNode(node)
+            is ScopeNode -> visitScopeNode(node, incStack)
             is SequenceNode -> visitSequenceNode(node, incStack)
-            is SkipNode -> visitSkipNode(node)
-            is WhileNode -> visitWhileNode(node)
+            is SkipNode -> visitSkipNode(node, incStack)
+            is WhileNode -> visitWhileNode(node, incStack)
         }
     }
 
@@ -128,7 +128,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     * =========================================================
     */
 
-    private fun visitAssignNode(node: AssignNode) {
+    private fun visitAssignNode(node: AssignNode, incStack: Int) {
         visitExprNode(node.rhs!!)
         when (node.lhs!!) {
             is IdentNode -> {
@@ -145,7 +145,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
             }
         }
     }
-    private fun visitDeclareStatNode(node: DeclareStatNode) {
+    private fun visitDeclareStatNode(node: DeclareStatNode, incStack: Int) {
         visitExprNode(node.rhs!!)
         val pos = currStackOffset - typeSize(node.rhs!!.type!!)
         symbolTable!!.add(node.identifier, Pair(pos, currScopeDepth))
@@ -155,34 +155,34 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         currStackOffset -= typeSize(node.rhs!!.type!!)
     }
 
-    private fun visitExitNode(node: ExitNode) {
+    private fun visitExitNode(node: ExitNode, incStack: Int) {
         visitExprNode(node.exitCode) // CONTRACT: MUST END UP IN R4
         representation.addCode("\tMOV r0, r4")
         representation.addCode("\tBL exit")
     }
 
-    private fun visitFreeNode(node: FreeNode) {}
+    private fun visitFreeNode(node: FreeNode, incStack: Int) {}
 
-    private fun visitIfNode(node: IfNode) {
+    private fun visitIfNode(node: IfNode, incStack: Int) {
         val elseLabel = (labelCounter)++
         val fiLabel = (labelCounter)++
         visitExprNode(node.condition)
         representation.addCode("\tCMP ${availableRegister[0]}, #0")
         representation.addCode("\tBEQ L${elseLabel}")
-        visitStatNode(node.ifBody!!)
+        visitStatNode(node.ifBody!!, incStack)
         representation.addCode("\tB L${fiLabel}")
         representation.addCode("L${elseLabel}:")
-        visitStatNode(node.elseBody!!)
+        visitStatNode(node.elseBody!!, incStack)
         representation.addCode("L${fiLabel}:")
 
     }
-    private fun visitPrintlnNode(node: PrintlnNode) {
-        visitPrintNode(PrintNode(node.expr))
+    private fun visitPrintlnNode(node: PrintlnNode, incStack: Int) {
+        visitPrintNode(PrintNode(node.expr), incStack)
         representation.addCode("\tBL p_print_ln")
         representation.addPrintInFunc()
     }
 
-    private fun visitPrintNode(node: PrintNode) {
+    private fun visitPrintNode(node: PrintNode, incStack: Int) {
         visitExprNode(node.expr!!)
         representation.addCode("\tMOV r0, r4")
 
@@ -210,7 +210,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
 
     }
 
-    private fun visitReadNode(node: ReadNode) {
+    private fun visitReadNode(node: ReadNode, incStack: Int) {
         val reg = nextAvailableRegister()
         var res: Pair<Int, Int> =
             when (node.inputExpr) {
@@ -245,11 +245,20 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     private fun visitReturnNode(node: ReturnNode, incStack: Int) {
         visitExprNode(node.expr)
         representation.addCode("\tMOV r0, ${availableRegister[0]}")
-        if (incStack > 0) representation.addCode("\tADD sp, sp, #$incStack")
+        var temp = 0
+        var currST = symbolTable
+        var i = currScopeDepth
+        while (currST != null && i > 1) {
+            println("Current i:"+i)
+            temp += currST.lookupAll("#localVariableNo_$i")!!.first
+            currST = currST.parentSymbolTable
+            i--
+        }
+        if (temp > 0) representation.addCode("\tADD sp, sp, #$temp")
         representation.addCode("\tPOP {pc}")
     }
 
-    private fun visitScopeNode(node: ScopeNode) {
+    private fun visitScopeNode(node: ScopeNode, incStack: Int) {
         var temp = 0
         if (node.body.isEmpty()) return
         if (node.body[0] is DeclareStatNode) {
@@ -276,15 +285,15 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         node.body.forEach{stat -> visitStatNode(stat, incStack)}
     }
 
-    private fun visitSkipNode(node: SkipNode) {
+    private fun visitSkipNode(node: SkipNode, incStack: Int) {
         return
     }
-    private fun visitWhileNode(node: WhileNode) {
+    private fun visitWhileNode(node: WhileNode, incStack: Int) {
         val whileLabel = (labelCounter)++
         val doLabel = (labelCounter)++
         representation.addCode("\tB L${whileLabel}")
         representation.addCode("L${doLabel}:")
-        visitStatNode(node.body)
+        visitStatNode(node.body, incStack)
         representation.addCode("L${whileLabel}:")
         visitExprNode(node.cond)
         representation.addCode("\tCMP ${availableRegister[0]}, #1")
