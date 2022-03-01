@@ -12,7 +12,7 @@ class Operand2 {
     private var operator: Operand2Operator
     private var Rm: ARMRegister?
 
-    private constructor(Rm: ARMRegister?, operator: Operand2Operator, immed: Immediate?) {
+    constructor(Rm: ARMRegister?, operator: Operand2Operator, immed: Immediate?) {
         this.immed = immed
         this.operator = operator
         this.Rm = Rm
@@ -22,6 +22,7 @@ class Operand2 {
     constructor(intVal: Int) : this(null, Operand2Operator.NONE, Immediate(intVal)) {}
     constructor(Rm: ARMRegister) : this(Rm, Operand2Operator.NONE, null) {}
     constructor(Rm: ARMRegister, operator: Operand2Operator) : this(Rm, operator, null) {}
+    constructor(Rm: ARMRegister, operator: Operand2Operator, value: Int): this(Rm, operator, Immediate(value))
 
     override fun toString(): String {
         val res = StringBuilder()
