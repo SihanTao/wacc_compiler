@@ -337,4 +337,36 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         return null
     }
+
+    override fun visitAssignNode(node: AssignNode): Void? {
+        // visit rhs
+        visit(node.rhs!!)
+
+        // visit lhs
+        isExprLhs = true
+        visit(node.lhs!!)
+
+        // reset
+        isExprLhs = false
+
+        val armRegister = ARMRegisterAllocator.last()
+        val strMode =
+            if (node.rhs.type!!.size() > 1) STR.STRMode.STR else STR.STRMode.STRB
+
+        instructions.add(
+            STR(
+                armRegister,
+                AddressingMode2(
+                    AddressingMode2.AddrMode2.OFFSET,
+                    ARMRegisterAllocator.curr()
+                ),
+                strMode
+            )
+        )
+
+        ARMRegisterAllocator.free()
+        ARMRegisterAllocator.free()
+
+        return null
+    }
 }
