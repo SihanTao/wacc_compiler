@@ -7,12 +7,15 @@ import backend.ASTVisitor
 import backend.Cond
 import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
+import backend.instructions.LDR.LdrMode
 import backend.instructions.addressing.AddressingMode2
+import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.ImmAddressing
 import backend.instructions.addressing.LabelAddressing
 import backend.instructions.arithmeticLogic.Add
 import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
+import backend.instructions.operand.Operand2.Operand2Operator
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
@@ -29,7 +32,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
     private val instructions: MutableList<Instruction> = ArrayList()
 
     val dataSegment: MutableMap<Label, String> = HashMap()
-    private val existedHelperFunction: MutableSet<IOInstruction> = HashSet()
+    private val existedHelperFunction: MutableSet<Instruction> = HashSet()
 
     private val msgLabelGenerator: LabelGenerator = LabelGenerator(MSG_LABEL)
     private val branchLabelGenerator = LabelGenerator(BRANCH_LABEL)
@@ -367,6 +370,89 @@ class InstructionGenerator : ASTVisitor<Void?> {
         ARMRegisterAllocator.free()
         ARMRegisterAllocator.free()
 
+        return null
+    }
+
+    override fun visitArrayElemNode(node: ArrayElemNode): Void? {
+        /* get the address of this array and store it in an available register */
+
+        /* get the address of this array and store it in an available register */
+        val addrReg: ARMRegister = ARMRegisterAllocator.allocate()
+        val offset: Int = (currentSymbolTable!!.tableSize
+                - currentSymbolTable!!.getStackOffset(
+            node.name,
+            node.symbol
+        ))
+        instructions.add(Add(addrReg, ARMRegister.SP, Operand2(offset)))
+
+        addCheckArrayBound
+
+        checkAndAddRoutine(
+            THROW_RUNTIME_ERROR,
+            msgLabelGenerator,
+            dataSegmentMessages
+        )
+
+        var indexReg: ARMRegister
+        for (i in 0 until node.getDepth()) {
+            /* load the index at depth `i` to the next available register */
+            val index: ExprNode = LDR(i)
+            if (index !is IntegerNode) {
+                visit(index)
+                indexReg = armRegAllocator.curr()
+                if (isLhs) {
+                    LDR(
+                        LDR(
+                            indexReg,
+                            AddressingMode2(AddrMode2.OFFSET, indexReg)
+                        )
+                    )
+                }
+            } else {
+                indexReg = armRegAllocator.allocate()
+                instructions
+                    .add(
+                        LDR(
+                            indexReg,
+                            ImmediateAddressing((index as IntegerNode).getVal())
+                        )
+                    )
+            }
+
+            /* check array bound */instructions.add(
+                LDR(
+                    addrReg,
+                    AddressingMode2(AddrMode2.OFFSET, addrReg)
+                )
+            )
+            instructions.add(Mov(r0, Operand2(indexReg)))
+            instructions.add(Mov(r1, Operand2(addrReg)))
+            instructions.add(BL(CHECK_ARRAY_BOUND.toString()))
+            instructions.add(Add(addrReg, addrReg, Operand2(POINTER_SIZE)))
+            val elemSize: Int = node.getType().getSize() / 2
+            instructions.add(
+                Add(
+                    addrReg,
+                    addrReg,
+                    Operand2(indexReg, Operand2Operator.LSL, elemSize)
+                )
+            )
+
+            /* free indexReg to make it available for the indexing of the next depth */armRegAllocator.free()
+        }
+
+        /* if is not lhs, load the array content to `reg` */
+
+        /* if is not lhs, load the array content to `reg` */if (!isLhs) {
+            instructions.add(
+                LDR(
+                    addrReg, AddressingMode2(AddrMode2.OFFSET, addrReg),
+                    if (node.getType()
+                            .getSize() > 1
+                    ) LdrMode.LDR else LdrMode.LDRSB
+                )
+            )
+        }
         return null
     }
 }
