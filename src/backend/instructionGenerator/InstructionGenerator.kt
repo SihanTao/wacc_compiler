@@ -445,7 +445,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(Mov(ARMRegister.R0, Operand2(indexReg)))
             instructions.add(Mov(ARMRegister.R1, Operand2(addrReg)))
             instructions.add(BL(RuntimeErrorInstruction.CHECK_ARRAY_BOUND.toString()))
-            instructions.add(Add(addrReg, addrReg, Operand2(POINTERSIZE)))
+            instructions.add(Add(addrReg, addrReg, Operand2(Type.POINTERSIZE)))
             val elemSize: Int = node.type!!.size() / 2
             instructions.add(
                 Add(
@@ -473,6 +473,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitArrayNode(node: ArrayNode): Void? {
         /* get the total number of bytes needed to allocate enough space for the array */
+        var size =
+            if (node.type == null) 0 else node.getContentSize() * node.length
+        /* add 4 bytes to `size` to include the size of the array as the first byte */
+        size += POINTERSIZE
 
         /* load R0 with the number of bytes needed*/
 
