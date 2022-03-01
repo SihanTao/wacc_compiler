@@ -1,5 +1,7 @@
 package type
 
+import type.Type.Companion.POINTERSIZE
+
 class ArrayType constructor(private val type: Type? = null) : Type {
     val dimension: Int
 
@@ -15,6 +17,10 @@ class ArrayType constructor(private val type: Type? = null) : Type {
             dimension++
         }
         this.dimension = dimension
+    }
+
+    override fun size(): Int {
+        return POINTERSIZE
     }
 
     override fun equals(other: Any?): Boolean {
