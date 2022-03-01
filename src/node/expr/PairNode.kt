@@ -1,5 +1,6 @@
 package node.expr
 
+import backend.ASTVisitor
 import type.PairType
 
 class PairNode : ExprNode {
@@ -23,5 +24,9 @@ class PairNode : ExprNode {
         this.fst = fst
         this.snd = snd
         type = PairType(fst.type, snd.type)
+    }
+
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitPairNode(this)
     }
 }

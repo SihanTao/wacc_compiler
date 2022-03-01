@@ -528,4 +528,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         return null
     }
+
+    override fun visitPairElemNode(node: PairElemNode): Void? {
+        TODO("Not yet implemented")
+    }
+
+    override fun visitPairNode(node: PairNode): Void? {
+        TODO("Not yet implemented")
+    }
 }
