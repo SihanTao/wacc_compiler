@@ -479,8 +479,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
         size += POINTERSIZE
 
         /* load R0 with the number of bytes needed*/
+        instructions.add(
+            LDR(ARMRegister.R0, ImmAddressing(size))
+        )
 
         // Malloc
+        instructions.add(BL(SyscallInstruction.MALLOC.toString()))
 
         /* MOV the result pointer of the array to the next available register */
 
