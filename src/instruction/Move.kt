@@ -4,10 +4,10 @@ import instruction.shiftOperand.Immediate
 import instruction.shiftOperand.ShifterOperand
 import register.ARM11Register
 
-class Move(val cond: Cond = Cond.AL,
-           val S: Boolean = false,
-           val Rd: ARM11Register,
-           val shifterOperand: ShifterOperand): ARM11Instruction {
+class Move(val Rd: ARM11Register,
+           val shifterOperand: ShifterOperand,
+           val cond: Cond = Cond.AL,
+           val S: Boolean = false,): ARM11Instruction {
 
     constructor(Rd: ARM11Register, imm: Int): this(Rd=Rd, shifterOperand=Immediate(imm))
 

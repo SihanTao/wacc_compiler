@@ -5,10 +5,10 @@ import instruction.shiftOperand.Register
 import instruction.shiftOperand.ShifterOperand
 import register.ARM11Register
 
-class EOr(val cond: Cond = Cond.AL,
-          val S: Boolean = false,
-          val Rd: ARM11Register, val Rn: ARM11Register,
-          val Op: ShifterOperand
+class EOr(val Rd: ARM11Register, val Rn: ARM11Register,
+          val Op: ShifterOperand,
+          val cond: Cond = Cond.AL,
+          val S: Boolean = false
 ):ARM11Instruction {
     constructor(Rd: ARM11Register, Rn: ARM11Register, Rm: ARM11Register):
             this(Rd=Rd, Rn=Rn, Op= Register(Rm))

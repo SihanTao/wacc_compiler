@@ -5,9 +5,9 @@ import instruction.shiftOperand.Register
 import instruction.shiftOperand.ShifterOperand
 import register.ARM11Register
 
-class Compare(val cond: Cond = Cond.AL,
-              val Rn: ARM11Register,
-              val Op: ShifterOperand
+class Compare(val Rn: ARM11Register,
+              val Op: ShifterOperand,
+              val cond: Cond = Cond.AL,
 ): ARM11Instruction {
     constructor(Rn: ARM11Register, Rm: ARM11Register):
             this(Rn=Rn, Op=Register(Rm))

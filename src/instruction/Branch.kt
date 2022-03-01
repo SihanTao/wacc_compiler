@@ -5,9 +5,9 @@ import instruction.shiftOperand.Register
 import register.ARM11Register
 
 class Branch(
+        val addr: String,
         val L: Mode = Mode.NORM,
-        val cond: Cond = Cond.AL,
-        val addr: String
+        val cond: Cond = Cond.AL
 ): ARM11Instruction {
 
     constructor(L: Mode, str: String): this(L=L, addr=str)
