@@ -10,6 +10,7 @@ private const val SYNTAX_ERROR_EXIT_CODE = 100
 private const val SEMANTIC_ERROR_EXIT_CODE = 200
 
 fun main(args: Array<String>) {
+ 
     try {
         val input: CharStream = if (args.isEmpty()) {
             // Read from standard in if file not supplied
@@ -20,6 +21,9 @@ fun main(args: Array<String>) {
                 java.io.FileInputStream(file)
             CharStreams.fromStream(fileInputStream)
         }
+
+        val filename = if (args.isEmpty()) null else
+          args[0].substringAfterLast("/").substringBeforeLast(".")
 
         val lexer = WACCLexer(input)
         val tokens = CommonTokenStream(lexer)
@@ -50,7 +54,8 @@ fun main(args: Array<String>) {
         if (!args.contains("--parse-only")) {
             val semanticChecker = WACCSemanticErrorVisitor()
             val ast = semanticChecker.visitProgram(tree) as ProgramNode
-            val writer = PrintWriter("output.s")
+            val writer = if (filename == null) PrintWriter("output.s") else
+              PrintWriter(filename + ".s")
             val representation = WACCAssembleRepresentation()
             val codeGenerator = WACCCodeGeneratorVisitor(representation)
             codeGenerator.visitProgramNode(ast)
