@@ -18,6 +18,7 @@ class WACCAssembleRepresentation {
     private var hasReadChar = false
     private var hasPrintRef = false
     private var hasCheckNullPointer = true
+    private var hasFreePairFunc = true
 
     fun addCode(str: String) {
         code.addLast(str)
@@ -130,6 +131,14 @@ class WACCAssembleRepresentation {
 
     fun hasCheckNullPointerFunc(): Boolean {
         return hasCheckNullPointer
+    }
+
+    fun addFreePairFunc() {
+        hasFreePairFunc = true
+    }
+
+    fun hasFreePairFunc() : Boolean {
+        return hasFreePairFunc
     }
 
 

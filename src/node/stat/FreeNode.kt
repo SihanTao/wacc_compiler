@@ -8,5 +8,5 @@ import node.expr.ExprNode
 </expr></expr> */
 
 class FreeNode(
-    private val expr: ExprNode
+    val expr: ExprNode
 ) : StatNode()

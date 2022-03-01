@@ -53,7 +53,8 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         }
 
         if (representation.hasPrintDivByZeroErrorFunc() || representation.hasPrintThrowOverflowErrorFunc()
-                || representation.hasCheckArrayBoundsFunc() || representation.hasCheckNullPointerFunc()) {
+                || representation.hasCheckArrayBoundsFunc() || representation.hasCheckNullPointerFunc()
+                || representation.hasFreePairFunc()) {
             generateThrowRuntimeError()
         }
 
@@ -75,6 +76,10 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
 
         if (representation.hasCheckNullPointerFunc()) {
             generateCheckNullPointerFunc()
+        }
+
+        if (representation.hasFreePairFunc()) {
+            generateFreePairFunc()
         }
     }
 
@@ -214,7 +219,12 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tBL exit")
     }
 
-    private fun visitFreeNode(node: FreeNode, incStack: Int) {}
+    private fun visitFreeNode(node: FreeNode, incStack: Int) {
+        visitExprNode(node.expr)
+        representation.addCode("\tMOV r0, ${availableRegister[0]}")
+        representation.addCode("\tBL p_free_pair")
+        representation.addFreePairFunc()
+    }
 
     private fun visitIfNode(node: IfNode, incStack: Int) {
         val elseLabel = (labelCounter)++
@@ -771,6 +781,24 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tCMP r0, #0")
         representation.addCode("\tLDREQ r0, =msg_$code")
         representation.addCode("\tBLEQ p_throw_runtime_error")
+        representation.addCode("\tPOP {pc}")
+    }
+
+    private fun generateFreePairFunc() {
+        val code = representation.addStringToTable("\"NullReferenceError: dereference a null reference\\n\\0\"", 50)
+        representation.addCode("p_free_pair:")
+        representation.addCode("\tPUSH {lr}")
+        representation.addCode("\tCMP r0, #0")
+        representation.addCode("\tLDREQ r0, =msg_$code")
+        representation.addCode("\tBEQ p_throw_runtime_error")
+        representation.addCode("\tPUSH {r0}")
+        representation.addCode("\tLDR r0, [r0]")
+        representation.addCode("\tBL free")
+        representation.addCode("\tLDR r0, [sp]")
+        representation.addCode("\tLDR r0, [r0, #4]")
+        representation.addCode("\tBL free")
+        representation.addCode("\tPOP {r0}")
+        representation.addCode("\tBL free")
         representation.addCode("\tPOP {pc}")
     }
 
