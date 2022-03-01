@@ -534,6 +534,18 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitPairNode(node: PairNode): Void? {
-        TODO("Not yet implemented")
+
+        /* 1 malloc pair */
+        /* 1.1 move size of a pair in r0
+         * a pair in heap is 2 pointers */
+        instructions.add(
+            LDR(
+                ARMRegister.R0,
+                ImmAddressing(2 * POINTERSIZE)
+            )
+        )
+
+
+        return null
     }
 }
