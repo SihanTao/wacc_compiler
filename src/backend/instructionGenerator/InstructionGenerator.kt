@@ -509,6 +509,22 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
 
         /* STR the size of the array in the first byte */
+        val sizeReg: ARMRegister = ARMRegisterAllocator.allocate()
+        instructions.add(
+            LDR(
+                sizeReg,
+                ImmAddressing(node.length)
+            )
+        )
+
+        instructions.add(
+            STR(
+                sizeReg,
+                AddressingMode2(AddrMode2.OFFSET, addrReg)
+            )
+        )
+
+        ARMRegisterAllocator.free()
 
         return null
     }
