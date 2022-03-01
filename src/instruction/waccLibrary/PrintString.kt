@@ -25,7 +25,7 @@ class PrintString(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGe
                 Branch(Branch.Mode.LINK, "printf"),
                 Move(ARM11Register.R0, 0),
                 Branch(Branch.Mode.LINK, "fflush"),
-                Pop(ARM11Register.PC)
+                Pop(ARM11Register.PC),
         )
         dependencies = listOf()
     }

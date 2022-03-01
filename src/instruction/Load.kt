@@ -1,12 +1,13 @@
 package instruction
 
 import instruction.addrMode2.AddrMode2
+import instruction.addrMode2.StaticRef
 import register.ARM11Register
 
-class Load(val mode: Mode = Mode.NORM,
-           val cond: Cond = Cond.AL,
-           val Rd: ARM11Register,
-           val addr: AddrMode2): ARM11Instruction
+class Load(val Rd: ARM11Register,
+           val addr: AddrMode2,
+           val mode: Mode = Mode.NORM,
+           val cond: Cond = Cond.AL,): ARM11Instruction
 {
 
     override fun toString(): String {
