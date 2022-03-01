@@ -67,7 +67,12 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         if (representation.hasReadCharFunc()) {
             generateReadChar()
         }
+
+        if (representation.hasPrintRefFunction()) {
+            generatePrintRefFunc()
+        }
     }
+
 
     private fun visitFuncNode(node: FuncNode) {
         symbolTable = SymbolTable(null)
@@ -143,6 +148,31 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                 val operand = if (offset == 0) "[sp]" else "[sp, #$offset]"
                 representation.addCode("\t" + opcode + " ${availableRegister[0].name}, " + operand)
             }
+            is ArrayElemNode -> {
+                val expr = nextAvailableRegister()
+                val reg = nextAvailableRegister()
+                val ident = (node.lhs as ArrayElemNode).arrayIdent
+                val res = symbolTable!!.lookupAll(ident)!!
+                val destScopeDepth = res.second
+                var offset = res.first
+                for (i in currScopeDepth downTo destScopeDepth + 1) {
+                    offset += symbolTable!!.lookupAll("#localVariableNo_$i")!!.first
+                }
+                representation.addCode("\tADD ${reg.name}, sp, #${offset}")
+
+                for (index in node.lhs.index) {
+                    visitExprNode(index)
+                    representation.addCode("\tLDR ${reg.name}, [${reg.name}]")
+                    representation.addCode("\tMOV r0, ${availableRegister[0]}")
+                    representation.addCode("\tMOV r1, ${reg.name}")
+                    representation.addCode("\tBL p_check_array_bounds")
+                    representation.addCode("\tADD ${reg.name}, ${reg.name}, #4")
+                    representation.addCode("\tADD ${reg.name}, ${reg.name}, ${availableRegister[0]}, LSL #${log2(typeSize(node.lhs.type!!))}")
+                }
+                representation.addCode("\tSTR ${expr.name}, [${reg.name}]")
+                freeRegister(reg)
+                freeRegister(expr)
+            }
         }
     }
     private fun visitDeclareStatNode(node: DeclareStatNode, incStack: Int) {
@@ -187,7 +217,10 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tMOV r0, r4")
 
         when (val type = node.expr.type!!) {
-            is ArrayType -> printArrayType(node.expr)
+            is ArrayType -> {
+                representation.addCode("\tBL p_print_reference")
+                representation.addPrintReference()
+            }
             is BasicType -> when (type.typeEnum) {
                                 BasicTypeEnum.INTEGER -> {
                                     representation.addCode("\tBL p_print_int")
@@ -322,7 +355,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tADD ${reg.name}, sp, #${offset}")
 
         for (index in node.index) {
-            visitExprNode(node.index[0])
+            visitExprNode(index)
             representation.addCode("\tLDR ${reg.name}, [${reg.name}]")
             representation.addCode("\tMOV r0, ${availableRegister[0]}")
             representation.addCode("\tMOV r1, ${reg.name}")
@@ -539,9 +572,6 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
      * =======================================================
      */
 
-    private fun printArrayType(expr: ExprNode) {
-
-    }
 
     private fun generatePrintStringCode() {
         val code = representation.addStringToTable("\"%.*s\\0\"", 5)
@@ -656,6 +686,19 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tLDR r0, =msg_$code")
         representation.addCode("\tADD r0, r0, #4")
         representation.addCode("\tBL scanf")
+        representation.addCode("\tPOP {pc}")
+    }
+
+    private fun generatePrintRefFunc() {
+        val code = representation.addStringToTable("\"%p\\0\"", 3)
+        representation.addCode("p_print_reference:")
+        representation.addCode("\tPUSH {lr}")
+        representation.addCode("\tMOV r1, r0")
+        representation.addCode("\tLDR r0, =msg_$code")
+        representation.addCode("\tADD r0, r0, #4")
+        representation.addCode("\tBL printf")
+        representation.addCode("\tMOV r0, #0")
+        representation.addCode("\tBL fflush")
         representation.addCode("\tPOP {pc}")
     }
 

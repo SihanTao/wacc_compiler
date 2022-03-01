@@ -16,6 +16,7 @@ class WACCAssembleRepresentation {
     private var hasCheckArrayBounds = false
     private var hasReadInt = false
     private var hasReadChar = false
+    private var hasPrintRef = false
 
     fun addCode(str: String) {
         code.addLast(str)
@@ -112,6 +113,14 @@ class WACCAssembleRepresentation {
 
     fun addReadCharFunc() {
         hasReadChar = true
+    }
+
+    fun addPrintReference() {
+        hasPrintRef = true
+    }
+
+    fun hasPrintRefFunction(): Boolean {
+        return hasPrintRef
     }
 
 
