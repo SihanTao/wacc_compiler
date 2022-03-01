@@ -312,7 +312,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             ErrorHandler.symbolNotExist(ctx, varName)
         }
 
-        return IdentNode(symbol!!.node!!.type!!, varName)
+        return IdentNode(symbol!!.node!!.type!!, varName, symbol)
     }
 
     override fun visitArrayElem(ctx: ArrayElemContext?): Node {
@@ -562,7 +562,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             ErrorHandler.symbolNotExist(ctx, name)
         }
 
-        return symbol!!.node as Node
+        return IdentNode(symbol!!.node!!.type, name, symbol)
     }
 
     override fun visitArray_type(ctx: Array_typeContext): Node? {

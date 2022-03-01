@@ -1,17 +1,17 @@
 package node.expr
 
+import Symbol
 import type.Type
 
-class IdentNode(type: Type?, name: String) : ExprNode() {
+class IdentNode(type: Type?, val name: String, var symbol: Symbol?) : ExprNode() {
     /**
      * Represent an identifier node with its own type and name
      * Examples: int a
      */
 
-    val name: String
+    constructor(type: Type, name: String): this(type, name, null)
 
     init {
         this.type = type
-        this.name = name
     }
 }
