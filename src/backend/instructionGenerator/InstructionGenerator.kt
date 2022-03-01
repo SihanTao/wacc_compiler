@@ -20,6 +20,7 @@ import backend.instructions.operand.Operand2.Operand2Operator
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
+import type.Type
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_ARRAY_T
 import type.Utils.Companion.CHAR_T
@@ -413,42 +414,37 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )
 
         var indexReg: ARMRegister
-        for (i in 0 until node.getDepth()) {
+        for (i in 0 until node.indexDepth) {
             /* load the index at depth `i` to the next available register */
-            val index: ExprNode = LDR(i)
-            if (index !is IntegerNode) {
+            val index: ExprNode = node.index[i]
+            if (index !is IntNode) {
                 visit(index)
-                indexReg = armRegAllocator.curr()
-                if (isLhs) {
-                    LDR(
-                        LDR(
-                            indexReg,
-                            AddressingMode2(AddrMode2.OFFSET, indexReg)
-                        )
-                    )
+                indexReg = ARMRegisterAllocator.curr()
+                if (isExprLhs) {
+                    instructions.add(LDR(
+                        indexReg,
+                        AddressingMode2(AddrMode2.OFFSET, indexReg)
+                    ))
                 }
             } else {
-                indexReg = armRegAllocator.allocate()
+                indexReg = ARMRegisterAllocator.allocate()
                 instructions
-                    .add(
-                        LDR(
-                            indexReg,
-                            ImmediateAddressing((index as IntegerNode).getVal())
-                        )
-                    )
+                    .add(LDR(indexReg,
+                            ImmAddressing((index as IntNode).value)))
             }
 
-            /* check array bound */instructions.add(
+            /* check array bound */
+            instructions.add(
                 LDR(
                     addrReg,
                     AddressingMode2(AddrMode2.OFFSET, addrReg)
                 )
             )
-            instructions.add(Mov(r0, Operand2(indexReg)))
-            instructions.add(Mov(r1, Operand2(addrReg)))
-            instructions.add(BL(CHECK_ARRAY_BOUND.toString()))
-            instructions.add(Add(addrReg, addrReg, Operand2(POINTER_SIZE)))
-            val elemSize: Int = node.getType().getSize() / 2
+            instructions.add(Mov(ARMRegister.R0, Operand2(indexReg)))
+            instructions.add(Mov(ARMRegister.R1, Operand2(addrReg)))
+            instructions.add(BL(RuntimeErrorInstruction.CHECK_ARRAY_BOUND.toString()))
+            instructions.add(Add(addrReg, addrReg, Operand2(Type.POINTERSIZE)))
+            val elemSize: Int = node.type!!.size() / 2
             instructions.add(
                 Add(
                     addrReg,
@@ -457,12 +453,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 )
             )
 
-            /* free indexReg to make it available for the indexing of the next depth */armRegAllocator.free()
+            /* free indexReg to make it available for the indexing of the next depth */
+            ARMRegisterAllocator.free()
         }
 
         /* if is not lhs, load the array content to `reg` */
-
-        /* if is not lhs, load the array content to `reg` */if (!isLhs) {
+        if (!isLhs) {
             instructions.add(
                 LDR(
                     addrReg, AddressingMode2(AddrMode2.OFFSET, addrReg),
