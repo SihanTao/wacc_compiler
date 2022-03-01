@@ -35,4 +35,8 @@ class SequenceNode (stat1: StatNode?, stat2: StatNode?) : StatNode() {
     override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
         return astVisitor.visitSequenceNode(this)
     }
+
+    fun size(): Int {
+        return scope!!.tableSize
+    }
 }

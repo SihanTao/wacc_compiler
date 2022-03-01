@@ -30,4 +30,8 @@ class ScopeNode(node: StatNode) : StatNode() {
     override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
         return astVisitor.visitScopeNode(this)
     }
+
+    fun size(): Int {
+        return scope!!.tableSize
+    }
 }

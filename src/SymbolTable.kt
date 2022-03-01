@@ -8,7 +8,7 @@ class SymbolTable(val parentSymbolTable: SymbolTable?) {
      */
 
     private val dictionary = HashMap<String, Symbol>()
-    private var tableSize = 0
+    var tableSize = 0
 
     fun add(name: String, expr: ExprNode?): Boolean {
         if (dictionary.containsKey(name)) {
