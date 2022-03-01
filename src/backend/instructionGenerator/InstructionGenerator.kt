@@ -545,6 +545,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
             Mov(ARMRegister.R0, Operand2(reg))
         )
 
+        /* BL null pointer check */
+        instructions.add(BL(RuntimeErrorInstruction.CHECK_NULL_POINTER.toString()))
         // TODO: add check null pointer
 
         /* get the reg pointing to child
