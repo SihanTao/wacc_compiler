@@ -320,13 +320,16 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         }
         val reg = nextAvailableRegister()
         representation.addCode("\tADD ${reg.name}, sp, #${offset}")
-        visitExprNode(node.index[0])
-        representation.addCode("\tLDR ${reg.name}, [${reg.name}]")
-        representation.addCode("\tMOV r0, ${availableRegister[0]}")
-        representation.addCode("\tMOV r1, ${reg.name}")
-        representation.addCode("\tBL p_check_array_bounds")
-        representation.addCode("\tADD ${reg.name}, ${reg.name}, #4")
-        representation.addCode("\tADD ${reg.name}, ${reg.name}, ${availableRegister[0]}, LSL #${log2(typeSize(node.type!!))}")
+
+        for (index in node.index) {
+            visitExprNode(node.index[0])
+            representation.addCode("\tLDR ${reg.name}, [${reg.name}]")
+            representation.addCode("\tMOV r0, ${availableRegister[0]}")
+            representation.addCode("\tMOV r1, ${reg.name}")
+            representation.addCode("\tBL p_check_array_bounds")
+            representation.addCode("\tADD ${reg.name}, ${reg.name}, #4")
+            representation.addCode("\tADD ${reg.name}, ${reg.name}, ${availableRegister[0]}, LSL #${log2(typeSize(node.type!!))}")
+        }
         representation.addCode("\tLDR ${reg.name}, [${reg.name}]")
         freeRegister(reg)
         representation.addCheckErrorBoundsFunc()
