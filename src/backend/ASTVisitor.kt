@@ -17,14 +17,15 @@ interface ASTVisitor<T> {
     fun visitSequenceNode(node: SequenceNode): T?
     fun visitIntNode(node: IntNode): T?
     fun visitBoolNode(node: BoolNode): T?
+    fun visitCharNode(node: CharNode): T?
+    fun visitStringNode(node: StringNode): T?
+    fun visitArrayNode(node: ArrayNode): T?
+    fun visitArrayElemNode(node: ArrayElemNode): T?
     fun visitPrintNode(node: PrintNode): T?
     fun visitPrintlnNode(node: PrintlnNode): T?
-    fun visitStringNode(node: StringNode): T?
-    fun visitCharNode(node: CharNode): T?
     fun visitIfNode(node: IfNode): T?
     fun visitWhileNode(node: WhileNode): T?
     fun visitDeclareStatNode(node: DeclareStatNode): T?
     fun visitIdentNode(node: IdentNode): T?
     fun visitAssignNode(node: AssignNode): T?
-    fun visitArrayElemNode(node: ArrayElemNode): T?
 }

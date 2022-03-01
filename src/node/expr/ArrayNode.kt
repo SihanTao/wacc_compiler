@@ -1,5 +1,6 @@
 package node.expr
 
+import backend.ASTVisitor
 import type.ArrayType
 import type.Type
 
@@ -26,6 +27,10 @@ class ArrayNode(
 
     fun getContentSize(): Int {
         return if (contentType == null || content.isEmpty()) 0 else content[0].type!!.size()
+    }
+
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitArrayNode(this)
     }
 
 }

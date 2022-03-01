@@ -7,8 +7,8 @@ import backend.ASTVisitor
 import backend.Cond
 import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
-import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
 import backend.instructions.LDR.LdrMode
+import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.ImmAddressing
@@ -21,6 +21,8 @@ import node.ProgramNode
 import node.expr.*
 import node.stat.*
 import type.Type
+import type.Type.Companion.POINTERSIZE
+import type.Type.Companion.WORDSIZE
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_ARRAY_T
 import type.Utils.Companion.CHAR_T
@@ -443,7 +445,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(Mov(ARMRegister.R0, Operand2(indexReg)))
             instructions.add(Mov(ARMRegister.R1, Operand2(addrReg)))
             instructions.add(BL(RuntimeErrorInstruction.CHECK_ARRAY_BOUND.toString()))
-            instructions.add(Add(addrReg, addrReg, Operand2(Type.POINTERSIZE)))
+            instructions.add(Add(addrReg, addrReg, Operand2(POINTERSIZE)))
             val elemSize: Int = node.type!!.size() / 2
             instructions.add(
                 Add(
@@ -466,6 +468,24 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 )
             )
         }
+        return null
+    }
+
+    override fun visitArrayNode(node: ArrayNode): Void? {
+        /* get the total number of bytes needed to allocate enough space for the array */
+
+        /* load R0 with the number of bytes needed*/
+
+        // Malloc
+
+        /* MOV the result pointer of the array to the next available register */
+
+
+        /* Store array content into registers */
+
+        /* STR the size of the array in the first byte */
+
+
         return null
     }
 }
