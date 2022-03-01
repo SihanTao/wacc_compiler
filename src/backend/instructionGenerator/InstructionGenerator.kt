@@ -14,10 +14,7 @@ import backend.instructions.arithmeticLogic.Add
 import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import node.ProgramNode
-import node.expr.BoolNode
-import node.expr.CharNode
-import node.expr.IntNode
-import node.expr.StringNode
+import node.expr.*
 import node.stat.*
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_ARRAY_T
@@ -300,6 +297,24 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(B(cond = Cond.EQ, label = loopLabel))
 
         ARMRegisterAllocator.free()
+
+        return null
+    }
+
+    override fun visitIdentNode(node: IdentNode): Void? {
+        val typeSize = node.type!!.size()
+
+        // TODO
+        instructions.add(
+            LDR(
+                ARMRegisterAllocator.allocate(),
+                AddressingMode2(
+                    AddressingMode2.AddrMode2.OFFSET,
+                    ARMRegister.SP,
+                    0
+                )
+            )
+        )
 
         return null
     }
