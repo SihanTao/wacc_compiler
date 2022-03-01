@@ -24,25 +24,20 @@ import type.Utils.Companion.STRING_T
 
 class InstructionGenerator : ASTVisitor<Void?> {
 
-    private val instructions: MutableList<Instruction>
-    private val msgLabelGenerator: LabelGenerator = LabelGenerator("msg_")
-    private val branchLabelGenerator = LabelGenerator("L")
-    val dataSegment: MutableMap<Label, String>
-    private val existedHelperFunction: MutableSet<IOInstruction>
+    private val instructions: MutableList<Instruction> = ArrayList()
+    private val msgLabelGenerator: LabelGenerator = LabelGenerator(MSG_LABEL)
+    private val branchLabelGenerator = LabelGenerator(BRANCH_LABEL)
+    val dataSegment: MutableMap<Label, String> = HashMap()
+    private val existedHelperFunction: MutableSet<IOInstruction> = HashSet()
     private var currentSymbolTable: SymbolTable? = null
 
     // The list stores the instructions of helper functions
-    private val armHelperFunctions: MutableList<Instruction>
-
-    init {
-        instructions = ArrayList()
-        dataSegment = HashMap()
-        existedHelperFunction = HashSet()
-        armHelperFunctions = ArrayList()
-    }
+    private val armHelperFunctions: MutableList<Instruction> = ArrayList()
 
     companion object {
-        val MAX_STACK_STEP = 1024
+        private const val MAX_STACK_STEP = 1024
+        private const val BRANCH_LABEL = "L"
+        private const val MSG_LABEL = "msg_"
     }
 
     fun getInstructions(): MutableList<Instruction> {
