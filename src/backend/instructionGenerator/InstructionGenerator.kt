@@ -9,6 +9,7 @@ import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
 import backend.instructions.addressing.ImmAddressing
 import backend.instructions.addressing.LabelAddressing
+import backend.instructions.arithmeticLogic.Add
 import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import node.ProgramNode
@@ -129,6 +130,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
         // All stat in the node are visited, returned to parent scope
         currentSymbolTable = currentSymbolTable!!.parentSymbolTable
+
+        // restore the stack
+        temp = stackSize
+        while (temp > 0) {
+            val stackStep = if (temp >= MAX_STACK_STEP) MAX_STACK_STEP else temp
+            instructions.add(Add(ARMRegister.SP, ARMRegister.SP, Operand2(stackStep)))
+            temp -= stackStep
+        }
 
         return null
     }
