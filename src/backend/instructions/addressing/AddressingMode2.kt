@@ -41,6 +41,14 @@ class AddressingMode2 private constructor(/*
     ) {
     }
 
+    constructor(mode: AddrMode2, Rn: ARMRegister, value: Int) : this(
+        mode,
+        Rn,
+        null,
+        null,
+        Immediate(value)
+    )
+
     override fun toString(): String {
         val str = StringBuilder()
         return when (mode) {

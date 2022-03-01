@@ -7,6 +7,7 @@ import backend.ASTVisitor
 import backend.Cond
 import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
+import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.ImmAddressing
 import backend.instructions.addressing.LabelAddressing
 import backend.instructions.arithmeticLogic.Add
@@ -107,7 +108,13 @@ class InstructionGenerator : ASTVisitor<Void?> {
         while (temp > 0) {
             val stackStep =
                 if (temp >= MAX_STACK_STEP) MAX_STACK_STEP else temp
-            instructions.add(Sub(ARMRegister.SP, ARMRegister.SP, Operand2(stackStep)))
+            instructions.add(
+                Sub(
+                    ARMRegister.SP,
+                    ARMRegister.SP,
+                    Operand2(stackStep)
+                )
+            )
             temp -= stackStep
         }
 
@@ -124,9 +131,35 @@ class InstructionGenerator : ASTVisitor<Void?> {
         temp = stackSize
         while (temp > 0) {
             val stackStep = if (temp >= MAX_STACK_STEP) MAX_STACK_STEP else temp
-            instructions.add(Add(ARMRegister.SP, ARMRegister.SP, Operand2(stackStep)))
+            instructions.add(
+                Add(
+                    ARMRegister.SP,
+                    ARMRegister.SP,
+                    Operand2(stackStep)
+                )
+            )
             temp -= stackStep
         }
+        return null
+    }
+
+    override fun visitDeclareStatNode(node: DeclareStatNode): Void? {
+        visit(node.rhs!!)
+
+        val offset =
+            currentSymbolTable!!.tableSize - node.scope!!.lookup(node.identifier)!!.offset
+
+        instructions.add(
+            STR(
+                ARMRegisterAllocator.curr(),
+                AddressingMode2(
+                    AddressingMode2.AddrMode2.OFFSET,
+                    ARMRegister.SP,
+                    offset
+                )
+            )
+        )
+        ARMRegisterAllocator.free()
         return null
     }
 
@@ -176,7 +209,11 @@ class InstructionGenerator : ASTVisitor<Void?> {
     private fun checkAndAddPrint(io: IOInstruction) {
         if (!existedHelperFunction.contains(io)) {
             existedHelperFunction.add(io)
-            val helperFunctions = addPrint(io, labelGenerator = msgLabelGenerator, dataSegment = dataSegment)
+            val helperFunctions = addPrint(
+                io,
+                labelGenerator = msgLabelGenerator,
+                dataSegment = dataSegment
+            )
             armHelperFunctions.addAll(helperFunctions)
         }
     }
@@ -186,7 +223,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val label = msgLabelGenerator.getLabel()
         dataSegment[label] = str
 
-        instructions.add(LDR(ARMRegisterAllocator.allocate(), LabelAddressing(label)))
+        instructions.add(
+            LDR(
+                ARMRegisterAllocator.allocate(),
+                LabelAddressing(label)
+            )
+        )
 
         return null
     }
@@ -201,7 +243,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitCharNode(node: CharNode): Void? {
         val register = ARMRegisterAllocator.allocate()
-        instructions.add(Mov(register, Operand2(Immediate(node.char.code, true))))
+        instructions.add(
+            Mov(
+                register,
+                Operand2(Immediate(node.char.code, true))
+            )
+        )
         return null
     }
 
