@@ -3,7 +3,7 @@ package type
 import type.Type.Companion.POINTERSIZE
 
 class ArrayType constructor(private val type: Type? = null) : Type {
-    val dimension: Int
+    val depth: Int
 
     /*
         init calculate dimension recursively
@@ -11,12 +11,12 @@ class ArrayType constructor(private val type: Type? = null) : Type {
      */
     init {
         var subType = type
-        var dimension = 1
+        var depth = 1
         while (subType is ArrayType) {
             subType = subType.getContentType()
-            dimension++
+            depth++
         }
-        this.dimension = dimension
+        this.depth = depth
     }
 
     override fun size(): Int {
@@ -42,7 +42,7 @@ class ArrayType constructor(private val type: Type? = null) : Type {
 
     override fun hashCode(): Int {
         var result = type?.hashCode() ?: 0
-        result = 31 * result + dimension
+        result = 31 * result + depth
         return result
     }
 }
