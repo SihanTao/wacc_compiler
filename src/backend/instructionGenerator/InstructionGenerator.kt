@@ -445,7 +445,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(Mov(ARMRegister.R0, Operand2(indexReg)))
             instructions.add(Mov(ARMRegister.R1, Operand2(addrReg)))
             instructions.add(BL(RuntimeErrorInstruction.CHECK_ARRAY_BOUND.toString()))
-            instructions.add(Add(addrReg, addrReg, Operand2(Type.POINTERSIZE)))
+            instructions.add(Add(addrReg, addrReg, Operand2(POINTERSIZE)))
             val elemSize: Int = node.type!!.size() / 2
             instructions.add(
                 Add(
@@ -585,6 +585,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         offset: Int
     ) {
         /* visit fst */
+        val fstVal: ARMRegister? = ARMRegisterAllocator.next()
         visit(child)
 
         /* move size of fst in r0 */
@@ -595,6 +596,30 @@ class InstructionGenerator : ASTVisitor<Void?> {
             )
         )
 
+        /* BL malloc */
+        instructions.add(
+            BL(SyscallInstruction.MALLOC.toString())
+        )
 
+        /* STR the fst value into reg[0] */
+        val mode = if (child.type!!.size() > 1) STR.STRMode.STR else STR.STRMode.STRB
+        instructions.add(
+            STR(
+                fstVal!!,
+                AddressingMode2(AddrMode2.OFFSET, ARMRegister.R0),
+                mode
+            )
+        )
+
+        /* STR the snd value into reg[1] */
+        instructions.add(
+            STR(
+                ARMRegister.R0,
+                AddressingMode2(AddrMode2.OFFSET, pairPointer, offset)
+            )
+        )
+
+        /* free register used for storing child's value */
+        ARMRegisterAllocator.free()
     }
 }
