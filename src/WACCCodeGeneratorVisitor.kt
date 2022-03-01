@@ -13,7 +13,6 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     private var symbolTable: SymbolTable<Pair<Int, Int>>? = null
     private var currStackOffset = 0
     private var currScopeDepth = 0
-    private val scopeStackSize = 0
     private var labelCounter = 0
 
     fun visitProgramNode(node: ProgramNode) {
@@ -314,7 +313,6 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         var currST = symbolTable
         var i = currScopeDepth
         while (currST != null && i > 1) {
-            println("Current i:"+i)
             temp += currST.lookupAll("#localVariableNo_$i")!!.first
             currST = currST.parentSymbolTable
             i--
@@ -380,7 +378,6 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         val destScopeDepth = res.second
         var offset = res.first
         for (i in currScopeDepth downTo (destScopeDepth + 1)) {
-            println(i)
             offset += symbolTable!!.lookupAll("#localVariableNo_$i")!!.first
         }
         val reg = nextAvailableRegister()
