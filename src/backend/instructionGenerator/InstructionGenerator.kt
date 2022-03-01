@@ -40,6 +40,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
         armHelperFunctions = ArrayList()
     }
 
+    companion object {
+        val MAX_STACK_STEP = 1024
+    }
+
     fun getInstructions(): MutableList<Instruction> {
         instructions.addAll(armHelperFunctions)
         return instructions
@@ -104,6 +108,16 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitScopeNode(node: ScopeNode): Void? {
         val nodes: List<StatNode> = node.body
+
+        // SUB enough space in stack
+        val stackSize: Int = node.size()
+        var temp = stackSize
+        while (temp > 0) {
+            val stackStep =
+                if (temp >= MAX_STACK_STEP) MAX_STACK_STEP else temp
+            instructions.add(Sub(ARMRegister.SP, ARMRegister.SP, Operand2(stackStep)))
+            temp -= stackStep
+        }
 
         // visit all the nodes
         for (elem in nodes) {
