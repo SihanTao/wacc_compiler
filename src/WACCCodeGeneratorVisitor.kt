@@ -178,6 +178,24 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                 freeRegister(reg)
                 freeRegister(expr)
             }
+            is PairElemNode -> {
+                val expr = nextAvailableRegister()
+                visitExprNode((node.lhs as PairElemNode).pair)
+                representation.addCode("\tMOV r0, ${availableRegister[0]}")
+                representation.addCode("\tBL p_check_null_pointer")
+                var type: Type
+                if (node.lhs.isFirst) {
+                    representation.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}]")
+                    type = node.lhs.type!!
+                } else {
+                    representation.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}, #4]")
+                    type = node.lhs.type!!
+                }
+                val opcode = if (typeSize(type)==1) "STRB" else "STR"
+                representation.addCode("\t$opcode ${expr.name}, [${availableRegister[0]}]")
+                representation.addCheckNullPointerError()
+                freeRegister(expr)
+            }
         }
     }
     private fun visitDeclareStatNode(node: DeclareStatNode, incStack: Int) {
@@ -545,9 +563,11 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         var type: Type
         if (node.isFirst) {
             representation.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}]")
+            // WRONG
             type = node.fst().type!!
         } else {
             representation.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}, #4]")
+            // WRONG
             type = node.snd().type!!
         }
         val opcode = if (typeSize(type)==1) "LDRSB" else "LDR"
