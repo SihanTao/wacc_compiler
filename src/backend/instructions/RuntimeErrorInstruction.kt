@@ -9,7 +9,7 @@ import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.LabelAddressing
 import backend.instructions.operand.Operand2
 
-enum class runTimeErrorInstruction {
+enum class RuntimeErrorInstruction {
     CHECK_DIVIDE_BY_ZERO, THROW_RUNTIME_ERROR, CHECK_ARRAY_BOUND, CHECK_NULL_POINTER,
     THROW_OVERFLOW_ERROR;
 
