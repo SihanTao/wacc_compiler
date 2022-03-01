@@ -11,7 +11,7 @@ import backend.instructions.operand.Operand2
 
 enum class RuntimeErrorInstruction: Instruction {
     CHECK_DIVIDE_BY_ZERO, THROW_RUNTIME_ERROR, CHECK_ARRAY_BOUND, CHECK_NULL_POINTER,
-    THROW_OVERFLOW_ERROR;
+    THROW_OVERFLOW_ERROR, FREE_ARRAY, FREE_PAIR;
 
     companion object {
         private const val PRINT_ARRAY_NEG_INDEX_MSG =
