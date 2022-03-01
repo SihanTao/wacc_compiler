@@ -3,7 +3,7 @@ package node.expr
 import backend.ASTVisitor
 import type.Type
 
-class PairElemNode(private val pair: ExprNode, type: Type?) : ExprNode() {
+class PairElemNode(val pair: ExprNode, type: Type?) : ExprNode() {
     /**
      * Represent a pair of elem_node 
      * functions fst snd can get the two elements
@@ -13,6 +13,10 @@ class PairElemNode(private val pair: ExprNode, type: Type?) : ExprNode() {
      */
 
     private var isFirst: Boolean
+
+    fun isFirst(): Boolean {
+        return isFirst
+    }
 
     init {
         this.type = type

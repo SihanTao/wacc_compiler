@@ -545,6 +545,25 @@ class InstructionGenerator : ASTVisitor<Void?> {
             Mov(ARMRegister.R0, Operand2(reg))
         )
 
+        // TODO: add check null pointer
+
+        /* get the reg pointing to child
+         * store snd in the same register, save register space
+         */
+
+        val addrMode: AddressingMode2 = if (node.isFirst()) {
+            AddressingMode2(AddrMode2.OFFSET, reg)
+        } else {
+            AddressingMode2(AddrMode2.OFFSET, reg, POINTERSIZE)
+        }
+
+        if (isExprLhs) {
+            instructions.add(LDR(reg, addrMode))
+        } else {
+            instructions.add(LDR(reg, addrMode))
+            instructions.add(LDR(reg, AddressingMode2(AddrMode2.OFFSET, reg)))
+        }
+
         return null
     }
 
