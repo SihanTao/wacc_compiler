@@ -584,6 +584,17 @@ class InstructionGenerator : ASTVisitor<Void?> {
         pairPointer: ARMRegister,
         offset: Int
     ) {
+        /* visit fst */
+        visit(child)
+
+        /* move size of fst in r0 */
+        instructions.add(
+            LDR(
+                ARMRegister.R0,
+                ImmAddressing(child.type!!.size())
+            )
+        )
+
 
     }
 }
