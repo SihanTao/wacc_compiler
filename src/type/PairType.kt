@@ -1,5 +1,7 @@
 package type
 
+import type.Type.Companion.POINTERSIZE
+
 class PairType constructor(val fstType: Type? = null, val sndType: Type? = null) : Type {
 
     fun asPairType(): PairType {
@@ -19,6 +21,10 @@ class PairType constructor(val fstType: Type? = null, val sndType: Type? = null)
 
     override fun hashCode(): Int {
         return super.hashCode()
+    }
+
+    override fun size(): Int {
+        return POINTERSIZE
     }
 
     private fun subTypeCoerce(thisType: Type?, thatType: Type?): Boolean {
