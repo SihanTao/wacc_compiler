@@ -1,6 +1,7 @@
 package node.expr
 
 import ErrorHandler.Companion.indexOutOfBoundError
+import Symbol
 import backend.ASTVisitor
 import type.ArrayType
 import type.Type
@@ -11,12 +12,14 @@ class ArrayElemNode(
      * Examples: a[0], a[2][7], b[5], where `a` and `b` are arrays
      */
     /* the array where this array_elem is located */
-    private val array: ExprNode, /* a list of indices needed in multilevel indexing. e.g. a[3][4][5] */
-    private var index: List<ExprNode>, type: Type?
+    val array: ExprNode, /* a list of indices needed in multilevel indexing. e.g. a[3][4][5] */
+    var index: List<ExprNode>,
+    type: Type,
+    val name: String,
+    val symbol: Symbol
 ) :
     ExprNode() {
     init {
-        index = index
         this.type = type
         val arrayType = array.type as ArrayType
         if (arrayType.dimension < index.size) {

@@ -338,7 +338,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
         val arrayType = array.type as ArrayType
 
-        return ArrayElemNode(array, indexList, arrayType.getContentType())
+        return ArrayElemNode(array, indexList, arrayType.getContentType(), arrayIdent, symbol)
     }
 
     override fun visitArrayExpr(ctx: ArrayExprContext?): Node {
