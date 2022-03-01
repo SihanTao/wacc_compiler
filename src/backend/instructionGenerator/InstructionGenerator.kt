@@ -534,6 +534,16 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitPairNode(node: PairNode): Void? {
+        /* null is also a pairNode */
+        if (node.fst == null || node.snd == null) {
+            instructions.add(
+                LDR(
+                    ARMRegisterAllocator.allocate(),
+                    ImmAddressing(0)
+                )
+            )
+            return null
+        }
 
         /* 1 malloc pair */
         /* 1.1 move size of a pair in r0
