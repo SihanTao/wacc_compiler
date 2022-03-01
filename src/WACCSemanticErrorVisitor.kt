@@ -86,8 +86,8 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         if (semanticError) {
             exitProcess(SEMANTIC_ERROR_CODE)
         }
-        return if (body !is ScopeNode) {
-            ProgramNode(globalFuncTable!!, ScopeNode(body))
+        return if (body !is SequenceNode) {
+            ProgramNode(globalFuncTable!!, SequenceNode(body))
         } else ProgramNode(globalFuncTable!!, body)
     }
 
@@ -252,7 +252,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val elseBody: StatNode = visit(ctx.stat(1)) as StatNode
         symbolTable = symbolTable!!.parentSymbolTable
 
-        val node: StatNode = IfNode(condition, ScopeNode(ifBody), ScopeNode(elseBody))
+        val node: StatNode = IfNode(condition, SequenceNode(ifBody), SequenceNode(elseBody))
 
         node.scope = symbolTable
 
@@ -268,7 +268,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val doBody = visit(ctx.stat()) as StatNode
         symbolTable = symbolTable!!.parentSymbolTable
 
-        val whileNode: StatNode = WhileNode(cond, ScopeNode(doBody))
+        val whileNode: StatNode = WhileNode(cond, SequenceNode(doBody))
 
         whileNode.scope = symbolTable
 
@@ -276,13 +276,10 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitScopeStat(ctx: ScopeStatContext?): Node {
-
-        /* simply create a new SymbolTable to represent a BEGIN ... END statement */
-
         /* simply create a new SymbolTable to represent a BEGIN ... END statement */
         symbolTable = SymbolTable(symbolTable)
         val body: StatNode = visit(ctx!!.stat()) as StatNode
-        val scopeNode = ScopeNode(body)
+        val scopeNode = SequenceNode(body)
         scopeNode.scope = symbolTable
         symbolTable = symbolTable!!.parentSymbolTable
 

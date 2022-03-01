@@ -130,16 +130,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return null
     }
 
-    override fun visitScopeNode(node: ScopeNode): Void? {
-        val nodes: List<StatNode> = node.body
-
-        for (elem in nodes) {
-            visit(elem)
-        }
-
-        return null
-    }
-
     override fun visitIntNode(node: IntNode): Void? {
         // First allocate the register: start from R4 if
         val register: ARMRegister = ARMRegisterAllocator.allocate()
