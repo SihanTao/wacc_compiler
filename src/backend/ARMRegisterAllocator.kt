@@ -23,6 +23,10 @@ class ARMRegisterAllocator() {
             return registers[if (counter > GENERAL_REG_START) counter - 1 else counter]
         }
 
+        fun last(): ARMRegister {
+            return registers[if (counter > GENERAL_REG_START) counter - 2 else counter]
+        }
+
         private val registers: List<ARMRegister> = listOf(
             ARMRegister.R0,
             ARMRegister.R1,
