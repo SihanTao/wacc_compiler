@@ -538,7 +538,30 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
 
     }
     private fun visitPairNode(node: PairNode) {
+        if (node.fst == null && node.snd == null) {
+            representation.addCode("\tLDR ${availableRegister[0]}, =0")
+        } else {
+            val pairLocation = nextAvailableRegister()
+            representation.addCode("\tLDR r0, =8")
+            representation.addCode("\tBL malloc")
+            representation.addCode("\tMOV ${pairLocation.name}, r0")
 
+            visitExprNode(node.fst!!)
+            representation.addCode("\tLDR r0, =${typeSize(node.fst!!.type!!)}")
+            representation.addCode("\tBL malloc")
+            val opcode1 = if (typeSize(node.fst!!.type!!) == 1) "STRB" else "STR"
+            representation.addCode("\t$opcode1 ${availableRegister[0]}, [r0]")
+            representation.addCode("\tSTR r0, [${pairLocation.name}]")
+
+            visitExprNode(node.snd!!)
+            representation.addCode("\tLDR r0, =${typeSize(node.snd!!.type!!)}")
+            representation.addCode("\tBL malloc")
+            val opcode2 = if (typeSize(node.snd!!.type!!) == 1) "STRB" else "STR"
+            representation.addCode("\t$opcode2 ${availableRegister[0]}, [r0]")
+            representation.addCode("\tSTR r0, [${pairLocation.name}, #4]")
+
+            freeRegister(pairLocation)
+        }
     }
 
     private fun visitStringNode(node: StringNode) {
@@ -759,6 +782,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                 BasicTypeEnum.STRING -> return 4
             }
             is ArrayType -> return 4
+            is PairType -> return 4
         }
         return 0
     }
