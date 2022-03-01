@@ -492,9 +492,23 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(Mov(addrReg, Operand2(ARMRegister.R0)))
 
         /* Store array content into registers */
+        /* Decide whether to store a byte or a word */
+        val mode = if (node.getContentSize() > 1) STR.STRMode.STR else STR.STRMode.STRB
+
+        for (i in 0 until node.length) {
+            visit(node.content[i])
+            val STRIndex: Int = i * node.getContentSize() + WORDSIZE
+            instructions.add(
+                STR(
+                    ARMRegisterAllocator.curr(),
+                    AddressingMode2(AddrMode2.OFFSET, addrReg, STRIndex),
+                    mode
+                )
+            )
+            ARMRegisterAllocator.free()
+        }
 
         /* STR the size of the array in the first byte */
-
 
         return null
     }
