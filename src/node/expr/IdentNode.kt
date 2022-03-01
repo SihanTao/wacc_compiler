@@ -1,6 +1,7 @@
 package node.expr
 
 import Symbol
+import backend.ASTVisitor
 import type.Type
 
 class IdentNode(type: Type?, val name: String, var symbol: Symbol?) : ExprNode() {
@@ -13,5 +14,9 @@ class IdentNode(type: Type?, val name: String, var symbol: Symbol?) : ExprNode()
 
     init {
         this.type = type
+    }
+
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitIdentNode(this)
     }
 }

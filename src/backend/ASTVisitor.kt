@@ -2,10 +2,7 @@ package backend
 
 import node.Node
 import node.ProgramNode
-import node.expr.BoolNode
-import node.expr.CharNode
-import node.expr.IntNode
-import node.expr.StringNode
+import node.expr.*
 import node.stat.*
 
 interface ASTVisitor<T> {
@@ -27,4 +24,5 @@ interface ASTVisitor<T> {
     fun visitIfNode(node: IfNode): T?
     fun visitWhileNode(node: WhileNode): T?
     fun visitDeclareStatNode(node: DeclareStatNode): T?
+    fun visitIdentNode(node: IdentNode): T?
 }
