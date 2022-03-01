@@ -17,12 +17,19 @@ class ArrayElemNode(
     type: Type,
     val name: String,
     val symbol: Symbol
-) :
-    ExprNode() {
+): ExprNode() {
+
+    private val arrayDepth: Int
+    private var indexDepth: Int
+        get() {
+            return field
+        }
+
     init {
         this.type = type
-        val arrayType = array.type as ArrayType
-        if (arrayType.dimension < index.size) {
+        this.arrayDepth = (array.type as ArrayType).depth
+        this.indexDepth = index.size
+        if (arrayDepth < indexDepth) {
             indexOutOfBoundError(null, array.type as Type, index.size)
         }
     }
