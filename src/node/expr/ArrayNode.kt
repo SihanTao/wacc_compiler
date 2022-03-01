@@ -3,29 +3,29 @@ package node.expr
 import type.ArrayType
 import type.Type
 
-
+/**
+ * Represent an array with a set function for single digit and set all elements
+ * Examples: [a, b, c, d, e]
+ */
 
 class ArrayNode(
-    /**
-     * Represent an array with a set function for single digit and set all elements
-     * Examples: [a, b, c, d, e]
-     */
-
-    contentType: Type?, private var content: MutableList<ExprNode>, var length: Int
+    private val contentType: Type?,
+    val content: MutableList<ExprNode>,
+    var length: Int
 ) : ExprNode() {
 
-    constructor(contentType: Type?, length: Int) : this(contentType, mutableListOf(), length)
+    constructor(contentType: Type?, length: Int) : this(
+        contentType,
+        mutableListOf(),
+        length
+    )
 
     init {
         type = ArrayType(contentType)
     }
 
-    fun setElem(index: Int, value: ExprNode) {
-        content[index] = value
+    fun getContentSize(): Int {
+        return if (contentType == null || content.isEmpty()) 0 else content[0].type!!.size()
     }
 
-    fun setAllElem(content: MutableList<ExprNode>) {
-        this.content = content
-        length = content.size
-    }
 }

@@ -555,7 +555,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitArrayLiter(ctx: ArrayLiterContext): Node {
         val length: Int = ctx.expr().size
         if (length == 0) {
-            return ArrayNode(currDeclareType, length)
+            return ArrayNode(null, length)
         }
         val firstExpr: ExprNode = visit(ctx.expr(0)) as ExprNode
         val firstContentType = firstExpr.type
