@@ -37,4 +37,8 @@ class SymbolTable(val parentSymbolTable: SymbolTable?) {
         }
         return obj
     }
+
+    fun getStackOffset(name: String, symbol: Symbol): Int {
+        return symbol.offset
+    }
 }

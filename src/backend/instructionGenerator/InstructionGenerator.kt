@@ -36,6 +36,9 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     private var currentSymbolTable: SymbolTable? = null
 
+    // Mark the ExprNode is on rhs or lhs
+    private var isExprLhs = false
+
     companion object {
         private const val MAX_STACK_STEP = 1024
         private const val BRANCH_LABEL = "L"
@@ -301,17 +304,36 @@ class InstructionGenerator : ASTVisitor<Void?> {
     override fun visitIdentNode(node: IdentNode): Void? {
         val typeSize = node.type!!.size()
 
-        // TODO
-        instructions.add(
-            LDR(
-                ARMRegisterAllocator.allocate(),
-                AddressingMode2(
-                    AddressingMode2.AddrMode2.OFFSET,
+        val offset =
+            currentSymbolTable!!.tableSize - currentSymbolTable!!.getStackOffset(
+                node.name,
+                node.symbol!!
+            )
+
+        val mode = if (typeSize > 1) LDR.LdrMode.LDR else LDR.LdrMode.LDRSB
+
+        if (isExprLhs) {
+            // only add address
+            instructions.add(
+                Add(
+                    ARMRegisterAllocator.allocate(),
                     ARMRegister.SP,
-                    0
+                    Operand2(offset)
                 )
             )
-        )
+        } else {
+            instructions.add(
+                LDR(
+                    ARMRegisterAllocator.allocate(),
+                    AddressingMode2(
+                        AddressingMode2.AddrMode2.OFFSET,
+                        ARMRegister.SP,
+                        offset
+                    ),
+                    mode
+                )
+            )
+        }
 
         return null
     }
