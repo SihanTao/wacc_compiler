@@ -20,10 +20,7 @@ class ArrayElemNode(
 ): ExprNode() {
 
     private val arrayDepth: Int
-    private var indexDepth: Int
-        get() {
-            return field
-        }
+    val indexDepth: Int
 
     init {
         this.type = type
