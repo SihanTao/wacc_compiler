@@ -178,7 +178,9 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                     representation.addCode("\tADD ${reg.name}, ${reg.name}, #4")
                     representation.addCode("\tADD ${reg.name}, ${reg.name}, ${availableRegister[0]}, LSL #${log2(typeSize(node.lhs.type!!))}")
                 }
-                representation.addCode("\tSTR ${expr.name}, [${reg.name}]")
+                val opcode = if (typeSize(node.rhs!!.type!!) == 1) "STRB" else "STR"
+                representation.addCode("\t$opcode ${expr.name}, [${reg.name}]")
+                representation.addCheckErrorBoundsFunc()
                 freeRegister(reg)
                 freeRegister(expr)
             }
@@ -249,7 +251,17 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tMOV r0, r4")
 
         when (val type = node.expr.type!!) {
-            is ArrayType, is PairType -> {
+            is ArrayType -> {
+                if (type.getContentType() is BasicType && (type.getContentType() as BasicType).typeEnum == BasicTypeEnum.CHAR) {
+                    representation.addCode("\tBL p_print_string")
+                    representation.addPrintStringFunc()
+                } else {
+                    representation.addCode("\tBL p_print_reference")
+                    representation.addPrintReference()
+                }
+            }
+
+            is PairType -> {
                 representation.addCode("\tBL p_print_reference")
                 representation.addPrintReference()
             }
@@ -398,7 +410,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     }
 
     private fun visitArrayNode(node: ArrayNode) {
-        val arraySize = node.length * typeSize(node.type!!) + typeSize(BasicType(BasicTypeEnum.INTEGER))
+        val arraySize = node.length * typeSize(node.contentType!!) + typeSize(BasicType(BasicTypeEnum.INTEGER))
         representation.addCode("\tLDR r0, =$arraySize")
         representation.addCode("\tBL malloc")
         val arrayDest = nextAvailableRegister()
@@ -406,9 +418,9 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         var exprDest = 4
         for (expr in node.content) {
             visitExprNode(expr)
-            val opcode = if (typeSize(node.type!!) == 1) "STRB" else "STR"
+            val opcode = if (typeSize(node.contentType!!) == 1) "STRB" else "STR"
             representation.addCode("\t$opcode ${availableRegister[0]}, [${arrayDest.name}, #$exprDest]")
-            exprDest += typeSize(node.type!!)
+            exprDest += typeSize(node.contentType!!)
         }
         representation.addCode("\tLDR ${availableRegister[0]}, =${node.length}")
         representation.addCode("\tSTR ${availableRegister[0]}, [${arrayDest.name}]")
