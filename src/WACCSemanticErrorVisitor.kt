@@ -336,7 +336,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
         val arrayType = array?.type as ArrayType
 
-        return ArrayElemNode(arrayIdent, array, indexList, arrayType.getContentType())
+        return ArrayElemNode(arrayIdent, array, indexList, arrayType.getTypeDepth(indexList.size))
     }
 
     override fun visitArrayExpr(ctx: ArrayExprContext?): Node {
@@ -359,7 +359,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
         val arrayType = array.type as ArrayType
 
-        return ArrayElemNode(arrayIdent, array, indexList, arrayType.getContentType())
+        return ArrayElemNode(arrayIdent, array, indexList, arrayType.getTypeDepth(indexList.size))
     }
 
     override fun visitIntExpr(ctx: IntExprContext?): Node {
