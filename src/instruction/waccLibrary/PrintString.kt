@@ -4,6 +4,7 @@ import WACCCodeGenerator
 import instruction.ARM11Instruction
 import instruction.*
 import instruction.addrMode2.ImmOffset
+import instruction.addrMode2.StaticRef
 import org.antlr.v4.codegen.CodeGenerator
 import register.ARM11Register
 
@@ -19,7 +20,7 @@ class PrintString(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGe
                 Push(ARM11Register.LR),
                 Load(ARM11Register.R1, ImmOffset(ARM11Register.R0)),
                 Add(ARM11Register.R2, ARM11Register.R0, 4),
-                Load(ARM11Register.R0, "msg_$msgCode"),
+                Load(ARM11Register.R0, StaticRef("msg_$msgCode")),
                 Add(ARM11Register.R0, ARM11Register.R0, 4),
                 Branch(Branch.Mode.LINK, "printf"),
                 Move(ARM11Register.R0, 0),
