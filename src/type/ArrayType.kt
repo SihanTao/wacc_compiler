@@ -30,6 +30,14 @@ class ArrayType constructor(private val type: Type? = null) : Type {
         return type!!
     }
 
+	fun getTypeDepth(depth: Int): Type {
+		var subType = type
+		while (depth - 1 > 0 && subType is ArrayType) {
+			subType = subType.getContentType()
+		}
+		return subType!!
+	}
+
     override fun toString(): String {
         return "Array<$type>"
     }
