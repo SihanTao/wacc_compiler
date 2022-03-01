@@ -323,10 +323,10 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             ErrorHandler.symbolNotExist(ctx, arrayIdent)
         }
 
-        val array: ExprNode? = symbol!!.node
+        val array: ExprNode = symbol!!.node
 
         /* special case: if ident is not array, cannot call asArrayType on it, exit directly */
-        if (typeCheck(ctx, ARRAY_T, array!!.type!!)
+        if (typeCheck(ctx, ARRAY_T, array.type!!)
         ) {
             exitProcess(SEMANTIC_ERROR_CODE)
         }
@@ -532,11 +532,12 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitIdentExpr(ctx: IdentExprContext): Node {
         val name: String = ctx.ident().IDENT().text
-        val expr: ExprNode? = symbolTable!!.lookupAll(name)
-        if (expr == null) {
+        val symbol = symbolTable!!.lookupAll(name)
+        if (symbol == null) {
             ErrorHandler.symbolNotExist(ctx, name)
         }
-        return expr as Node
+
+        return symbol!!.node
     }
 
     override fun visitArray_type(ctx: Array_typeContext): Node? {
