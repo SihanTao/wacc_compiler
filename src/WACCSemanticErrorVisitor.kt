@@ -143,7 +143,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val node: StatNode = DeclareStatNode(varName, expr)
         node.scope = symbolTable
 
-        semanticError = semanticError || symbolTable!!.add(varName, expr!!)
+        semanticError = semanticError || symbolTable!!.add(varName, expr)
 
 
         return node
@@ -312,7 +312,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             ErrorHandler.symbolNotExist(ctx, varName)
         }
 
-        return IdentNode(symbol!!.node.type!!, varName)
+        return IdentNode(symbol!!.node!!.type!!, varName)
     }
 
     override fun visitArrayElem(ctx: ArrayElemContext?): Node {
@@ -323,10 +323,10 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             ErrorHandler.symbolNotExist(ctx, arrayIdent)
         }
 
-        val array: ExprNode = symbol!!.node
+        val array: ExprNode? = symbol!!.node
 
         /* special case: if ident is not array, cannot call asArrayType on it, exit directly */
-        if (typeCheck(ctx, ARRAY_T, array.type!!)
+        if (typeCheck(ctx, ARRAY_T, array!!.type!!)
         ) {
             exitProcess(SEMANTIC_ERROR_CODE)
         }
@@ -352,10 +352,10 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             ErrorHandler.symbolNotExist(ctx, arrayIdent)
         }
 
-        val array: ExprNode = symbol!!.node
+        val array: ExprNode? = symbol!!.node
 
         /* special case: if ident is not array, cannot call asArrayType on it, exit directly */
-        if (typeCheck(ctx, ARRAY_T, array.type!!)
+        if (typeCheck(ctx, ARRAY_T, array!!.type!!)
         ) {
             exitProcess(SEMANTIC_ERROR_CODE)
         }
@@ -562,7 +562,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             ErrorHandler.symbolNotExist(ctx, name)
         }
 
-        return symbol!!.node
+        return symbol!!.node as Node
     }
 
     override fun visitArray_type(ctx: Array_typeContext): Node? {

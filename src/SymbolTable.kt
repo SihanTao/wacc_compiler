@@ -1,5 +1,4 @@
 import node.expr.ExprNode
-import kotlin.math.exp
 
 class SymbolTable(val parentSymbolTable: SymbolTable?) {
     /**
@@ -11,14 +10,17 @@ class SymbolTable(val parentSymbolTable: SymbolTable?) {
     private val dictionary = HashMap<String, Symbol>()
     private var tableSize = 0
 
-    fun add(name: String, expr: ExprNode): Boolean {
+    fun add(name: String, expr: ExprNode?): Boolean {
         if (dictionary.containsKey(name)) {
             ErrorHandler.symbolRedeclare(null, name)
             return true
         }
 
-        tableSize += expr.type!!.size()
-        dictionary[name] = Symbol(expr, tableSize)
+        if (expr != null) {
+            tableSize += expr.type!!.size()
+            dictionary[name] = Symbol(expr, tableSize)
+        }
+
         return false
     }
 
