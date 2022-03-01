@@ -1,6 +1,8 @@
 package backend.instructions
 
-class BL(val label: String) : Instruction {
+import backend.Cond
+
+class BL(private val cond: Cond, val label: String) : Instruction {
     // BL {cond} Label
     override fun toString(): String {
         return "BL $label"
