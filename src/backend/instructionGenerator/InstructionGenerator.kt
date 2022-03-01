@@ -149,6 +149,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val offset =
             currentSymbolTable!!.tableSize - node.scope!!.lookup(node.identifier)!!.offset
 
+        // Check the size of type to decide to use STR or STRB
+        val typeSize = node.rhs.type!!.size()
+        val strMode = if (typeSize == 1) STR.STRMode.STRB else STR.STRMode.STR
+
         instructions.add(
             STR(
                 ARMRegisterAllocator.curr(),
@@ -156,7 +160,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
                     AddressingMode2.AddrMode2.OFFSET,
                     ARMRegister.SP,
                     offset
-                )
+                ),
+                strMode
             )
         )
         ARMRegisterAllocator.free()
