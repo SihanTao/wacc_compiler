@@ -1,5 +1,6 @@
 package backend.instructionGenerator
 
+import SymbolTable
 import backend.ARMRegister
 import backend.ARMRegisterAllocator
 import backend.ASTVisitor
@@ -29,6 +30,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
     private val branchLabelGenerator = LabelGenerator("L")
     val dataSegment: MutableMap<Label, String>
     private val existedHelperFunction: MutableSet<IOInstruction>
+    private var currentSymbolTable: SymbolTable? = null
 
     // The list stores the instructions of helper functions
     private val armHelperFunctions: MutableList<Instruction>
@@ -120,9 +122,13 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
 
         // visit all the nodes
+        // Set up the current Symbol Table
+        currentSymbolTable = node.scope
         for (elem in nodes) {
             visit(elem)
         }
+        // All stat in the node are visited, returned to parent scope
+        currentSymbolTable = currentSymbolTable!!.parentSymbolTable
 
         return null
     }
