@@ -1,6 +1,7 @@
 package node.expr
 
 import ErrorHandler.Companion.indexOutOfBoundError
+import backend.ASTVisitor
 import type.ArrayType
 import type.Type
 
@@ -21,5 +22,9 @@ class ArrayElemNode(
         if (arrayType.dimension < index.size) {
             indexOutOfBoundError(null, array.type as Type, index.size)
         }
+    }
+
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitArrayElemNode(this)
     }
 }
