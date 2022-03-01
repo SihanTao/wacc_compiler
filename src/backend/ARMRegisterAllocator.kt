@@ -4,9 +4,11 @@ class ARMRegisterAllocator() {
     companion object {
         // R0-R12 is the general purpose register. start from R4 to be the same
         // in refCompile
-        val GENERAL_REG_START = 4
-        val GENERAL_REG_END = 12
-        var counter = GENERAL_REG_START
+        private const val GENERAL_REG_START = 4
+        private const val GENERAL_REG_END = 12
+        private const val MAX_ARM_REGISTER = 16
+        private var counter = GENERAL_REG_START
+
         fun allocate(): ARMRegister {
             if (counter < GENERAL_REG_START || counter > GENERAL_REG_END) {
                 throw IllegalArgumentException("Can't allocate register: R$counter")
@@ -25,6 +27,10 @@ class ARMRegisterAllocator() {
 
         fun last(): ARMRegister {
             return registers[if (counter > GENERAL_REG_START) counter - 2 else counter]
+        }
+
+        fun next(): ARMRegister? {
+            return if (counter > MAX_ARM_REGISTER) null else registers[counter]
         }
 
         private val registers: List<ARMRegister> = listOf(
