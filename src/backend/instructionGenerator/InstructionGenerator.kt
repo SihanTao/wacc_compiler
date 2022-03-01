@@ -20,7 +20,6 @@ import backend.instructions.operand.Operand2.Operand2Operator
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
-import type.Type
 import type.Type.Companion.POINTERSIZE
 import type.Type.Companion.WORDSIZE
 import type.Utils.Companion.BOOL_T
@@ -530,7 +529,19 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitPairElemNode(node: PairElemNode): Void? {
-        TODO("Not yet implemented")
+        /* get pointer to the pair, store into next available register
+         * reg is expected register where visit will put value in
+         */
+
+        val reg: ARMRegister = ARMRegisterAllocator.next()!!
+        /* e.g. read fst a, (fst a) is lhs but (a) is rhs */
+        val isLhsOutside: Boolean = isExprLhs
+        isExprLhs = false
+        visit(node.pair)
+        isExprLhs = isLhsOutside
+
+
+        return null
     }
 
     override fun visitPairNode(node: PairNode): Void? {
