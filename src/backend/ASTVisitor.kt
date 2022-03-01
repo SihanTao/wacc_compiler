@@ -25,4 +25,5 @@ interface ASTVisitor<T> {
     fun visitWhileNode(node: WhileNode): T?
     fun visitDeclareStatNode(node: DeclareStatNode): T?
     fun visitIdentNode(node: IdentNode): T?
+    fun visitAssignNode(node: AssignNode): T?
 }

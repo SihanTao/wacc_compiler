@@ -1,5 +1,6 @@
 package node.stat
 
+import backend.ASTVisitor
 import node.expr.ExprNode
 
 /**
@@ -11,6 +12,9 @@ import node.expr.ExprNode
  */
 
 class AssignNode(
-
-    private val lhs: ExprNode?, private val rhs: ExprNode?
-) : StatNode()
+    val lhs: ExprNode?, val rhs: ExprNode?
+) : StatNode() {
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitAssignNode(this)
+    }
+}
