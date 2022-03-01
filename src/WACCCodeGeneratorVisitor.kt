@@ -348,9 +348,23 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         symbolTable = SymbolTable(symbolTable)
         currScopeDepth += 1
         symbolTable!!.add("#localVariableNo_$currScopeDepth", Pair(temp, currScopeDepth))
-        if (temp > 0) representation.addCode("\tSUB sp, sp, #$temp")
+        if (temp > 0) {
+            var temp2 = temp
+            while (temp2 > 1024) {
+                representation.addCode("\tSUB sp, sp, #1024")
+                temp2 -= 1024
+            }
+            if (temp2 > 0) representation.addCode("\tSUB sp, sp, #$temp2")
+        }
         node.body.forEach{stat -> visitStatNode(stat, incStack = temp)}
-        if (temp > 0) representation.addCode("\tADD sp, sp, #$temp")
+        if (temp > 0) {
+            var temp2 = temp
+            while (temp2 > 1024) {
+                representation.addCode("\tADD sp, sp, #1024")
+                temp2 -= 1024
+            }
+            if (temp2 > 0) representation.addCode("\tADD sp, sp, #$temp2")
+        }
         symbolTable = symbolTable!!.parentSymbolTable
         currScopeDepth -= 1
         currStackOffset = prevStackOffset
