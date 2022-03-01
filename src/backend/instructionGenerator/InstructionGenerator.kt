@@ -487,7 +487,9 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(BL(SyscallInstruction.MALLOC.toString()))
 
         /* MOV the result pointer of the array to the next available register */
+        val addrReg: ARMRegister = ARMRegisterAllocator.allocate()
 
+        instructions.add(Mov(addrReg, Operand2(ARMRegister.R0)))
 
         /* Store array content into registers */
 
