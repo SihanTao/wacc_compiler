@@ -17,6 +17,7 @@ class WACCAssembleRepresentation {
     private var hasReadInt = false
     private var hasReadChar = false
     private var hasPrintRef = false
+    private var hasCheckNullPointer = true
 
     fun addCode(str: String) {
         code.addLast(str)
@@ -121,6 +122,14 @@ class WACCAssembleRepresentation {
 
     fun hasPrintRefFunction(): Boolean {
         return hasPrintRef
+    }
+
+    fun addCheckNullPointerError() {
+        hasCheckNullPointer = true
+    }
+
+    fun hasCheckNullPointerFunc(): Boolean {
+        return hasCheckNullPointer
     }
 
 

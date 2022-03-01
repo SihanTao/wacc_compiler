@@ -2,7 +2,7 @@ package node.expr
 
 import type.Type
 
-class PairElemNode(private val pair: ExprNode, type: Type?) : ExprNode() {
+class PairElemNode(val pair: ExprNode, type: Type?) : ExprNode() {
     /**
      * Represent a pair of elem_node 
      * functions fst snd can get the two elements
@@ -11,7 +11,7 @@ class PairElemNode(private val pair: ExprNode, type: Type?) : ExprNode() {
      *           fst true, snd false
      */
 
-    private var isFirst: Boolean
+    var isFirst: Boolean
 
     init {
         this.type = type

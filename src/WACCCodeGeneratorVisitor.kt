@@ -30,7 +30,8 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tPOP {pc}")
 
         if (representation.hasPrintStringFunc() || representation.hasPrintThrowOverflowErrorFunc()
-                || representation.hasPrintDivByZeroErrorFunc() || representation.hasCheckArrayBoundsFunc()) {
+                || representation.hasPrintDivByZeroErrorFunc() || representation.hasCheckArrayBoundsFunc()
+                || representation.hasCheckNullPointerFunc()) {
             generatePrintStringCode()
         }
         if (representation.hasPrintInFunc()) {
@@ -52,7 +53,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         }
 
         if (representation.hasPrintDivByZeroErrorFunc() || representation.hasPrintThrowOverflowErrorFunc()
-                || representation.hasCheckArrayBoundsFunc()) {
+                || representation.hasCheckArrayBoundsFunc() || representation.hasCheckNullPointerFunc()) {
             generateThrowRuntimeError()
         }
 
@@ -70,6 +71,10 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
 
         if (representation.hasPrintRefFunction()) {
             generatePrintRefFunc()
+        }
+
+        if (representation.hasCheckNullPointerFunc()) {
+            generateCheckNullPointerFunc()
         }
     }
 
@@ -217,7 +222,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tMOV r0, r4")
 
         when (val type = node.expr.type!!) {
-            is ArrayType -> {
+            is ArrayType, is PairType -> {
                 representation.addCode("\tBL p_print_reference")
                 representation.addPrintReference()
             }
@@ -238,7 +243,6 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                                     representation.addPrintStringFunc()
                                 }
                             }
-            is PairType -> {}
         }
 
     }
@@ -535,8 +539,23 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         freeRegister(dest)
     }
     private fun visitPairElemNode(node: PairElemNode) {
+        visitExprNode(node.pair)
+        representation.addCode("\tMOV r0, ${availableRegister[0]}")
+        representation.addCode("\tBL p_check_null_pointer")
+        var type: Type
+        if (node.isFirst) {
+            representation.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}]")
+            type = node.fst().type!!
+        } else {
+            representation.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}, #4]")
+            type = node.snd().type!!
+        }
+        val opcode = if (typeSize(type)==1) "LDRSB" else "LDR"
+        representation.addCode("\t$opcode ${availableRegister[0]}, [${availableRegister[0]}]")
+        representation.addCheckNullPointerError()
 
     }
+
     private fun visitPairNode(node: PairNode) {
         if (node.fst == null && node.snd == null) {
             representation.addCode("\tLDR ${availableRegister[0]}, =0")
@@ -722,6 +741,16 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         representation.addCode("\tBL printf")
         representation.addCode("\tMOV r0, #0")
         representation.addCode("\tBL fflush")
+        representation.addCode("\tPOP {pc}")
+    }
+
+    private fun generateCheckNullPointerFunc() {
+        val code = representation.addStringToTable("\"NullReferenceError: dereference a null reference\\n\\0\"", 50)
+        representation.addCode("p_check_null_pointer:")
+        representation.addCode("\tPUSH {lr}")
+        representation.addCode("\tCMP r0, #0")
+        representation.addCode("\tLDREQ r0, =msg_$code")
+        representation.addCode("\tBLEQ p_throw_runtime_error")
         representation.addCode("\tPOP {pc}")
     }
 
