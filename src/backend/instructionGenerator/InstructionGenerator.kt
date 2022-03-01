@@ -555,7 +555,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             )
         )
 
-        /* 1.2 BL malloc and get pointer in general use register*/
+        /* 1.2 BL malloc and get pointer in general use register */
         instructions.add(
             BL(SyscallInstruction.MALLOC.toString())
         )
@@ -563,7 +563,27 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         instructions.add(Mov(pairPointer, Operand2(ARMRegister.R0)))
 
+        /* 2 visit both child */
+        visitPairChildExpr(
+            node.fst!!,
+            pairPointer,
+            0
+        )
+        /* pair contains two pointers, each with size 4 */
+        visitPairChildExpr(
+            node.snd!!,
+            pairPointer,
+            WORDSIZE
+        )
 
         return null
+    }
+
+    private fun visitPairChildExpr(
+        child: ExprNode,
+        pairPointer: ARMRegister,
+        offset: Int
+    ) {
+
     }
 }
