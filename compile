@@ -29,10 +29,10 @@ do
       t ) PRINT_AST="--print_ast" ;;
       a ) ASSEMBLY="--assembly" ;;
 #      x ) EXECUTE="--execute" ;;
-      h ) helpFunction ;;
-      ? ) helpFunction ;; # Print helpFunction otherwise
+      h ) printHelpFunction ;;
+      ? ) printHelpFunction ;; # Print helpFunction otherwise
    esac
 done
 
 # compile the given wacc file here
-kotlin -cp ./bin:./lib/antlr-4.9.3-complete.jar MainKt "$1" $PARSE_ONLY $PRINT_AST
+kotlin -cp ./bin:./lib/antlr-4.9.3-complete.jar MainKt "$1" $PARSE_ONLY $PRINT_AST --assembly
