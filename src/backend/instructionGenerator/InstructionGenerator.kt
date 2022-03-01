@@ -540,6 +540,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
         visit(node.pair)
         isExprLhs = isLhsOutside
 
+        /* move pair pointer to r0, prepare for null pointer check  */
+        instructions.add(
+            Mov(ARMRegister.R0, Operand2(reg))
+        )
 
         return null
     }
