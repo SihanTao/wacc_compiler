@@ -7,6 +7,7 @@ import backend.ASTVisitor
 import backend.Cond
 import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
+import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
 import backend.instructions.LDR.LdrMode
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
@@ -223,6 +224,27 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
     }
 
+
+    private fun checkAndAddRuntimeError(runtimeErrorInstruction: RuntimeErrorInstruction) {
+
+        if (!existedHelperFunction.contains(runtimeErrorInstruction)) {
+            existedHelperFunction.add(runtimeErrorInstruction)
+            val helper = when (runtimeErrorInstruction){
+                RuntimeErrorInstruction.CHECK_ARRAY_BOUND -> addCheckArrayBound(labelGenerator = msgLabelGenerator, dataSegment)
+                RuntimeErrorInstruction.THROW_RUNTIME_ERROR -> TODO()
+                RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO -> TODO()
+                RuntimeErrorInstruction.CHECK_NULL_POINTER -> TODO()
+                RuntimeErrorInstruction.THROW_OVERFLOW_ERROR -> TODO()
+                RuntimeErrorInstruction.FREE_ARRAY -> TODO()
+                RuntimeErrorInstruction.FREE_PAIR -> TODO()
+            }
+            armHelperFunctions.addAll(helper)
+
+
+        }
+    }
+
+
     override fun visitStringNode(node: StringNode): Void? {
         val str = node.string
         val label = msgLabelGenerator.getLabel()
@@ -385,12 +407,9 @@ class InstructionGenerator : ASTVisitor<Void?> {
         ))
         instructions.add(Add(addrReg, ARMRegister.SP, Operand2(offset)))
 
-        addCheckArrayBound
-
-        checkAndAddRoutine(
-            THROW_RUNTIME_ERROR,
-            msgLabelGenerator,
-            dataSegmentMessages
+        checkAndAddRuntimeError(RuntimeErrorInstruction.CHECK_ARRAY_BOUND)
+        checkAndAddRuntimeError(
+            RuntimeErrorInstruction.THROW_RUNTIME_ERROR
         )
 
         var indexReg: ARMRegister
