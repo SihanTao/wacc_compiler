@@ -101,17 +101,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
     override fun visitSequenceNode(node: SequenceNode): Void? {
         val nodes: List<StatNode> = node.body
 
-        // visit all the nodes
-        for (elem in nodes) {
-            visit(elem)
-        }
-
-        return null
-    }
-
-    override fun visitScopeNode(node: ScopeNode): Void? {
-        val nodes: List<StatNode> = node.body
-
         // SUB enough space in stack
         val stackSize: Int = node.size()
         var temp = stackSize
@@ -137,6 +126,15 @@ class InstructionGenerator : ASTVisitor<Void?> {
             val stackStep = if (temp >= MAX_STACK_STEP) MAX_STACK_STEP else temp
             instructions.add(Add(ARMRegister.SP, ARMRegister.SP, Operand2(stackStep)))
             temp -= stackStep
+        }
+        return null
+    }
+
+    override fun visitScopeNode(node: ScopeNode): Void? {
+        val nodes: List<StatNode> = node.body
+
+        for (elem in nodes) {
+            visit(elem)
         }
 
         return null
