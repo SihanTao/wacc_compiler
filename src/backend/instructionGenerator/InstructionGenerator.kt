@@ -458,13 +458,11 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
 
         /* if is not lhs, load the array content to `reg` */
-        if (!isLhs) {
+        if (!isExprLhs) {
             instructions.add(
                 LDR(
                     addrReg, AddressingMode2(AddrMode2.OFFSET, addrReg),
-                    if (node.getType()
-                            .getSize() > 1
-                    ) LdrMode.LDR else LdrMode.LDRSB
+                    if (node.type!!.size() > 1) LdrMode.LDR else LdrMode.LDRSB
                 )
             )
         }
