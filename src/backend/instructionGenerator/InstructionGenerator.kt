@@ -555,6 +555,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
             )
         )
 
+        /* 1.2 BL malloc and get pointer in general use register*/
+        instructions.add(
+            BL(SyscallInstruction.MALLOC.toString())
+        )
+        val pairPointer: ARMRegister = ARMRegisterAllocator.allocate()
+
+        instructions.add(Mov(pairPointer, Operand2(ARMRegister.R0)))
+
 
         return null
     }
