@@ -56,7 +56,7 @@ class AddressingMode2 private constructor(/*
                 str.append(if (Rn != null) Rn else "")
                 str.append(if (Rm != null) ", $Rm" else "")
                 str.append(if (operator != null) ", " + operator.name + " " else "")
-                str.append(if (immed != null) ", $immed" else "")
+                str.append(if (immed != null && immed.value != 0) ", $immed" else "")
                 "[$str]"
             }
             AddrMode2.PREINDEX -> {
