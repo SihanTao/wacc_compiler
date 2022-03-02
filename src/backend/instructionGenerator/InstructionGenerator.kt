@@ -233,8 +233,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
         if (!existedHelperFunction.contains(runtimeErrorInstruction)) {
             existedHelperFunction.add(runtimeErrorInstruction)
             val helper = when (runtimeErrorInstruction){
-                RuntimeErrorInstruction.CHECK_ARRAY_BOUND -> addCheckArrayBound(labelGenerator = msgLabelGenerator, dataSegment)
-                RuntimeErrorInstruction.THROW_RUNTIME_ERROR -> addThrowRuntimeError()
+                RuntimeErrorInstruction.CHECK_ARRAY_BOUND -> addCheckArrayBound(msgLabelGenerator, dataSegment)
+                RuntimeErrorInstruction.THROW_RUNTIME_ERROR -> addThrowRuntimeError(msgLabelGenerator, dataSegment)
                 RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO -> TODO()
                 RuntimeErrorInstruction.CHECK_NULL_POINTER -> TODO()
                 RuntimeErrorInstruction.THROW_OVERFLOW_ERROR -> TODO()
