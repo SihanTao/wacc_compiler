@@ -814,6 +814,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
             checkAndAddRuntimeError(RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO)
         }
 
+        if (expr1.weight() < expr2.weight()) {
+            instructions.add(Mov(expr2Reg, Operand2(expr1Reg)))
+        }
+
         ARMRegisterAllocator.free()
 
         return null
