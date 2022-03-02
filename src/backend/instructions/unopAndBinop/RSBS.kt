@@ -15,4 +15,8 @@ class RSBS(
         Rn,
         Operand2(value)
     )
+
+    override fun toString(): String {
+        return "RSBS $Rd, $Rn, $operand2"
+    }
 }
