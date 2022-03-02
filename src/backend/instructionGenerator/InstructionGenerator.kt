@@ -722,11 +722,22 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitBinopNode(node: BinopNode): Void? {
-        visit(node.expr1)
-        visit(node.expr2)
 
-        val expr1Reg = ARMRegisterAllocator.last()
-        val expr2Reg = ARMRegisterAllocator.curr()
+        val expr1: ExprNode = node.expr1
+        val expr2 = node.expr2
+        val expr1Reg: ARMRegister
+        val expr2Reg: ARMRegister
+        if (expr1.weight() >= expr2.weight()) {
+            visit(expr1)
+            expr1Reg = ARMRegisterAllocator.curr()
+            visit(expr2)
+            expr2Reg = ARMRegisterAllocator.curr()
+        } else {
+            visit(expr2)
+            expr2Reg = ARMRegisterAllocator.curr()
+            visit(expr1)
+            expr1Reg = ARMRegisterAllocator.curr()
+        }
 
         val operand2 = Operand2(expr2Reg)
 
