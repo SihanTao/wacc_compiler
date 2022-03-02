@@ -436,7 +436,8 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
             representation.addCode("\tADD ${reg.name}, ${reg.name}, #4")
             representation.addCode("\tADD ${reg.name}, ${reg.name}, ${availableRegister[0]}, LSL #${log2(typeSize(node.type!!))}")
         }
-        representation.addCode("\tLDR ${reg.name}, [${reg.name}]")
+        val opcode = if (typeSize(node.type!!)==1) "LDRSB" else "LDR"
+        representation.addCode("\t$opcode ${reg.name}, [${reg.name}]")
         freeRegister(reg)
         representation.addCheckErrorBoundsFunc()
     }
@@ -659,7 +660,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
 
     private fun visitStringNode(node: StringNode) {
         val msgInt = representation.addStringToTable(node.string, node.length - 2)
-        representation.addCode("\tLDR r4, =msg_$msgInt")
+        representation.addCode("\tLDR ${availableRegister[0]}, =msg_$msgInt")
     }
 
     private fun visitUnopNode(node: UnopNode) {
