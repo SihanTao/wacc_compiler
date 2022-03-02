@@ -307,7 +307,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         visit(node.condition)
         val condRegister = ARMRegisterAllocator.curr()
-        instructions.add(Cmp(condRegister, Operand2(0)))
+        instructions.add(Cmp(condRegister, Operand2(1)))
         instructions.add(B(ifLabel, Cond.EQ))
 
         ARMRegisterAllocator.free()
