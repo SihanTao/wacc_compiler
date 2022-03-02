@@ -1,4 +1,4 @@
-package backend.instructions.UnopAndBiop
+package backend.instructions.unopAndBinop
 
 import backend.ARMRegister
 import backend.Cond

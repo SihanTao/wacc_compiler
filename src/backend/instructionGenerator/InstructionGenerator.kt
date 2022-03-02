@@ -14,8 +14,8 @@ import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.ImmAddressing
 import backend.instructions.addressing.LabelAddressing
-import backend.instructions.UnopAndBiop.Add
-import backend.instructions.UnopAndBiop.Sub
+import backend.instructions.unopAndBinop.Add
+import backend.instructions.unopAndBinop.Sub
 import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import backend.instructions.operand.Operand2.Operand2Operator
