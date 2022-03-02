@@ -345,7 +345,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitFreeNode(node: FreeNode): Void? {
-        TODO("Not yet implemented")
+        visit(node.expr)
+        instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegisterAllocator.curr())))
+        ARMRegisterAllocator.free()
+
+        instructions.add(BL(RuntimeErrorInstruction.FREE_PAIR.toString()))
+        checkAndAddRuntimeError(RuntimeErrorInstruction.FREE_PAIR)
+
+        return null
     }
 
     private fun checkAndAddPrintOrRead(io: IOInstruction) {
@@ -380,9 +387,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
                         msgLabelGenerator,
                         dataSegment
                     )
-                RuntimeErrorInstruction.CHECK_NULL_POINTER -> TODO()
-                RuntimeErrorInstruction.FREE_ARRAY -> TODO()
                 RuntimeErrorInstruction.FREE_PAIR -> TODO()
+                RuntimeErrorInstruction.CHECK_NULL_POINTER -> TODO()
             }
 
             if (runtimeErrorInstruction != RuntimeErrorInstruction.THROW_RUNTIME_ERROR) {

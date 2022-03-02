@@ -12,7 +12,7 @@ import java.util.*
 
 enum class RuntimeErrorInstruction : Instruction {
     CHECK_DIVIDE_BY_ZERO, THROW_RUNTIME_ERROR, CHECK_ARRAY_BOUND, CHECK_NULL_POINTER,
-    THROW_OVERFLOW_ERROR, FREE_ARRAY, FREE_PAIR;
+    THROW_OVERFLOW_ERROR, FREE_PAIR;
 
     override fun toString(): String {
         return "p_${name.lowercase(Locale.getDefault())}"
