@@ -238,14 +238,16 @@ class InstructionGenerator : ASTVisitor<Void?> {
         if (!existedHelperFunction.contains(runtimeErrorInstruction)) {
             existedHelperFunction.add(runtimeErrorInstruction)
             val helper: List<Instruction>
-            when (runtimeErrorInstruction){
-                RuntimeErrorInstruction.CHECK_ARRAY_BOUND -> helper = addCheckArrayBound(msgLabelGenerator, dataSegment)
+            when (runtimeErrorInstruction) {
+                RuntimeErrorInstruction.CHECK_ARRAY_BOUND -> helper =
+                    addCheckArrayBound(msgLabelGenerator, dataSegment)
                 RuntimeErrorInstruction.THROW_RUNTIME_ERROR -> {
                     helper = addThrowRuntimeError()
                     checkAndAddPrint(IOInstruction.PRINT_STRING)
                 }
                 RuntimeErrorInstruction.THROW_OVERFLOW_ERROR -> {
-                    helper = addThrowOverflowError(msgLabelGenerator, dataSegment)
+                    helper =
+                        addThrowOverflowError(msgLabelGenerator, dataSegment)
                 }
                 RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO -> TODO()
                 RuntimeErrorInstruction.CHECK_NULL_POINTER -> TODO()
@@ -431,16 +433,22 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 visit(index)
                 indexReg = ARMRegisterAllocator.curr()
                 if (isExprLhs) {
-                    instructions.add(LDR(
-                        indexReg,
-                        AddressingMode2(AddrMode2.OFFSET, indexReg)
-                    ))
+                    instructions.add(
+                        LDR(
+                            indexReg,
+                            AddressingMode2(AddrMode2.OFFSET, indexReg)
+                        )
+                    )
                 }
             } else {
                 indexReg = ARMRegisterAllocator.allocate()
                 instructions
-                    .add(LDR(indexReg,
-                            ImmAddressing(index.value)))
+                    .add(
+                        LDR(
+                            indexReg,
+                            ImmAddressing(index.value)
+                        )
+                    )
             }
 
             /* check array bound */
@@ -501,7 +509,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         /* Store array content into registers */
         /* Decide whether to store a byte or a word */
-        val mode = if (node.getContentSize() > 1) STR.STRMode.STR else STR.STRMode.STRB
+        val mode =
+            if (node.getContentSize() > 1) STR.STRMode.STR else STR.STRMode.STRB
 
         for (i in 0 until node.length) {
             visit(node.content[i])
@@ -648,7 +657,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )
 
         /* STR the fst value into reg[0] */
-        val mode = if (child.type!!.size() > 1) STR.STRMode.STR else STR.STRMode.STRB
+        val mode =
+            if (child.type!!.size() > 1) STR.STRMode.STR else STR.STRMode.STRB
         instructions.add(
             STR(
                 fstVal!!,
@@ -680,13 +690,23 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 instructions.add(LDR(currentARMRegister, currentARMRegister))
             }
             Utils.Unop.MINUS -> {
-                instructions.add(RSBS(currentARMRegister, currentARMRegister, 0))
-                instructions.add(BL(Cond.VS,
-                    RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()
-                ))
+                instructions.add(
+                    RSBS(
+                        currentARMRegister,
+                        currentARMRegister,
+                        0
+                    )
+                )
+                instructions.add(
+                    BL(
+                        Cond.VS,
+                        RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()
+                    )
+                )
                 checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
             }
-            else -> {} // For ORD and CHR, do nothing
+            else -> {
+            } // For ORD and CHR, do nothing
         }
 
         return null
@@ -701,13 +721,29 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         val operand2 = Operand2(expr2Reg)
 
-        when (node.operator) {
+        val res: MutableList<Instruction> = when (node.operator) {
             // Basic ones
-            Utils.Binop.PLUS -> TODO()
+            Utils.Binop.PLUS -> {
+                mutableListOf(
+                    Add(expr1Reg, expr1Reg, operand2, Cond.S)
+                )
+            }
             Utils.Binop.MINUS -> TODO()
             Utils.Binop.MUL -> TODO()
             Utils.Binop.AND -> TODO()
             Utils.Binop.OR -> TODO()
+            else -> TODO()
+        }
+
+        // Deal with runtime error here
+        if (node.operator == Utils.Binop.PLUS) {
+            instructions.add(
+                BL(
+                    Cond.VS,
+                    RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()
+                )
+            )
+            checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
         }
 
         ARMRegisterAllocator.free()
