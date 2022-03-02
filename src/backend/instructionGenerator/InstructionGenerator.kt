@@ -21,6 +21,7 @@ import backend.instructions.operand.Operand2
 import backend.instructions.operand.Operand2.Operand2Operator
 import backend.instructions.unopAndBinop.*
 import backend.instructions.unopAndBinop.Operator.Companion.addCompare
+import node.FuncNode
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
@@ -49,6 +50,9 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     // Mark the ExprNode is on rhs or lhs
     private var isExprLhs = false
+
+    // Used to record the number of bytes used by the function
+    private var funcStackSize = 0
 
     companion object {
         private const val MAX_STACK_STEP = 1024
@@ -85,6 +89,41 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(Pop(ARMRegister.PC))
         // .ltorg
         instructions.add(LTORG())
+        return null
+    }
+
+    override fun visitFuncNode(node: FuncNode): Void? {
+        funcStackSize =
+            node.functionBody!!.scope!!.tableSize
+        funcStackSize -= node.paramListStackSize()
+
+        /* add function label, PUSH {lr} */
+        instructions.add(Label("f_" + node.name))
+        instructions.add(Push(ARMRegister.LR))
+
+        /* decrease stack, leave space for variable in function body
+         * NOT include parameters stack area */
+        if (funcStackSize != 0) {
+            instructions.add(
+                Sub(
+                    ARMRegister.SP, ARMRegister.SP,
+                    Operand2(funcStackSize)
+                )
+            )
+        }
+
+        /* visit function,
+         * visitReturnNode will add stack back
+         */
+        visit(node.functionBody!!)
+
+        /* function always add pop and ltorg at the end of function body */
+        instructions.add(
+            Pop(ARMRegister.PC)
+        )
+        instructions.add(LTORG())
+
+        println("Leave FuncNode")
         return null
     }
 
@@ -196,7 +235,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val readType =
             if (type == INT_T) IOInstruction.READ_INT else IOInstruction.READ_CHAR
 
-        instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegisterAllocator.curr())))
+        instructions.add(
+            Mov(
+                ARMRegister.R0,
+                Operand2(ARMRegisterAllocator.curr())
+            )
+        )
         instructions.add(BL(readType.toString()))
 
         checkAndAddPrintOrRead(readType)
@@ -799,7 +843,13 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 )
             }
             else -> {
-                instructions.addAll(addCompare(expr1Reg, expr2Reg, node.operator))
+                instructions.addAll(
+                    addCompare(
+                        expr1Reg,
+                        expr2Reg,
+                        node.operator
+                    )
+                )
             }
         }
 

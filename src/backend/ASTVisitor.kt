@@ -1,5 +1,6 @@
 package backend
 
+import node.FuncNode
 import node.Node
 import node.ProgramNode
 import node.expr.*
@@ -33,4 +34,5 @@ interface ASTVisitor<T> {
     fun visitAssignNode(node: AssignNode): T?
     fun visitBinopNode(node: BinopNode): T?
     fun visitUnopNode(node: UnopNode): T?
+    fun visitFuncNode(node: FuncNode): T?
 }
