@@ -61,6 +61,7 @@ for file in $FILES_TO_TEST;do
     mv "$NAME.s" "$OUT_DIR/$NAME.s"
     arm-linux-gnueabi-gcc -o "$OUT_DIR/${NAME}_11.s" -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "$OUT_DIR/$NAME.s" > "$OUT_DIR/${NAME}_11.s"
     echo $INPUT | qemu-arm -L /usr/arm-linux-gnueabi/ "$OUT_DIR/${NAME}_11.s" > "$OUT_DIR/$NAME.out"
+    let our_code=$?
 
     # generate reference file
     echo $INPUT | $REFERENCE_COMPILER $file -a -x > "$OUT_DIR/${NAME}_REF.txt"
@@ -75,15 +76,32 @@ for file in $FILES_TO_TEST;do
       }' "$OUT_DIR/${NAME}_REF.txt"
     sed -i '1d' tmp.s && mv tmp.s "$OUT_DIR/${NAME}_REF.s"
     sed -i '1d' tmp.out && mv tmp.out "$OUT_DIR/${NAME}_REF.out"
-    
+
+    let their_code=$(tail -n 3 "$OUT_DIR/${NAME}_REF.txt" | head -n 1 | grep -Eo '[0-9]+')
+
+    failed=false
+
+    # compare exit codes
+    if [[ our_code -ne their_code ]]; then
+      failed=true
+      echo "our exit code is ${our_code} but the correct exit code
+      is ${their_code}" > "$FAILS_DIR/$NAME.txt"
+      echo "-----------------------------------------" > "$FAILS_DIR/$NAME.txt"
+    fi
+
     # compare our output and reference output
-    if cmp -s "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out"; then
+    if ! cmp -s "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out"; then
+      failed=true
+      diff "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out" > "$FAILS_DIR/$NAME.txt"
+    fi
+
+    if [[ "$failed" = false ]]; then
       echo "PASSED"
       let PASSED+=1
     else
       echo "FAILED"
-      diff "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out" > "$FAILS_DIR/$NAME.txt"
     fi
+
 done
 
 echo "================================TEST RESULT============================================="
