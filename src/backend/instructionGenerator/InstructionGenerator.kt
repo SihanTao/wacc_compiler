@@ -20,6 +20,7 @@ import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import backend.instructions.operand.Operand2.Operand2Operator
 import backend.instructions.unopAndBinop.*
+import backend.instructions.unopAndBinop.Operator.Companion.addCompare
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
@@ -734,13 +735,15 @@ class InstructionGenerator : ASTVisitor<Void?> {
             Utils.Binop.MUL -> {
                 instructions.add(SMULL(expr1Reg, expr1Reg, operand2))
             }
-            Utils.Binop.AND -> instructions.add(
-                AND(
-                    expr1Reg,
-                    expr1Reg,
-                    operand2
+            Utils.Binop.AND -> {
+                instructions.add(
+                    AND(
+                        expr1Reg,
+                        expr1Reg,
+                        operand2
+                    )
                 )
-            )
+            }
             Utils.Binop.OR -> instructions.add(OR(expr1Reg, expr1Reg, operand2))
             Utils.Binop.DIV -> {
                 instructions.addAll(
@@ -760,7 +763,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                     )
                 )
             }
-            else -> TODO()
+            else -> addCompare(expr1Reg, expr2Reg, node.operator)
         }
 
         // Deal with runtime error here

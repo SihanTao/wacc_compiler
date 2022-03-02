@@ -5,6 +5,8 @@ import backend.Cond
 import backend.instructions.*
 import backend.instructions.operand.Operand2
 import type.Utils
+import java.lang.UnsupportedOperationException
+import javax.accessibility.AccessibleStateSet
 
 class Operator {
     companion object {
@@ -33,6 +35,7 @@ class Operator {
             op: Utils.Binop
         ): List<Instruction> {
             val res: MutableList<Instruction> = mutableListOf()
+            res.add(Cmp(Rd, Operand2(Rn)))
             when (op) {
                 Utils.Binop.GREATER -> {
                     res.add(Mov(Cond.GT, Rd, 1))
@@ -42,7 +45,23 @@ class Operator {
                     res.add(Mov(Cond.GE, Rd, 1))
                     res.add(Mov(Cond.LT, Rd, 0))
                 }
-                else -> TODO()
+                Utils.Binop.LESS -> {
+                    res.add(Mov(Cond.LT, Rd, 1))
+                    res.add(Mov(Cond.GE, Rd, 0))
+                }
+                Utils.Binop.LESS_EQUAL -> {
+                    res.add(Mov(Cond.LE, Rd, 1))
+                    res.add(Mov(Cond.GT, Rd, 0))
+                }
+                Utils.Binop.EQUAL -> {
+                    res.add(Mov(Cond.EQ, Rd, 1))
+                    res.add(Mov(Cond.NE, Rd, 0))
+                }
+                Utils.Binop.INEQUAL -> {
+                    res.add(Mov(Cond.NE, Rd, 1))
+                    res.add(Mov(Cond.EQ, Rd, 0))
+                }
+                else -> throw UnsupportedOperationException("These cases should have been handled.")
             }
             return res
         }
