@@ -14,7 +14,8 @@ import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.ImmAddressing
 import backend.instructions.addressing.LabelAddressing
-import backend.instructions.arithmeticLogic.Add
+import backend.instructions.UnopAndBiop.Add
+import backend.instructions.UnopAndBiop.Sub
 import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import backend.instructions.operand.Operand2.Operand2Operator
@@ -23,6 +24,7 @@ import node.expr.*
 import node.stat.*
 import type.Type.Companion.POINTERSIZE
 import type.Type.Companion.WORDSIZE
+import type.Utils
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_ARRAY_T
 import type.Utils.Companion.CHAR_T
@@ -659,5 +661,17 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         /* free register used for storing child's value */
         ARMRegisterAllocator.free()
+    }
+
+    override fun visitUnopNode(node: UnopNode): Void? {
+        visit(node.expr)
+        when (node.operator) {
+            Utils.Unop.NOT -> TODO()
+            Utils.Unop.LEN -> TODO()
+            Utils.Unop.MINUS -> TODO()
+            else -> {} // For ORD and CHR, do nothing
+        }
+
+        return null
     }
 }
