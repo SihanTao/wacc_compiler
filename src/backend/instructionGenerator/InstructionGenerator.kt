@@ -757,6 +757,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
             checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
         }
 
+        if (node.operator == Utils.Binop.DIV || node.operator == Utils.Binop.MOD) {
+            checkAndAddRuntimeError(RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO)
+        }
+
         ARMRegisterAllocator.free()
 
         return null
