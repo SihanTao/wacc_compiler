@@ -356,7 +356,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 node.name,
                 node.symbol!!
             )
-        
+
         val mode = if (typeSize > 1) LdrMode.LDR else LdrMode.LDRSB
 
         if (isExprLhs) {
