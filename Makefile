@@ -40,6 +40,6 @@ compiler:
 
 # clean up all of the compiled files
 clean:
-	$(RM) $(OUTPUT_DIR) $(SOURCE_DIR)/antlr $(LOG_DIR) class
+	$(RM) $(OUTPUT_DIR) $(SOURCE_DIR)/antlr $(LOG_DIR) class ./test/log
 
 .PHONY: all clean
