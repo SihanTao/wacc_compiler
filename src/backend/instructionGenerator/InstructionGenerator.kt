@@ -15,13 +15,10 @@ import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.ImmAddressing
 import backend.instructions.addressing.LabelAddressing
-import backend.instructions.unopAndBinop.Add
-import backend.instructions.unopAndBinop.Sub
 import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import backend.instructions.operand.Operand2.Operand2Operator
-import backend.instructions.unopAndBinop.EOR
-import backend.instructions.unopAndBinop.RSBS
+import backend.instructions.unopAndBinop.*
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
@@ -729,7 +726,9 @@ class InstructionGenerator : ASTVisitor<Void?> {
             Utils.Binop.MINUS -> {
                 instructions.add(Sub(expr1Reg, expr1Reg, operand2, Cond.S))
             }
-            Utils.Binop.MUL -> TODO()
+            Utils.Binop.MUL -> {
+                instructions.add(SMULL(expr1Reg, expr1Reg, operand2))
+            }
             Utils.Binop.AND -> TODO()
             Utils.Binop.OR -> TODO()
             else -> TODO()
