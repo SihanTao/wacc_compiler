@@ -5,21 +5,16 @@ import instruction.*
 import register.Register
 
 class ThrowRuntimeError : WACCLibraryFunction() {
-    private val instructions: List<ARM11Instruction>
-    private val dependencies: List<WACCLibraryFunction>
+    private val dependencies: List<WACCLibraryFunction> = listOf(PrintString())
 
-    init {
-        instructions = listOf(
+
+    override fun getInstructions(codeGenerator: WACCCodeGenerator): List<ARM11Instruction> {
+        return listOf(
                 LABEL("p_throw_runtime_error"),
-                B(B.Mode.LINK, "p_print_string"),
+                BL("p_print_string"),
                 MOV(Register.R0, -1),
-                B(B.Mode.LINK, "exit")
+                BL("exit")
         )
-        dependencies = listOf(PrintString(codeGenerator))
-    }
-
-    override fun getInstructions(): List<ARM11Instruction> {
-        return instructions
     }
 
     override fun getDependencies(): List<WACCLibraryFunction> {
