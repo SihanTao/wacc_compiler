@@ -424,7 +424,10 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     }
 
     private fun visitArrayNode(node: ArrayNode) {
-        val arraySize = node.length * typeSize(node.contentType!!) + typeSize(BasicType(BasicTypeEnum.INTEGER))
+        var arraySize = typeSize(BasicType(BasicTypeEnum.INTEGER))
+        if (node.length > 0) {
+            arraySize += node.length * typeSize(node.contentType!!)
+        }
         representation.addCode("\tLDR r0, =$arraySize")
         representation.addCode("\tBL malloc")
         val arrayDest = nextAvailableRegister()
