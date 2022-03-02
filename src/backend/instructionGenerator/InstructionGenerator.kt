@@ -21,18 +21,13 @@ import backend.instructions.operand.Operand2.Operand2Operator
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
-import type.ArrayType
-import type.PairType
 import type.Type.Companion.POINTERSIZE
 import type.Type.Companion.WORDSIZE
-import type.Utils.Companion.ARRAY_T
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_ARRAY_T
 import type.Utils.Companion.CHAR_T
 import type.Utils.Companion.INT_T
-import type.Utils.Companion.PAIR_T
 import type.Utils.Companion.STRING_T
-import java.lang.UnsupportedOperationException
 
 class InstructionGenerator : ASTVisitor<Void?> {
 
