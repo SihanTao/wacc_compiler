@@ -8,8 +8,6 @@ import register.Register
 class CheckDivideByZero : WACCLibraryFunction() {
     private val dependencies: List<WACCLibraryFunction> = listOf(ThrowRuntimeError())
 
-
-
     override fun getInstructions(codeGenerator: WACCCodeGenerator): List<ARM11Instruction> {
         val msgCode = codeGenerator.addDataElement("DivideByZeroError: divide or modulo by zero\\n\\0")
         return listOf(
