@@ -1,9 +1,9 @@
 package instruction.shiftOperand
 
-import register.ARM11Register
+import register.Register
 
-class Register(val register: ARM11Register): ShifterOperand, ShiftValue {
+class Register(val Register: Register): ShifterOperand, ShiftValue {
     override fun toString(): String {
-        return register.toString()
+        return Register.toString()
     }
 }

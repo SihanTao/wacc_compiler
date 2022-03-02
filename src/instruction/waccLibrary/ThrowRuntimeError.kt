@@ -2,9 +2,7 @@ package instruction.waccLibrary
 
 import WACCCodeGenerator
 import instruction.*
-import instruction.addrMode2.Sign
-import instruction.addrMode2.StaticRef
-import register.ARM11Register
+import register.Register
 
 class ThrowRuntimeError(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
     private val instructions: List<ARM11Instruction>
@@ -14,7 +12,7 @@ class ThrowRuntimeError(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(
         instructions = listOf(
                 Label("p_throw_runtime_error"),
                 Branch(Branch.Mode.LINK, "p_print_string"),
-                Move(ARM11Register.R0, -1),
+                Move(Register.R0, -1),
                 Branch(Branch.Mode.LINK, "exit")
         )
         dependencies = listOf(PrintString(codeGenerator))

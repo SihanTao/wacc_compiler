@@ -1,25 +1,23 @@
 package instruction
 
 import instruction.shiftOperand.Immediate
-import instruction.shiftOperand.Register
 import instruction.shiftOperand.ShifterOperand
-import register.ARM11Register
 
-class And(val Rd: ARM11Register, val Rn: ARM11Register,
+class And(val rd: register.Register, val rn: register.Register,
           val Op: ShifterOperand,
           val cond: Cond = Cond.AL,
           val S: Boolean = false
 ):ARM11Instruction {
 
-    constructor(Rd: ARM11Register, Rn: ARM11Register, Rm: ARM11Register):
-            this(Rd=Rd, Rn=Rn, Op= Register(Rm))
+    constructor(rd: register.Register, rn: register.Register, rm: register.Register):
+            this(rd=rd, rn=rn, Op= Register(rm))
 
-    constructor(Rd: ARM11Register, Rn: ARM11Register, Imm: Int):
-            this(Rd=Rd, Rn=Rn, Op= Immediate(Imm))
+    constructor(rd: register.Register, rn: register.Register, Imm: Int):
+            this(rd=rd, rn=rn, Op= Immediate(Imm))
 
     override fun toString(): String {
         val s = if (S) "S" else ""
-        return "AND$cond${s} $Rd, $Rn, $Op"
+        return "AND$cond${s} $rd, $rn, $Op"
     }
 
 

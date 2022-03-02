@@ -3,8 +3,7 @@ package instruction.waccLibrary
 import WACCCodeGenerator
 import instruction.*
 import instruction.addrMode2.StaticRef
-import org.antlr.v4.codegen.CodeGenerator
-import register.ARM11Register
+import register.Register
 
 class PrintBool(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
     private val instructions: List<ARM11Instruction>
@@ -15,15 +14,15 @@ class PrintBool(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGene
         val msg2 = codeGenerator.addDataElement("false\\0")
         instructions = listOf(
                 Label("p_print_bool"),
-                Push(ARM11Register.LR),
-                Compare(ARM11Register.R0, 0),
-                Load(ARM11Register.R0, StaticRef("msg_$msg1"), cond=Cond.NE),
-                Load(ARM11Register.R0, StaticRef("msg_$msg2"), cond=Cond.NE),
-                Add(ARM11Register.R0, ARM11Register.R0, 4),
+                Push(Register.LR),
+                Compare(Register.R0, 0),
+                Load(Register.R0, StaticRef("msg_$msg1"), cond=Cond.NE),
+                Load(Register.R0, StaticRef("msg_$msg2"), cond=Cond.NE),
+                Add(Register.R0, Register.R0, 4),
                 Branch(Branch.Mode.LINK, "printf"),
-                Move(ARM11Register.R0, 0),
+                Move(Register.R0, 0),
                 Branch(Branch.Mode.LINK, "fflush"),
-                Pop(ARM11Register.PC),
+                Pop(Register.PC),
         )
         dependencies = listOf()
     }

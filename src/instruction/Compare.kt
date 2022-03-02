@@ -1,21 +1,19 @@
 package instruction
 
 import instruction.shiftOperand.Immediate
-import instruction.shiftOperand.Register
 import instruction.shiftOperand.ShifterOperand
-import register.ARM11Register
 
-class Compare(val Rn: ARM11Register,
+class Compare(val rn: register.Register,
               val Op: ShifterOperand,
               val cond: Cond = Cond.AL,
 ): ARM11Instruction {
-    constructor(Rn: ARM11Register, Rm: ARM11Register):
-            this(Rn=Rn, Op=Register(Rm))
+    constructor(rn: register.Register, rm: register.Register):
+            this(rn=rn, Op=Register(rm))
 
-    constructor(Rn: ARM11Register, Imm: Int):
-            this( Rn=Rn, Op=Immediate(Imm))
+    constructor(rn: register.Register, Imm: Int):
+            this( rn=rn, Op=Immediate(Imm))
 
     override fun toString(): String {
-        return "CMP$cond $Rn, $Op"
+        return "CMP$cond $rn, $Op"
     }
 }

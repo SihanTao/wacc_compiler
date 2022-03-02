@@ -3,7 +3,7 @@ package instruction.waccLibrary
 import WACCCodeGenerator
 import instruction.*
 import instruction.addrMode2.StaticRef
-import register.ARM11Register
+import register.Register
 
 class ReadChar(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
     private val instructions: List<ARM11Instruction>
@@ -13,12 +13,12 @@ class ReadChar(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGener
         val msgCode = codeGenerator.addDataElement(" %c\\0")
         instructions = listOf(
                 Label("p_read_char"),
-                Push(ARM11Register.LR),
-                Move(ARM11Register.R1, ARM11Register.R0),
-                Load(ARM11Register.R0, StaticRef("msg_$msgCode")),
-                Add(ARM11Register.R0, ARM11Register.R0, 4),
+                Push(Register.LR),
+                Move(Register.R1, Register.R0),
+                Load(Register.R0, StaticRef("msg_$msgCode")),
+                Add(Register.R0, Register.R0, 4),
                 Branch(Branch.Mode.LINK, "scanf"),
-                Pop(ARM11Register.PC)
+                Pop(Register.PC)
         )
         dependencies = listOf()
     }

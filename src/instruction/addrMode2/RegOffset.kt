@@ -1,9 +1,10 @@
 package instruction.addrMode2
 
-import register.ARM11Register
+import register.Register
 
-class RegOffset(val Rn: ARM11Register, val Rm: Pair<Sign, ARM11Register>): AddrMode2 {
+class RegOffset(val rn: Register, val rm: Pair<Sign, Register>): AddrMode2 {
+
     override fun toString(): String {
-        return "[$Rn, #${Rm.first}${Rm.second}]"
+        return "[$rn, #${rm.first}${rm.second}]"
     }
 }

@@ -3,7 +3,7 @@ package instruction.waccLibrary
 import WACCCodeGenerator
 import instruction.*
 import instruction.addrMode2.StaticRef
-import register.ARM11Register
+import register.Register
 
 class PrintInt(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
     private val instructions: List<ARM11Instruction>
@@ -13,14 +13,14 @@ class PrintInt(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGener
         val msg = codeGenerator.addDataElement("%d\\0")
         instructions = listOf(
                 Label("p_print_int"),
-                Push(ARM11Register.LR),
-                Move(ARM11Register.R1, ARM11Register.R0),
-                Load(ARM11Register.R0, StaticRef("msg_$msg")),
-                Add(ARM11Register.R0, ARM11Register.R0, 4),
+                Push(Register.LR),
+                Move(Register.R1, Register.R0),
+                Load(Register.R0, StaticRef("msg_$msg")),
+                Add(Register.R0, Register.R0, 4),
                 Branch(Branch.Mode.LINK, "printf"),
-                Move(ARM11Register.R0, 0),
+                Move(Register.R0, 0),
                 Branch(Branch.Mode.LINK, "fflush"),
-                Pop(ARM11Register.PC),
+                Pop(Register.PC),
         )
         dependencies = listOf()
     }
