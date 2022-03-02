@@ -1,9 +1,10 @@
 import instruction.ARM11Instruction
 import instruction.waccLibrary.WACCLibraryFunction
+import java.awt.Label
+import java.io.PrintWriter
 import java.util.*
 import kotlin.collections.HashSet
 import kotlin.collections.LinkedHashMap
-import kotlin.reflect.jvm.internal.impl.descriptors.impl.ModuleDependencies
 
 class WACCCodeGenerator {
     private val staticDataTable = LinkedHashMap<String, Int>()
@@ -29,6 +30,34 @@ class WACCCodeGenerator {
         codeDependencies.add(function)
         for (dependencies in function.getDependencies()) {
             addCodeDependency(dependencies)
+        }
+    }
+
+    fun generateAssembleCode(writer: PrintWriter) {
+        if (!staticDataTable.isEmpty()) {
+            writer.println(".data")
+        }
+        writer.println()
+        staticDataTable.forEach{str, msgNo ->
+            writer.println("msg_$msgNo:")
+            writer.println("\t.word ${str.length + 2}")
+            writer.println("\t.ascii $str")
+        }
+        writer.println()
+
+        val library = LinkedList<ARM11Instruction>()
+        codeDependencies.forEach { func -> library.addAll(func.getInstructions(this)) }
+
+        writer.println(".text")
+        textSectionCode.forEach{code -> writer.println(formatCode(code))}
+        library.forEach{code -> writer.println(formatCode(code))}
+    }
+
+    private fun formatCode(instruction: ARM11Instruction): String {
+        if (instruction is Label) {
+            return "\t" + instruction
+        } else {
+            return instruction.toString()
         }
     }
 
