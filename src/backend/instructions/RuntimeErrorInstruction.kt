@@ -27,18 +27,12 @@ enum class RuntimeErrorInstruction: Instruction {
         fun addThrowRuntimeError(labelGenerator: LabelGenerator,
                                  data: MutableMap<Label, String>): List<Instruction> {
 
-            val res = mutableListOf<Instruction>(
+            return listOf(
                 Label(THROW_RUNTIME_ERROR.toString()),
                 BL(IOInstruction.PRINT_STRING.toString()),
                 Mov(ARMRegister.R0, Operand2(-1)),
                 BL(SyscallInstruction.EXIT.toString())
             )
-
-            res.addAll(
-                IOInstruction.addPrint(IOInstruction.PRINT_STRING, labelGenerator, data)
-            )
-
-            return res.toList()
         }
 
         fun addCheckArrayBound(
