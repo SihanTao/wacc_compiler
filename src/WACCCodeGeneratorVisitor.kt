@@ -480,7 +480,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                     representation.addCode("\tMOV r1, $r");
                     representation.addCode("\tBL p_check_divide_by_zero")
                     representation.addCode("\tBL __aeabi_idivmod")
-                    representation.addCode("\tMOV ${l.name}, r0")
+                    representation.addCode("\tMOV ${l.name}, r1")
                 }
                 binOpAlgo2(node.expr1, node.expr2, mod)
                 representation.addPrintDivByZeroFunc()
