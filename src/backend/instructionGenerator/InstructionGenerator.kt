@@ -301,6 +301,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return null
     }
 
+    override fun visitFunctionCallNode(node: FunctionCallNode): Void? {
+        TODO("Not yet implemented")
+    }
+
+    override fun visitFreeNode(node: FreeNode): Void? {
+        TODO("Not yet implemented")
+    }
+
     private fun checkAndAddPrintOrRead(io: IOInstruction) {
         if (!existedHelperFunction.contains(io)) {
             existedHelperFunction.add(io)
