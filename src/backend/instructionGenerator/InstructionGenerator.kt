@@ -568,7 +568,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(LDR(reg, addrMode))
         } else {
             instructions.add(LDR(reg, addrMode))
-            instructions.add(LDR(reg, AddressingMode2(AddrMode2.OFFSET, reg)))
+            instructions.add(LDR(reg, reg))
         }
 
         return null
@@ -671,7 +671,9 @@ class InstructionGenerator : ASTVisitor<Void?> {
             Utils.Unop.NOT -> {
                 instructions.add(EOR(currentARMRegister, currentARMRegister, Operand2(1)))
             }
-            Utils.Unop.LEN -> TODO()
+            Utils.Unop.LEN -> {
+                instructions.add(LDR(currentARMRegister, currentARMRegister))
+            }
             Utils.Unop.MINUS -> TODO()
             else -> {} // For ORD and CHR, do nothing
         }
