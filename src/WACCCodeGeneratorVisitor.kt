@@ -292,16 +292,34 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
             when (node.inputExpr) {
                 is IdentNode -> symbolTable!!.lookupAll(node.inputExpr.name)!!
                 is ArrayElemNode -> Pair(-1, -1)
-                is PairElemNode -> Pair(-1, -1)
+                is PairElemNode -> symbolTable!!.lookupAll((node.inputExpr.pair as IdentNode).name)!!
                 else -> Pair(-1, -1)
             }
 //        val res = symbolTable!!.lookupAll(node.inputExpr)!!
         val destScopeDepth = res.second
         var offset = res.first
         for (i in currScopeDepth downTo (destScopeDepth + 1)) {
+            println(i)
             offset += symbolTable!!.lookupAll("#localVariableNo_$i")!!.first
         }
-        representation.addCode("\tADD ${reg}, sp, #$offset")
+        when (node.inputExpr) {
+            is IdentNode -> representation.addCode("\tADD ${reg}, sp, #$offset")
+            is PairElemNode -> {
+                visitExprNode((node.inputExpr).pair)
+                representation.addCode("\tMOV r0, ${availableRegister[0]}")
+                representation.addCode("\tBL p_check_null_pointer")
+                var type: Type
+                if (node.inputExpr.isFirst) {
+                    representation.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}]")
+                    type = node.inputExpr.type!!
+                } else {
+                    representation.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}, #4]")
+                    type = node.inputExpr.type!!
+                }
+                representation.addCheckNullPointerError()
+            }
+        }
+
         representation.addCode("\tMOV r0, ${reg.name}")
 
         when (node.inputExpr.type!!) {
