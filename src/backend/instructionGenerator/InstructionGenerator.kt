@@ -690,4 +690,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         return null
     }
+
+    override fun visitBinopNode(node: BinopNode): Void? {
+        TODO("Not yet implemented")
+    }
 }

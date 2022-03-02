@@ -30,6 +30,6 @@ interface ASTVisitor<T> {
     fun visitDeclareStatNode(node: DeclareStatNode): T?
     fun visitIdentNode(node: IdentNode): T?
     fun visitAssignNode(node: AssignNode): T?
-
+    fun visitBinopNode(node: BinopNode): T?
     fun visitUnopNode(node: UnopNode): T?
 }
