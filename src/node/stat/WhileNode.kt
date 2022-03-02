@@ -1,6 +1,5 @@
 package node.stat
 
-import backend.ASTVisitor
 import node.expr.ExprNode
 
 /**
@@ -9,8 +8,4 @@ import node.expr.ExprNode
 
 class WhileNode(
     val cond: ExprNode, val body: StatNode
-) : StatNode() {
-    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
-        return astVisitor.visitWhileNode(this)
-    }
-}
+) : StatNode()

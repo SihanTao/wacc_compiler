@@ -1,39 +1,22 @@
 package node.stat
 
-import backend.ASTVisitor
+/**
+ * Represent a sequence statement with two statement nodes
+ * has a function mergeScope to go through all the statement nodes in the list to form the body
+ * Example: <stat>; <stat>
+ */
 
-class SequenceNode : StatNode {
-    /**
-     * Represent BEGIN <stat> END scope statement, as well as
-     * <stat> ; <stat> sequential statement
-    </stat></stat></stat> */
-    val body: MutableList<StatNode> = ArrayList<StatNode>()
-    private var isFuncBody = false
-    private var isBeginEnd = false
+class SequenceNode (stat1: StatNode?, stat2: StatNode?) : StatNode() {
 
-    constructor(node: StatNode) {
-        if (node is SequenceNode) {
-            body.addAll(node.body)
-        } else {
-            body.add(node)
-        }
-        isReturned = endValue
-        isBeginEnd = true
-        scope = node.scope
-    }
+    val body: MutableList<StatNode> = ArrayList()
 
-    /* Handle the sequential statement */
-    constructor(before: StatNode, after: StatNode) {
-        mergeScope(before)
-        mergeScope(after)
-        isReturned = (endValue)
-    }
-
-    private fun mergeScope(s: StatNode) {
-        if (s is SequenceNode && !s.isBeginEnd) {
+    private fun mergeScope(s: StatNode?) {
+        if (s is SequenceNode) {
             body.addAll(s.body)
         } else if (s !is SkipNode) {
-            body.add(s)
+            if (s != null) {
+                body.add(s)
+            }
         }
     }
 
@@ -41,12 +24,9 @@ class SequenceNode : StatNode {
     private val endValue: Boolean
         get() = !body.isEmpty() && body[body.size - 1].isReturned
 
-
-    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
-        return astVisitor.visitSequenceNode(this)
-    }
-
-    fun size(): Int {
-        return scope?.tableSize ?: 0
+    init {
+        mergeScope(stat1)
+        mergeScope(stat2)
+        isReturned = endValue
     }
 }

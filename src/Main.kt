@@ -1,77 +1,72 @@
 // import ANTLR package
 import antlr.*
-import backend.Code
-import backend.CodeGenerator
-import backend.Data
-import backend.Text
-import backend.instructionGenerator.InstructionGenerator
+import node.ProgramNode
 import org.antlr.v4.runtime.*
-import java.io.File
 import java.io.FileNotFoundException
-import java.io.FileWriter
+import java.io.PrintWriter
 import kotlin.system.exitProcess
 
 private const val SYNTAX_ERROR_EXIT_CODE = 100
 private const val SEMANTIC_ERROR_EXIT_CODE = 200
 
 fun main(args: Array<String>) {
+ 
     try {
-        val file = File(args[0])
-        val fileInputStream =
-            java.io.FileInputStream(file)
-        val input = CharStreams.fromStream(fileInputStream)
+        val input: CharStream = if (args.isEmpty()) {
+            // Read from standard in if file not supplied
+            CharStreams.fromStream(System.`in`)
+        } else {
+            val file = java.io.File(args[0])
+            val fileInputStream =
+                java.io.FileInputStream(file)
+            CharStreams.fromStream(fileInputStream)
+        }
+
+        val filename = if (args.isEmpty()) null else
+          args[0].substringAfterLast("/").substringBeforeLast(".")
 
         val lexer = WACCLexer(input)
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
+
+//        parser.errorHandler = WACCSyntaxErrorStrategy()
 
         parser.removeErrorListeners()
         parser.addErrorListener(WACCSyntaxErrorListener())
 
         val tree: WACCParser.ProgramContext = parser.program()
 
+        if (parser.numberOfSyntaxErrors > 0 ) {
+//            println(parser.numberOfSyntaxErrors.toString() + " syntax errors detected, "
+//              + " failing with exit code " + SYNTAX_ERROR_EXIT_CODE)
+            exitProcess(SYNTAX_ERROR_EXIT_CODE)
+        }
+
         WACCSyntaxErrorVisitor(parser).visit(tree)
 
-        if (parser.numberOfSyntaxErrors > 0) {
+        if (parser.numberOfSyntaxErrors > 0 ) {
+//            println(parser.numberOfSyntaxErrors.toString() + " syntax errors detected, "
+//              + " failing with exit code " + SYNTAX_ERROR_EXIT_CODE)
             exitProcess(SYNTAX_ERROR_EXIT_CODE)
         }
 
 
         if (!args.contains("--parse-only")) {
             val semanticChecker = WACCSemanticErrorVisitor()
-            val ast = semanticChecker.visitProgram(tree)
-
-            if (args.contains("--print_ast")) {
-                println(tree.toStringTree(parser)) // Print LISP-style tree
-            }
-
-            if (args.contains("--assembly") || args.contains("--execute")) {
-                // In this case, we need the assembly code
-                val instructionGenerator = InstructionGenerator()
-                instructionGenerator.visit(ast)
-                val data = Data(instructionGenerator.dataSegment)
-                val text = Text()
-                val code = Code(instructionGenerator.getInstructions())
-                val codeGenerator = CodeGenerator(data, text, code)
-
-                // To write the code into a .s file
-                val assemblyFile =
-                    File(file.name.replaceFirst(Regex("[.][^.]+$"), ".s"))
-                println("Assembly file created successfully!")
-                val fileWriter = FileWriter(assemblyFile)
-                fileWriter.write(codeGenerator.generate())
-                fileWriter.close()
-                println("Write to assembly file successfully!")
-            }
-//            val writer = PrintWriter("output.s")
-//            val representation = WACCAssembleRepresentation()
-//            val codeGenerator = WACCCodeGeneratorVisitor(representation)
-//            codeGenerator.visitProgramNode(ast)
-//            representation.generateAssembleCode(writer)
-//            writer.close()
+            val ast = semanticChecker.visitProgram(tree) as ProgramNode
+            val writer = if (filename == null) PrintWriter("output.s") else
+              PrintWriter(filename + ".s")
+            val representation = WACCAssembleRepresentation()
+            val codeGenerator = WACCCodeGeneratorVisitor(representation)
+            codeGenerator.visitProgramNode(ast)
+            representation.generateAssembleCode(writer)
+            writer.close()
         }
 
 
+        if (args.contains("--print_ast")) {
+            println(tree.toStringTree(parser)) // Print LISP-style tree
+        }
     } catch (e: FileNotFoundException) {
         println("FileNotFoundException in Main.kt: Cannot find the file")
     }

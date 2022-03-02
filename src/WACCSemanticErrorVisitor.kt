@@ -30,7 +30,7 @@ import kotlin.system.exitProcess
 
 class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
-    private var symbolTable: SymbolTable? = null
+    private var symbolTable: SymbolTable<ExprNode>? = null
     private var globalFuncTable: MutableMap<String, FuncNode>? = null
     private var isMainFunction = false
     private var expectedFunctionReturn: Type? = null
@@ -87,8 +87,8 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         if (semanticError) {
             exitProcess(SEMANTIC_ERROR_CODE)
         }
-        return if (body !is SequenceNode) {
-            ProgramNode(globalFuncTable!!, SequenceNode(body))
+        return if (body !is ScopeNode) {
+            ProgramNode(globalFuncTable!!, ScopeNode(body))
         } else ProgramNode(globalFuncTable!!, body)
     }
 
@@ -265,7 +265,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val elseBody: StatNode = visit(ctx.stat(1)) as StatNode
         symbolTable = symbolTable!!.parentSymbolTable
 
-        val node: StatNode = IfNode(condition, SequenceNode(ifBody), SequenceNode(elseBody))
+        val node: StatNode = IfNode(condition, ScopeNode(ifBody), ScopeNode(elseBody))
 
         node.scope = symbolTable
 
@@ -281,7 +281,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val doBody = visit(ctx.stat()) as StatNode
         symbolTable = symbolTable!!.parentSymbolTable
 
-        val whileNode: StatNode = WhileNode(cond, SequenceNode(doBody))
+        val whileNode: StatNode = WhileNode(cond, ScopeNode(doBody))
 
         whileNode.scope = symbolTable
 
@@ -289,10 +289,13 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitScopeStat(ctx: ScopeStatContext?): Node {
+
+        /* simply create a new SymbolTable to represent a BEGIN ... END statement */
+
         /* simply create a new SymbolTable to represent a BEGIN ... END statement */
         symbolTable = SymbolTable(symbolTable)
         val body: StatNode = visit(ctx!!.stat()) as StatNode
-        val scopeNode = SequenceNode(body)
+        val scopeNode = ScopeNode(body)
         scopeNode.scope = symbolTable
         symbolTable = symbolTable!!.parentSymbolTable
 
@@ -317,23 +320,17 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitIdent(ctx: IdentContext?): Node {
         val varName = ctx!!.IDENT().text
-        val symbol: Symbol? = symbolTable!!.lookupAll(varName)
-        if (symbol == null) {
+        val value: ExprNode? = symbolTable!!.lookupAll(varName)
+        if (value == null) {
             ErrorHandler.symbolNotExist(ctx, varName)
         }
 
-        return IdentNode(symbol!!.node!!.type!!, varName, symbol)
+        return IdentNode(value!!.type!!, varName)
     }
 
-    override fun visitArray_elem(ctx: Array_elemContext?): Node {
-        val arrayIdent: String = ctx!!.ident().text
-        val symbol = symbolTable!!.lookupAll(arrayIdent)
-
-        if (symbol == null) {
-            ErrorHandler.symbolNotExist(ctx, arrayIdent)
-        }
-
-        val array: ExprNode? = symbol!!.node
+    override fun visitArrayElem(ctx: ArrayElemContext?): Node {
+        val arrayIdent: String = ctx!!.array_elem().ident().text
+        val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
 
         /* special case: if ident is not array, cannot call asArrayType on it, exit directly */
         if (typeCheck(ctx, ARRAY_T, array!!.type!!)
@@ -343,7 +340,30 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
         val indexList: MutableList<ExprNode> = java.util.ArrayList()
 
-        for (exprContext in ctx.expr()) {
+        for (exprContext in ctx.array_elem().expr()) {
+            val index: ExprNode = visit(exprContext) as ExprNode
+            semanticError = semanticError || typeCheck(exprContext, INT_T, index.type!!)
+            indexList.add(index)
+        }
+
+        val arrayType = array?.type as ArrayType
+
+        return ArrayElemNode(arrayIdent, array, indexList, arrayType.getTypeDepth(indexList.size))
+    }
+
+    override fun visitArrayExpr(ctx: ArrayExprContext?): Node {
+        val arrayIdent: String = ctx!!.array_elem().ident().text
+        val array: ExprNode? = symbolTable!!.lookupAll(arrayIdent)
+
+        /* special case: if ident is not array, cannot call asArrayType on it, exit directly */
+        if (typeCheck(ctx, ARRAY_T, array!!.type!!)
+        ) {
+            exitProcess(SEMANTIC_ERROR_CODE)
+        }
+
+        val indexList: MutableList<ExprNode> = java.util.ArrayList()
+
+        for (exprContext in ctx.array_elem().expr()) {
             val index: ExprNode = visit(exprContext) as ExprNode
             semanticError = semanticError || typeCheck(exprContext, INT_T, index.type!!)
             indexList.add(index)
@@ -351,11 +371,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
         val arrayType = array.type as ArrayType
 
-        return ArrayElemNode(array, indexList, arrayType.getContentType(), arrayIdent, symbol)
-    }
-
-    override fun visitArrayExpr(ctx: ArrayExprContext?): Node {
-        return visitArray_elem(ctx!!.array_elem())
+        return ArrayElemNode(arrayIdent, array, indexList, arrayType.getTypeDepth(indexList.size))
     }
 
     override fun visitIntExpr(ctx: IntExprContext?): Node {
@@ -514,7 +530,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
             /* given argument number is not 0, generate list */
             for ((exprIndex, e) in ctx.arglist().expr().withIndex()) {
-                val param: ExprNode = visit(e) as ExprNode? ?: continue
+                val param: ExprNode = visit(e) as ExprNode
                 val paramType = param.type
                 val targetType = function.paramList!![exprIndex].type
 
@@ -542,12 +558,11 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
     override fun visitIdentExpr(ctx: IdentExprContext): Node {
         val name: String = ctx.ident().IDENT().text
-        val symbol = symbolTable!!.lookupAll(name)
-        if (symbol == null) {
+        val expr: ExprNode? = symbolTable!!.lookupAll(name)
+        if (expr == null) {
             ErrorHandler.symbolNotExist(ctx, name)
         }
-
-        return IdentNode(symbol!!.node!!.type, name, symbol)
+        return IdentNode(expr!!.type, name)
     }
 
     override fun visitArray_type(ctx: Array_typeContext): Node? {
@@ -568,7 +583,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitArrayLiter(ctx: ArrayLiterContext): Node {
         val length: Int = ctx.expr().size
         if (length == 0) {
-            return ArrayNode(null, length)
+            return ArrayNode(currDeclareType, length)
         }
         val firstExpr: ExprNode = visit(ctx.expr(0)) as ExprNode
         val firstContentType = firstExpr.type

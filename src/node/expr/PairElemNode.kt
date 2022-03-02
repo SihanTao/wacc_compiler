@@ -1,6 +1,5 @@
 package node.expr
 
-import backend.ASTVisitor
 import type.Type
 
 class PairElemNode(val pair: ExprNode, type: Type?) : ExprNode() {
@@ -12,11 +11,7 @@ class PairElemNode(val pair: ExprNode, type: Type?) : ExprNode() {
      *           fst true, snd false
      */
 
-    private var isFirst: Boolean
-
-    fun isFirst(): Boolean {
-        return isFirst
-    }
+    var isFirst: Boolean
 
     init {
         this.type = type
@@ -31,9 +26,5 @@ class PairElemNode(val pair: ExprNode, type: Type?) : ExprNode() {
     fun snd(): PairElemNode {
         this.isFirst = false
         return this
-    }
-
-    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
-        return astVisitor.visitPairElemNode(this)
     }
 }
