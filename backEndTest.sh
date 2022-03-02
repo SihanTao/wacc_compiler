@@ -13,8 +13,8 @@ REFERENCE_EMULATOR="${SRC_DIR}/wacc_examples/refEmulate"
 OUT_DIR="${SRC_DIR}/log/out"
 FAILS_DIR="${SRC_DIR}/log/fails"
 
-rm -r $OUT_DIR/*
-rm -r $FAILS_DIR/*
+rm -rf $OUT_DIR/*
+rm -rf $FAILS_DIR/*
 
 TOTAL_COUNT=0
 PASSED=0
@@ -57,9 +57,10 @@ for file in $FILES_TO_TEST;do
     echo "testing $NAME"
 
     # generate our output
-    ./compile $file > "$OUT_DIR/$NAME.s"
-    arm-linux-gnueabi-gcc -o "$OUT_DIR/$NAME_11.s" -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "$OUT_DIR/$NAME.s"
-    echo $INPUT | qemu-arm -L /usr/arm-linux-gnueabi/ "$OUT_DIR/$NAME_11.s" > "$OUT_DIR/$NAME.out"
+    ./compile $file
+    mv "$NAME.s" "$OUT_DIR/$NAME.s"
+    arm-linux-gnueabi-gcc -o "$OUT_DIR/${NAME}_11.s" -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "$OUT_DIR/$NAME.s" > "$OUT_DIR/${NAME}_11.s"
+    echo $INPUT | qemu-arm -L /usr/arm-linux-gnueabi/ "$OUT_DIR/${NAME}_11.s" > "$OUT_DIR/$NAME.out"
 
     # generate reference file
     echo $INPUT | $REFERENCE_COMPILER $file -a -x > "$OUT_DIR/${NAME}_REF.txt"

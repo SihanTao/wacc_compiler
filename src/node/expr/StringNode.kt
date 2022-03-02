@@ -13,7 +13,7 @@ class StringNode(val string: String) : ExprNode() {
     val length: Int
 
     init {
-        length = string.length
+        length = string.length - string.count{ "\\".contains(it) }
         type = BasicType(BasicTypeEnum.STRING)
     }
 }
