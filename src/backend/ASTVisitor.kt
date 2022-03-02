@@ -36,4 +36,6 @@ interface ASTVisitor<T> {
     fun visitUnopNode(node: UnopNode): T?
     fun visitFuncNode(node: FuncNode): T?
     fun visitReturnNode(node: ReturnNode): T?
+    fun visitFunctionCallNode(node: FunctionCallNode): T?
+    fun visitFreeNode(node: FreeNode): T?
 }

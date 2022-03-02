@@ -5,8 +5,8 @@ import SymbolTable
 import backend.ASTVisitor
 
 class FunctionCallNode(
-    private val function: FuncNode,
-    private val params: List<ExprNode>,
+    val function: FuncNode,
+    val params: List<ExprNode>,
     currScope: SymbolTable?
 ) : ExprNode() {
     private val funcSymbolTable: SymbolTable

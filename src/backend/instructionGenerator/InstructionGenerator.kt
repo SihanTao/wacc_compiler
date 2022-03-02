@@ -302,7 +302,46 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitFunctionCallNode(node: FunctionCallNode): Void? {
-        TODO("Not yet implemented")
+        var paramSize = 0
+        var stackOffset = 0
+
+        for (expr in node.params.reversed()) {
+            val reg = ARMRegisterAllocator.next()
+            visit(expr)
+            val size: Int = expr.type!!.size()
+            val mode = if (size > 1) STR.STRMode.STR else STR.STRMode.STRB
+            instructions.add(
+                STR(
+                    reg!!,
+                    AddressingMode2(AddrMode2.PREINDEX, ARMRegister.SP, -size),
+                    mode
+                )
+            )
+            ARMRegisterAllocator.free()
+            paramSize += size
+            stackOffset += size
+        }
+
+        instructions.add(
+            BL(
+                "f_" + node.function.name
+            )
+        )
+
+        /* 3 add back stack pointer */
+        if (paramSize > 0) {
+            instructions.add(Add(ARMRegister.SP, ARMRegister.SP, Operand2(paramSize)))
+        }
+
+        /* 4 get result, put in register */
+        instructions.add(
+            Mov(
+                ARMRegisterAllocator.allocate(),
+                Operand2(ARMRegister.R0)
+            )
+        )
+
+        return null
     }
 
     override fun visitFreeNode(node: FreeNode): Void? {
