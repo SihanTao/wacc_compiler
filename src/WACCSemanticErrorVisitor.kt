@@ -9,6 +9,7 @@ import node.*
 import node.expr.*
 import node.stat.*
 import type.*
+import type.Type.Companion.POINTERSIZE
 import type.Utils.Companion.ARRAY_T
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_T
@@ -92,15 +93,27 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitFunc(ctx: FuncContext?): Node {
-        val funcNode = globalFuncTable!![ctx!!.ident().IDENT().text]!!
+        val funcNode: FuncNode = globalFuncTable!![ctx!!.ident().IDENT().text]!!
 
         /* visit the function body */
         expectedFunctionReturn = funcNode.returnType
         symbolTable = SymbolTable(symbolTable)
 
-        for (param in funcNode.paramList!!) {
-            semanticError = semanticError or symbolTable!!.add(param!!.name, param)
+
+        /* initialise as -4 byte in order to leave space for PUSH {lr},
+       which takes up 4 bute on stack */
+        var tempStackAddr: Int = -POINTERSIZE
+        val params: List<IdentNode> = funcNode.paramList!!
+        val paramNum = params.size
+
+        for (i in paramNum - 1 downTo 0) {
+            val param = params[i]
+            tempStackAddr += param.type!!.size()
+            symbolTable!!.add(param.name, param, tempStackAddr)
         }
+//        for (param in funcNode.paramList!!) {
+//            semanticError = semanticError or symbolTable!!.add(param!!.name, param)
+//        }
 
         val functionBody: StatNode = visit(ctx.stat()) as StatNode
         functionBody.scope = symbolTable
@@ -503,7 +516,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             for ((exprIndex, e) in ctx.arglist().expr().withIndex()) {
                 val param: ExprNode = visit(e) as ExprNode? ?: continue
                 val paramType = param.type
-                val targetType = function.paramList!![exprIndex]!!.type
+                val targetType = function.paramList!![exprIndex].type
 
                 /* check param types */
                 semanticError = semanticError or typeCheck(

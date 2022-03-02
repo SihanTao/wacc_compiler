@@ -356,7 +356,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 node.name,
                 node.symbol!!
             )
-
+        
         val mode = if (typeSize > 1) LdrMode.LDR else LdrMode.LDRSB
 
         if (isExprLhs) {
@@ -418,8 +418,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitArrayElemNode(node: ArrayElemNode): Void? {
-        /* get the address of this array and store it in an available register */
-
         /* get the address of this array and store it in an available register */
         val addrReg: ARMRegister = ARMRegisterAllocator.allocate()
         val offset: Int = (currentSymbolTable!!.tableSize
@@ -780,7 +778,9 @@ class InstructionGenerator : ASTVisitor<Void?> {
                     )
                 )
             }
-            else -> addCompare(expr1Reg, expr2Reg, node.operator)
+            else -> {
+                instructions.addAll(addCompare(expr1Reg, expr2Reg, node.operator))
+            }
         }
 
         // Deal with runtime error here
