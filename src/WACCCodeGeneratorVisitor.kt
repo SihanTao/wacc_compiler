@@ -471,7 +471,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                 representation.addPrintThrowErrorOverflowFunc()
             }
             Utils.Binop.MINUS -> {
-                val sub = {l:Register,r:Register -> representation.addCode("\tSUB $l, $l, $r");
+                val sub = {l:Register,r:Register -> representation.addCode("\tSUBS $l, $l, $r");
                     representation.addCode("\tBLVS p_throw_overflow_error")}
                 binOpAlgo2(node.expr1, node.expr2, sub)
                 representation.addPrintThrowErrorOverflowFunc()
