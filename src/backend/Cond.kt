@@ -1,7 +1,7 @@
 package backend
 
 enum class Cond {
-    NONE, EQ, NE, LT, VS, S, CS;
+    NONE, EQ, GT, LE, GE, NE, LT, VS, S, CS;
 
     override fun toString(): String {
         return when (this) {
