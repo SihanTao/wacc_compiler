@@ -11,16 +11,19 @@ class PrintReference(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(cod
     private val dependencies: List<WACCLibraryFunction>
 
     init {
-        val msgCode = codeGenerator.addDataElement("NullReferenceError: dereference a null reference\\n\\0")
+        val msgCode = codeGenerator.addDataElement("%p\\0")
         instructions = listOf(
-                Label("p_check_null_pointer"),
+                Label("p_print_reference"),
                 Push(ARM11Register.LR),
-                Compare(ARM11Register.R0, 0),
-                Load(ARM11Register.R0, StaticRef("msg_$msgCode"), cond=Cond.EQ),
-                Branch(Branch.Mode.LINK, "p_throw_runtime_error", Cond.EQ),
+                Move(ARM11Register.R1, ARM11Register.R0),
+                Load(ARM11Register.R0, StaticRef("msg_$msgCode")),
+                Add(ARM11Register.R0, ARM11Register.R0, 4),
+                Branch(Branch.Mode.LINK, "printf"),
+                Move(ARM11Register.R0, 0),
+                Branch(Branch.Mode.LINK, "fflush"),
                 Pop(ARM11Register.PC),
         )
-        dependencies = listOf(ThrowRuntimeError(codeGenerator))
+        dependencies = listOf()
     }
 
 
