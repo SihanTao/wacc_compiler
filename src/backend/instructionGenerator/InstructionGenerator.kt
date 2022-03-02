@@ -9,6 +9,7 @@ import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
 import backend.instructions.LDR.LdrMode
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
+import backend.instructions.RuntimeErrorInstruction.Companion.addThrowRuntimeError
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.ImmAddressing
@@ -233,7 +234,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             existedHelperFunction.add(runtimeErrorInstruction)
             val helper = when (runtimeErrorInstruction){
                 RuntimeErrorInstruction.CHECK_ARRAY_BOUND -> addCheckArrayBound(labelGenerator = msgLabelGenerator, dataSegment)
-                RuntimeErrorInstruction.THROW_RUNTIME_ERROR -> TODO()
+                RuntimeErrorInstruction.THROW_RUNTIME_ERROR -> addThrowRuntimeError()
                 RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO -> TODO()
                 RuntimeErrorInstruction.CHECK_NULL_POINTER -> TODO()
                 RuntimeErrorInstruction.THROW_OVERFLOW_ERROR -> TODO()
@@ -548,6 +549,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         /* BL null pointer check */
         instructions.add(BL(RuntimeErrorInstruction.CHECK_NULL_POINTER.toString()))
         // TODO: add check null pointer
+        checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_RUNTIME_ERROR)
 
         /* get the reg pointing to child
          * store snd in the same register, save register space

@@ -19,6 +19,15 @@ enum class RuntimeErrorInstruction: Instruction {
         private const val PRINT_ARRAY_INDEX_TOO_LARGE_MSG =
             "\"ArrayIndexOutOfBoundsError: index too large\\n\\0\""
 
+        fun addThrowRuntimeError(): List<Instruction> {
+            return listOf(
+                Label(THROW_RUNTIME_ERROR.toString()),
+                BL(IOInstruction.PRINT_STRING.toString()),
+                Mov(ARMRegister.R0, Operand2(-1)),
+                BL(SyscallInstruction.EXIT.toString())
+            )
+        }
+
         fun addCheckArrayBound(
             labelGenerator: LabelGenerator,
             data: MutableMap<Label, String>
