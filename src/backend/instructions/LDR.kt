@@ -4,7 +4,7 @@ import backend.ARMRegister
 import backend.instructions.addressing.Addressing
 import backend.instructions.addressing.AddressingMode2
 
-class LDR(val register: ARMRegister, val addressing: Addressing, val mode: LdrMode) : Instruction {
+class LDR(val register: ARMRegister, val addressing: Addressing, private val mode: LdrMode) : Instruction {
 
     constructor(register: ARMRegister, addressing: Addressing) : this(register, addressing, LdrMode.LDR)
 
