@@ -184,6 +184,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return null
     }
 
+    override fun visitReadNode(node: ReadNode): Void? {
+        TODO("Not yet implemented")
+    }
+
     override fun visitPrintNode(node: PrintNode): Void? {
         visit(node.expr!!)
         instructions.add(

@@ -23,6 +23,7 @@ interface ASTVisitor<T> {
     fun visitArrayElemNode(node: ArrayElemNode): T?
     fun visitPairElemNode(node: PairElemNode): T?
     fun visitPairNode(node: PairNode): T?
+    fun visitReadNode(node: ReadNode): T?
     fun visitPrintNode(node: PrintNode): T?
     fun visitPrintlnNode(node: PrintlnNode): T?
     fun visitIfNode(node: IfNode): T?
