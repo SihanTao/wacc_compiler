@@ -19,6 +19,7 @@ import backend.instructions.unopAndBinop.Sub
 import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import backend.instructions.operand.Operand2.Operand2Operator
+import backend.instructions.unopAndBinop.EOR
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
@@ -665,8 +666,11 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitUnopNode(node: UnopNode): Void? {
         visit(node.expr)
+        val currentARMRegister = ARMRegisterAllocator.curr()
         when (node.operator) {
-            Utils.Unop.NOT -> TODO()
+            Utils.Unop.NOT -> {
+                instructions.add(EOR(currentARMRegister, currentARMRegister, Operand2(1)))
+            }
             Utils.Unop.LEN -> TODO()
             Utils.Unop.MINUS -> TODO()
             else -> {} // For ORD and CHR, do nothing
