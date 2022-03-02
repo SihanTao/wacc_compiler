@@ -257,6 +257,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 RuntimeErrorInstruction.FREE_ARRAY -> TODO()
                 RuntimeErrorInstruction.FREE_PAIR -> TODO()
             }
+
+            if (runtimeErrorInstruction != RuntimeErrorInstruction.THROW_RUNTIME_ERROR) {
+                checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_RUNTIME_ERROR)
+                existedHelperFunction.add(RuntimeErrorInstruction.THROW_RUNTIME_ERROR)
+            }
+
             armHelperFunctions.addAll(helper)
         }
     }
