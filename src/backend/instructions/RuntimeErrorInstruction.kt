@@ -8,10 +8,15 @@ import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.LabelAddressing
 import backend.instructions.operand.Operand2
+import java.util.*
 
 enum class RuntimeErrorInstruction: Instruction {
     CHECK_DIVIDE_BY_ZERO, THROW_RUNTIME_ERROR, CHECK_ARRAY_BOUND, CHECK_NULL_POINTER,
     THROW_OVERFLOW_ERROR, FREE_ARRAY, FREE_PAIR;
+
+    override fun toString(): String {
+        return "p_${name.lowercase(Locale.getDefault())}"
+    }
 
     companion object {
         private const val PRINT_ARRAY_NEG_INDEX_MSG =
