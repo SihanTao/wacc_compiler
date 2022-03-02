@@ -127,6 +127,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return null
     }
 
+    override fun visitReturnNode(node: ReturnNode): Void? {
+        TODO("Not yet implemented")
+    }
+
     override fun visitSkipNode(node: SkipNode): Void? {
         return null
     }
