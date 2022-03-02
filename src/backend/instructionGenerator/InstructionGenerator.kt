@@ -128,7 +128,19 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitReturnNode(node: ReturnNode): Void? {
-        TODO("Not yet implemented")
+        visit(node.expr)
+        instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegisterAllocator.curr())))
+        ARMRegisterAllocator.free()
+        if (funcStackSize != 0) {
+            instructions.add(
+                Add(
+                    ARMRegister.SP, ARMRegister.SP,
+                    Operand2(funcStackSize)
+                )
+            )
+        }
+        instructions.add(Pop(ARMRegister.PC))
+        return null
     }
 
     override fun visitSkipNode(node: SkipNode): Void? {
