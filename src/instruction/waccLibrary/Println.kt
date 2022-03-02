@@ -2,7 +2,7 @@ package instruction.waccLibrary
 
 import WACCCodeGenerator
 import instruction.*
-import instruction.addrMode2.StaticRef
+import instruction.addressing_mode.StaticRef
 import register.Register
 
 class Println(codeGenerator: WACCCodeGenerator): WACCLibraryFunction(codeGenerator) {
@@ -12,14 +12,14 @@ class Println(codeGenerator: WACCCodeGenerator): WACCLibraryFunction(codeGenerat
     init {
         val msgCode = codeGenerator.addDataElement("\\0")
         instructions = listOf(
-                Label("p_print_ln"),
-                Push(Register.LR),
-                Load(Register.R0, StaticRef("msg_$msgCode")),
-                Add(Register.R0, Register.R0, 4),
-                Branch(Branch.Mode.LINK, "puts"),
-                Move(Register.R0, 0),
-                Branch(Branch.Mode.LINK, "fflush"),
-                Pop(Register.PC),
+                LABEL("p_print_ln"),
+                PUSH(Register.LR),
+                LDR(Register.R0, StaticRef("msg_$msgCode")),
+                ADD(Register.R0, Register.R0, 4),
+                B(B.Mode.LINK, "puts"),
+                MOV(Register.R0, 0),
+                B(B.Mode.LINK, "fflush"),
+                POP(Register.PC),
         )
         dependencies = listOf()
     }

@@ -2,7 +2,7 @@ package instruction.waccLibrary
 
 import WACCCodeGenerator
 import instruction.*
-import instruction.addrMode2.StaticRef
+import instruction.addressing_mode.StaticRef
 import register.Register
 
 class ThrowOverflowError(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
@@ -13,9 +13,9 @@ class ThrowOverflowError(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction
     init {
         val msgCode = codeGenerator.addDataElement("OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\\\n\\\\0")
         instructions = listOf(
-                Label("p_throw_overflow_error"),
-                Load(Register.R0, StaticRef("msg_$msgCode")),
-                Branch(Branch.Mode.LINK, "p_throw_overflow_error"),
+                LABEL("p_throw_overflow_error"),
+                LDR(Register.R0, StaticRef("msg_$msgCode")),
+                B(B.Mode.LINK, "p_throw_overflow_error"),
         )
         dependencies = listOf(ThrowOverflowError(codeGenerator))
     }

@@ -2,9 +2,9 @@ package instruction.waccLibrary
 
 import WACCCodeGenerator
 import instruction.*
-import instruction.addrMode2.ImmOffset
-import instruction.addrMode2.Sign
-import instruction.addrMode2.StaticRef
+import instruction.addressing_mode.ImmOffset
+import instruction.addressing_mode.Sign
+import instruction.addressing_mode.StaticRef
 import register.Register
 
 class FreePair(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
@@ -14,19 +14,19 @@ class FreePair(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGener
     init {
         val msgCode = codeGenerator.addDataElement("NullReferenceError: dereference a null reference\\n\\0")
         instructions = listOf(
-                Label("p_free_pair"),
-                Push(Register.LR),
-                Compare(Register.R0, 0),
-                Load(Register.R0, StaticRef("msg_$msgCode")),
-                Branch("p_throw_runtime_error", cond=Cond.EQ),
-                Load(Register.R0, ImmOffset(Register.R0)),
-                Branch(Branch.Mode.LINK, "free"),
-                Load(Register.R0, ImmOffset(Register.SP)),
-                Load(Register.R0, ImmOffset(Register.R0, Pair(Sign.PLUS, 4))),
-                Branch(Branch.Mode.LINK, "free"),
-                Pop(Register.R0),
-                Branch(Branch.Mode.LINK, "free"),
-                Pop(Register.PC)
+                LABEL("p_free_pair"),
+                PUSH(Register.LR),
+                CMP(Register.R0, 0),
+                LDR(Register.R0, StaticRef("msg_$msgCode")),
+                B("p_throw_runtime_error", cond=Cond.EQ),
+                LDR(Register.R0, ImmOffset(Register.R0)),
+                B(B.Mode.LINK, "free"),
+                LDR(Register.R0, ImmOffset(Register.SP)),
+                LDR(Register.R0, ImmOffset(Register.R0, Pair(Sign.PLUS, 4))),
+                B(B.Mode.LINK, "free"),
+                POP(Register.R0),
+                B(B.Mode.LINK, "free"),
+                POP(Register.PC)
         )
         dependencies = listOf(ThrowRuntimeError(codeGenerator))
     }

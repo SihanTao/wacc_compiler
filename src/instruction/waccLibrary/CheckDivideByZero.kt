@@ -2,7 +2,7 @@ package instruction.waccLibrary
 
 import WACCCodeGenerator
 import instruction.*
-import instruction.addrMode2.StaticRef
+import instruction.addressing_mode.StaticRef
 import register.Register
 
 class CheckDivideByZero(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
@@ -12,12 +12,12 @@ class CheckDivideByZero(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(
     init {
         val msgCode = codeGenerator.addDataElement("DivideByZeroError: divide or modulo by zero\\n\\0")
         instructions = listOf(
-                Label("p_check_divide_by_zero"),
-                Push(Register.LR),
-                Compare(Register.R1, 0),
-                Load(Register.R0, StaticRef("msg_$msgCode"), cond=Cond.EQ),
-                Branch(Branch.Mode.LINK, "p_throw_runtime_error", Cond.EQ),
-                Pop(Register.PC),
+                LABEL("p_check_divide_by_zero"),
+                PUSH(Register.LR),
+                CMP(Register.R1, 0),
+                LDR(Register.R0, StaticRef("msg_$msgCode"), cond=Cond.EQ),
+                B(B.Mode.LINK, "p_throw_runtime_error", Cond.EQ),
+                POP(Register.PC),
         )
         dependencies = listOf(ThrowRuntimeError(codeGenerator))
     }

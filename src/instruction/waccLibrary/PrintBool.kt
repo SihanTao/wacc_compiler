@@ -2,7 +2,7 @@ package instruction.waccLibrary
 
 import WACCCodeGenerator
 import instruction.*
-import instruction.addrMode2.StaticRef
+import instruction.addressing_mode.StaticRef
 import register.Register
 
 class PrintBool(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
@@ -13,16 +13,16 @@ class PrintBool(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGene
         val msg1 = codeGenerator.addDataElement("true\\0")
         val msg2 = codeGenerator.addDataElement("false\\0")
         instructions = listOf(
-                Label("p_print_bool"),
-                Push(Register.LR),
-                Compare(Register.R0, 0),
-                Load(Register.R0, StaticRef("msg_$msg1"), cond=Cond.NE),
-                Load(Register.R0, StaticRef("msg_$msg2"), cond=Cond.NE),
-                Add(Register.R0, Register.R0, 4),
-                Branch(Branch.Mode.LINK, "printf"),
-                Move(Register.R0, 0),
-                Branch(Branch.Mode.LINK, "fflush"),
-                Pop(Register.PC),
+                LABEL("p_print_bool"),
+                PUSH(Register.LR),
+                CMP(Register.R0, 0),
+                LDR(Register.R0, StaticRef("msg_$msg1"), cond=Cond.NE),
+                LDR(Register.R0, StaticRef("msg_$msg2"), cond=Cond.NE),
+                ADD(Register.R0, Register.R0, 4),
+                B(B.Mode.LINK, "printf"),
+                MOV(Register.R0, 0),
+                B(B.Mode.LINK, "fflush"),
+                POP(Register.PC),
         )
         dependencies = listOf()
     }

@@ -2,7 +2,7 @@ package instruction.waccLibrary
 
 import WACCCodeGenerator
 import instruction.*
-import instruction.addrMode2.StaticRef
+import instruction.addressing_mode.StaticRef
 import register.Register
 
 class CheckNullPointer(codeGenerator: WACCCodeGenerator): WACCLibraryFunction(codeGenerator) {
@@ -12,12 +12,12 @@ class CheckNullPointer(codeGenerator: WACCCodeGenerator): WACCLibraryFunction(co
     init {
         val msgCode = codeGenerator.addDataElement("NullReferenceError: dereference a null reference\\n\\0")
         instructions = listOf(
-                Label("p_check_null_pointer"),
-                Push(Register.LR),
-                Compare(Register.R0, 0),
-                Load(Register.R0, StaticRef("msg_$msgCode"), cond= Cond.EQ),
-                Branch(Branch.Mode.LINK, "p_throw_runtime_error", Cond.EQ),
-                Pop(Register.PC),
+                LABEL("p_check_null_pointer"),
+                PUSH(Register.LR),
+                CMP(Register.R0, 0),
+                LDR(Register.R0, StaticRef("msg_$msgCode"), cond= Cond.EQ),
+                B(B.Mode.LINK, "p_throw_runtime_error", Cond.EQ),
+                POP(Register.PC),
         )
         dependencies = listOf(ThrowRuntimeError(codeGenerator))
     }

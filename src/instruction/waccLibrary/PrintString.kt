@@ -3,8 +3,8 @@ package instruction.waccLibrary
 import WACCCodeGenerator
 import instruction.ARM11Instruction
 import instruction.*
-import instruction.addrMode2.ImmOffset
-import instruction.addrMode2.StaticRef
+import instruction.addressing_mode.ImmOffset
+import instruction.addressing_mode.StaticRef
 import register.Register
 
 class PrintString(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
@@ -14,16 +14,16 @@ class PrintString(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGe
     init {
         val msgCode = codeGenerator.addDataElement("%.*s\\0")
         instructions = listOf(
-                Label("p_print_string"),
-                Push(Register.LR),
-                Load(Register.R1, ImmOffset(Register.R0)),
-                Add(Register.R2, Register.R0, 4),
-                Load(Register.R0, StaticRef("msg_$msgCode")),
-                Add(Register.R0, Register.R0, 4),
-                Branch(Branch.Mode.LINK, "printf"),
-                Move(Register.R0, 0),
-                Branch(Branch.Mode.LINK, "fflush"),
-                Pop(Register.PC),
+                LABEL("p_print_string"),
+                PUSH(Register.LR),
+                LDR(Register.R1, ImmOffset(Register.R0)),
+                ADD(Register.R2, Register.R0, 4),
+                LDR(Register.R0, StaticRef("msg_$msgCode")),
+                ADD(Register.R0, Register.R0, 4),
+                B(B.Mode.LINK, "printf"),
+                MOV(Register.R0, 0),
+                B(B.Mode.LINK, "fflush"),
+                POP(Register.PC),
         )
         dependencies = listOf()
     }

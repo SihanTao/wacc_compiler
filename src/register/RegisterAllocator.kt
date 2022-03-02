@@ -1,6 +1,6 @@
 package register
 
-class ARM11RegisterAllocator {
+class RegisterAllocator {
     private val availableRegisters =
             mutableListOf(Register.R4, Register.R5, Register.R6,
                     Register.R7,Register.R8,Register.R9,

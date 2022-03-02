@@ -2,8 +2,8 @@ package instruction.waccLibrary
 
 import WACCCodeGenerator
 import instruction.*
-import instruction.addrMode2.ImmOffset
-import instruction.addrMode2.StaticRef
+import instruction.addressing_mode.ImmOffset
+import instruction.addressing_mode.StaticRef
 import register.Register
 
 class CheckArrayBounds(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
@@ -14,15 +14,15 @@ class CheckArrayBounds(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(c
         val msgCode1 = codeGenerator.addDataElement("ArrayIndexOutOfBoundsError: negative index\\n\\0")
         val msgCode2 = codeGenerator.addDataElement("ArrayIndexOutOfBoundsError: index too large\\n\\0")
         instructions = listOf(
-                Label("p_check_array_bounds"),
-                Push(Register.LR),
-                Compare(Register.R0, 0),
-                Load(Register.R0, StaticRef("msg_$msgCode1"), cond= Cond.LT),
-                Branch(Branch.Mode.LINK, "p_throw_runtime_error", Cond.LT),
-                Load(Register.R1, ImmOffset(Register.R1)),
-                Load(Register.R0, StaticRef("msg_$msgCode2"), cond= Cond.CS),
-                Branch(Branch.Mode.LINK, "p_throw_runtime_error", Cond.CS),
-                Pop(Register.PC),
+                LABEL("p_check_array_bounds"),
+                PUSH(Register.LR),
+                CMP(Register.R0, 0),
+                LDR(Register.R0, StaticRef("msg_$msgCode1"), cond= Cond.LT),
+                B(B.Mode.LINK, "p_throw_runtime_error", Cond.LT),
+                LDR(Register.R1, ImmOffset(Register.R1)),
+                LDR(Register.R0, StaticRef("msg_$msgCode2"), cond= Cond.CS),
+                B(B.Mode.LINK, "p_throw_runtime_error", Cond.CS),
+                POP(Register.PC),
         )
         dependencies = listOf(ThrowRuntimeError(codeGenerator))
     }

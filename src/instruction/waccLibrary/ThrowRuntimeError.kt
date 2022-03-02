@@ -10,10 +10,10 @@ class ThrowRuntimeError(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(
 
     init {
         instructions = listOf(
-                Label("p_throw_runtime_error"),
-                Branch(Branch.Mode.LINK, "p_print_string"),
-                Move(Register.R0, -1),
-                Branch(Branch.Mode.LINK, "exit")
+                LABEL("p_throw_runtime_error"),
+                B(B.Mode.LINK, "p_print_string"),
+                MOV(Register.R0, -1),
+                B(B.Mode.LINK, "exit")
         )
         dependencies = listOf(PrintString(codeGenerator))
     }
