@@ -721,14 +721,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         val operand2 = Operand2(expr2Reg)
 
-        val res: MutableList<Instruction> = when (node.operator) {
+        when (node.operator) {
             // Basic ones
             Utils.Binop.PLUS -> {
-                mutableListOf(
-                    Add(expr1Reg, expr1Reg, operand2, Cond.S)
-                )
+                instructions.add(Add(expr1Reg, expr1Reg, operand2, Cond.S))
             }
-            Utils.Binop.MINUS -> TODO()
+            Utils.Binop.MINUS -> {
+                instructions.add(Sub(expr1Reg, expr1Reg, operand2, Cond.S))
+            }
             Utils.Binop.MUL -> TODO()
             Utils.Binop.AND -> TODO()
             Utils.Binop.OR -> TODO()
@@ -736,7 +736,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
 
         // Deal with runtime error here
-        if (node.operator == Utils.Binop.PLUS) {
+        if (node.operator == Utils.Binop.PLUS || node.operator == Utils.Binop.MINUS) {
             instructions.add(
                 BL(
                     Cond.VS,
