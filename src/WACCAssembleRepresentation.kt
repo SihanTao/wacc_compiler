@@ -17,8 +17,8 @@ class WACCAssembleRepresentation {
     private var hasReadInt = false
     private var hasReadChar = false
     private var hasPrintRef = false
-    private var hasCheckNullPointer = true
-    private var hasFreePairFunc = true
+    private var hasCheckNullPointer = false
+    private var hasFreePairFunc = false
 
     fun addCode(str: String) {
         code.addLast(str)

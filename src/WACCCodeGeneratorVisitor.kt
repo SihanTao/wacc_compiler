@@ -348,9 +348,23 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
         symbolTable = SymbolTable(symbolTable)
         currScopeDepth += 1
         symbolTable!!.add("#localVariableNo_$currScopeDepth", Pair(temp, currScopeDepth))
-        if (temp > 0) representation.addCode("\tSUB sp, sp, #$temp")
+        if (temp > 0) {
+            var temp2 = temp
+            while (temp2 > 1024) {
+                representation.addCode("\tSUB sp, sp, #1024")
+                temp2 -= 1024
+            }
+            if (temp2 > 0) representation.addCode("\tSUB sp, sp, #$temp2")
+        }
         node.body.forEach{stat -> visitStatNode(stat, incStack = temp)}
-        if (temp > 0) representation.addCode("\tADD sp, sp, #$temp")
+        if (temp > 0) {
+            var temp2 = temp
+            while (temp2 > 1024) {
+                representation.addCode("\tADD sp, sp, #1024")
+                temp2 -= 1024
+            }
+            if (temp2 > 0) representation.addCode("\tADD sp, sp, #$temp2")
+        }
         symbolTable = symbolTable!!.parentSymbolTable
         currScopeDepth -= 1
         currStackOffset = prevStackOffset
@@ -410,7 +424,10 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     }
 
     private fun visitArrayNode(node: ArrayNode) {
-        val arraySize = node.length * typeSize(node.contentType!!) + typeSize(BasicType(BasicTypeEnum.INTEGER))
+        var arraySize = typeSize(BasicType(BasicTypeEnum.INTEGER))
+        if (node.length > 0) {
+            arraySize += node.length * typeSize(node.contentType!!)
+        }
         representation.addCode("\tLDR r0, =$arraySize")
         representation.addCode("\tBL malloc")
         val arrayDest = nextAvailableRegister()
@@ -463,7 +480,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
                     representation.addCode("\tMOV r1, $r");
                     representation.addCode("\tBL p_check_divide_by_zero")
                     representation.addCode("\tBL __aeabi_idivmod")
-                    representation.addCode("\tMOV ${l.name}, r0")
+                    representation.addCode("\tMOV ${l.name}, r1")
                 }
                 binOpAlgo2(node.expr1, node.expr2, mod)
                 representation.addPrintDivByZeroFunc()
