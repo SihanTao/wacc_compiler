@@ -465,7 +465,7 @@ class WACCCodeGeneratorVisitor(val representation: WACCAssembleRepresentation) {
     private fun visitBinopNode(node: BinopNode) {
         when (node.operator) {
             Utils.Binop.PLUS -> {
-                val add = {l:Register,r:Register -> representation.addCode("\tADD $l, $l, $r");
+                val add = {l:Register,r:Register -> representation.addCode("\tADDS $l, $l, $r");
                     representation.addCode("\tBLVS p_throw_overflow_error")}
                 binOpAlgo2(node.expr1, node.expr2, add)
                 representation.addPrintThrowErrorOverflowFunc()
