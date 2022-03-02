@@ -25,6 +25,7 @@ import backend.instructions.unopAndBinop.RSBS
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
+import org.antlr.v4.runtime.atn.SemanticContext
 import type.Type.Companion.POINTERSIZE
 import type.Type.Companion.WORDSIZE
 import type.Utils
@@ -692,6 +693,25 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitBinopNode(node: BinopNode): Void? {
-        TODO("Not yet implemented")
+        visit(node.expr1)
+        visit(node.expr2)
+
+        val expr1Reg = ARMRegisterAllocator.last()
+        val expr2Reg = ARMRegisterAllocator.curr()
+
+        val operand2 = Operand2(expr2Reg)
+
+        when (node.operator) {
+            // Basic ones
+            Utils.Binop.PLUS -> TODO()
+            Utils.Binop.MINUS -> TODO()
+            Utils.Binop.MUL -> TODO()
+            Utils.Binop.AND -> TODO()
+            Utils.Binop.OR -> TODO()
+        }
+
+        ARMRegisterAllocator.free()
+
+        return null
     }
 }
