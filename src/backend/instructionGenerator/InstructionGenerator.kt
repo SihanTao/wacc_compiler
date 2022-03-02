@@ -745,6 +745,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
             checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
         }
 
+        if (node.operator == Utils.Binop.MUL) {
+            instructions.add(Cmp(expr2Reg, Operand2(expr1Reg, Operand2Operator.ASR, 31)))
+            instructions.add(BL(Cond.NE, RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()))
+            checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
+        }
+
         ARMRegisterAllocator.free()
 
         return null
