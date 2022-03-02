@@ -7,6 +7,6 @@ class BL(private val cond: Cond, val label: String) : Instruction {
 
     constructor(label: String): this(Cond.NONE, label)
     override fun toString(): String {
-        return "BL $label"
+        return "BL${cond} $label"
     }
 }
