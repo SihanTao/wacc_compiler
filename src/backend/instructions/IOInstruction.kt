@@ -64,6 +64,28 @@ enum class IOInstruction: Instruction {
             return instructions
         }
 
+        private fun addPrintRef(
+            dataSegment: MutableMap<Label, String>,
+            labelGenerator: LabelGenerator
+        ): List<Instruction> {
+            println("In addPrintRef")
+            val label = labelGenerator.getLabel()
+            dataSegment[label] = PRINT_REF_MSG
+            val printIntLabel = addMsg(PRINT_REF_MSG, dataSegment, labelGenerator)
+            val instructions: MutableList<Instruction> = ArrayList(
+                listOf(
+                    /* add the helper function label */
+                    Label(PRINT_REFERENCE.toString()),
+                    Push(ARMRegister.LR),  /* put the content in r0 int o r1 as the snd arg of printf */
+                    Mov(ARMRegister.R1, Operand2(ARMRegister.R0)),  /* fst arg of printf is the format */
+                    LDR(ARMRegister.R0, LabelAddressing(printIntLabel))
+                )
+            )
+            instructions.addAll(addCommonPrint())
+
+            return instructions
+        }
+
         private fun addPrintln(
             dataSegment: MutableMap<Label, String>,
             labelGenerator: LabelGenerator
@@ -85,27 +107,6 @@ enum class IOInstruction: Instruction {
                 Pop(ARMRegister.PC)
             )
 
-        }
-
-        private fun addPrintRef(
-            dataSegment: MutableMap<Label, String>,
-            labelGenerator: LabelGenerator
-        ): List<Instruction> {
-            val label = labelGenerator.getLabel()
-            dataSegment[label] = PRINT_REF_MSG
-            val printIntLabel = addMsg(PRINT_REF_MSG, dataSegment, labelGenerator)
-            val instructions: MutableList<Instruction> = ArrayList(
-                listOf(
-                    /* add the helper function label */
-                    Label(PRINT_INT.toString()),
-                    Push(ARMRegister.LR),  /* put the content in r0 int o r1 as the snd arg of printf */
-                    Mov(ARMRegister.R1, Operand2(ARMRegister.R0)),  /* fst arg of printf is the format */
-                    LDR(ARMRegister.R0, LabelAddressing(printIntLabel))
-                )
-            )
-            instructions.addAll(addCommonPrint())
-
-            return instructions
         }
 
         private fun addPrintString(

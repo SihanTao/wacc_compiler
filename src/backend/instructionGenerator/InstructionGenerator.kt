@@ -198,8 +198,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             INT_T -> IOInstruction.PRINT_INT
             CHAR_T -> IOInstruction.PRINT_CHAR
             BOOL_T -> IOInstruction.PRINT_BOOL
-            is ArrayType, is PairType -> IOInstruction.PRINT_REFERENCE // Array type and pair type
-            else -> throw UnsupportedOperationException("Should have no else cases")
+            else -> IOInstruction.PRINT_REFERENCE // Array type and pair type
         }
 
         instructions.add(BL(io.toString()))
