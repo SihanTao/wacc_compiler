@@ -241,7 +241,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             when (runtimeErrorInstruction){
                 RuntimeErrorInstruction.CHECK_ARRAY_BOUND -> helper = addCheckArrayBound(msgLabelGenerator, dataSegment)
                 RuntimeErrorInstruction.THROW_RUNTIME_ERROR -> {
-                    helper = addThrowRuntimeError(msgLabelGenerator, dataSegment)
+                    helper = addThrowRuntimeError()
                     checkAndAddPrint(IOInstruction.PRINT_STRING)
                 }
                 RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO -> TODO()

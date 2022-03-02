@@ -24,9 +24,7 @@ enum class RuntimeErrorInstruction: Instruction {
         private const val PRINT_ARRAY_INDEX_TOO_LARGE_MSG =
             "\"ArrayIndexOutOfBoundsError: index too large\\n\\0\""
 
-        fun addThrowRuntimeError(labelGenerator: LabelGenerator,
-                                 data: MutableMap<Label, String>): List<Instruction> {
-
+        fun addThrowRuntimeError(): List<Instruction> {
             return listOf(
                 Label(THROW_RUNTIME_ERROR.toString()),
                 BL(IOInstruction.PRINT_STRING.toString()),
