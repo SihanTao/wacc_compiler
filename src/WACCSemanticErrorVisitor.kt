@@ -124,7 +124,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     */
 
     override fun visitSkipStat(ctx: SkipStatContext?): Node {
-        return SkipNode()
+        return SkipNode(symbolTable!!)
     }
 
     override fun visitDeclareStat(ctx: DeclareStatContext): Node {
