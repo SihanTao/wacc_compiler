@@ -1,4 +1,4 @@
-package instruction.addrMode2
+package instruction.addressing_mode
 
 enum class Sign{
     PLUS, MINUS;
