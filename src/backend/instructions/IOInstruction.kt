@@ -31,8 +31,6 @@ enum class IOInstruction : Instruction {
         private const val PRINT_LN_MSG = "\"\\0\""
         private const val PRINT_REF_MSG = "\"%p\\0\""
         private const val PRINT_CHAR_MSG = "\" %c\\0\""
-        private const val PRINT_NULL_REF_MSG =
-            "\"NullReferenceError: dereference a null reference\\n\\0\""
 
         // The main print or read function
         fun addPrintOrRead(

@@ -27,6 +27,8 @@ enum class RuntimeErrorInstruction : Instruction {
             "\"OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n\\0\""
         private const val PRINT_DIV_ZERO_MSG =
             "\"DivideByZeroError: divide or modulo by zero\\n\\0\""
+        private const val PRINT_NULL_REF_MSG =
+            "\"NullReferenceError: dereference a null reference\\n\\0\""
 
         fun addCheckDivByZero(
             labelGenerator: LabelGenerator,
@@ -43,6 +45,47 @@ enum class RuntimeErrorInstruction : Instruction {
                 BL(Cond.EQ, THROW_RUNTIME_ERROR.toString()),
                 Pop(ARMRegister.PC)
             )
+        }
+
+        fun addFree(
+            labelGenerator: LabelGenerator,
+            data: MutableMap<Label, String>
+        ): List<Instruction> {
+
+            val msg: Label = addMsg(
+                PRINT_NULL_REF_MSG,
+                data,
+                labelGenerator
+            )
+
+            return listOf(
+                Label(FREE_PAIR.toString()),
+                Push(ARMRegister.LR),
+                Cmp(ARMRegister.R0, Operand2(0)),
+                LDR(ARMRegister.R0, LabelAddressing(msg), LdrMode.LDREQ),
+                B(THROW_RUNTIME_ERROR.toString(), Cond.EQ),
+                Push(ARMRegister.R0),
+                LDR(
+                    ARMRegister.R0,
+                    AddressingMode2(AddrMode2.OFFSET, ARMRegister.R0)
+                ),
+                BL(SyscallInstruction.FREE.toString()),
+                LDR(
+                    ARMRegister.R0, AddressingMode2(
+                        AddrMode2.OFFSET,
+                        ARMRegister.SP
+                    )
+                ),
+                LDR(
+                    ARMRegister.R0,
+                    AddressingMode2(AddrMode2.OFFSET, ARMRegister.R0, 4)
+                ),
+                BL(SyscallInstruction.FREE.toString()),
+                Pop(ARMRegister.R0),
+                BL(SyscallInstruction.FREE.toString()),
+                Pop(ARMRegister.PC)
+            )
+
         }
 
         fun addThrowRuntimeError(): List<Instruction> {
@@ -100,6 +143,16 @@ enum class RuntimeErrorInstruction : Instruction {
                 BL(Cond.CS, THROW_RUNTIME_ERROR.toString()),
                 Pop(ARMRegister.PC)
             )
+        }
+
+        private fun addMsg(
+            msg: String,
+            data: MutableMap<Label, String>,
+            labelGenerator: LabelGenerator
+        ): Label {
+            val msgLabel = labelGenerator.getLabel()
+            data[msgLabel] = msg
+            return msgLabel
         }
     }
 
