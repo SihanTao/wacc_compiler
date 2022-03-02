@@ -730,7 +730,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 instructions.add(SMULL(expr1Reg, expr1Reg, operand2))
             }
             Utils.Binop.AND -> instructions.add(AND(expr1Reg, expr1Reg, operand2))
-            Utils.Binop.OR -> TODO()
+            Utils.Binop.OR -> instructions.add(OR(expr1Reg, expr1Reg, operand2))
             else -> TODO()
         }
 
