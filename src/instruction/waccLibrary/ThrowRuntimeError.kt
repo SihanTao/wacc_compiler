@@ -4,7 +4,7 @@ import WACCCodeGenerator
 import instruction.*
 import register.Register
 
-class ThrowRuntimeError(codeGenerator: WACCCodeGenerator) : WACCLibraryFunction(codeGenerator) {
+class ThrowRuntimeError : WACCLibraryFunction() {
     private val instructions: List<ARM11Instruction>
     private val dependencies: List<WACCLibraryFunction>
 
