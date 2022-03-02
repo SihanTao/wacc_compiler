@@ -20,6 +20,7 @@ import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import backend.instructions.operand.Operand2.Operand2Operator
 import backend.instructions.unopAndBinop.EOR
+import backend.instructions.unopAndBinop.RSBS
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
@@ -669,12 +670,18 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val currentARMRegister = ARMRegisterAllocator.curr()
         when (node.operator) {
             Utils.Unop.NOT -> {
-                instructions.add(EOR(currentARMRegister, currentARMRegister, Operand2(1)))
+                instructions.add(EOR(currentARMRegister, currentARMRegister, 1))
             }
             Utils.Unop.LEN -> {
                 instructions.add(LDR(currentARMRegister, currentARMRegister))
             }
-            Utils.Unop.MINUS -> TODO()
+            Utils.Unop.MINUS -> {
+                instructions.add(RSBS(currentARMRegister, currentARMRegister, 0))
+                instructions.add(BL(Cond.VS,
+                    RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()
+                ))
+                checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
+            }
             else -> {} // For ORD and CHR, do nothing
         }
 
