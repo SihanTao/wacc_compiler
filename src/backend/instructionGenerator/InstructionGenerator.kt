@@ -21,6 +21,8 @@ import backend.instructions.operand.Operand2.Operand2Operator
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
+import type.ArrayType
+import type.PairType
 import type.Type.Companion.POINTERSIZE
 import type.Type.Companion.WORDSIZE
 import type.Utils.Companion.ARRAY_T
@@ -196,8 +198,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
             INT_T -> IOInstruction.PRINT_INT
             CHAR_T -> IOInstruction.PRINT_CHAR
             BOOL_T -> IOInstruction.PRINT_BOOL
-            ARRAY_T, PAIR_T -> IOInstruction.PRINT_REFERENCE
-            else -> throw UnsupportedOperationException("All types should be included.")
+            is ArrayType, is PairType -> IOInstruction.PRINT_REFERENCE // Array type and pair type
+            else -> throw UnsupportedOperationException("Should have no else cases")
         }
 
         instructions.add(BL(io.toString()))
@@ -247,7 +249,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
             armHelperFunctions.addAll(helper)
         }
     }
-
 
     override fun visitStringNode(node: StringNode): Void? {
         val str = node.string
