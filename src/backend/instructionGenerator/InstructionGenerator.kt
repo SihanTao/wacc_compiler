@@ -9,6 +9,7 @@ import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
 import backend.instructions.LDR.LdrMode
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
+import backend.instructions.RuntimeErrorInstruction.Companion.addThrowOverflowError
 import backend.instructions.RuntimeErrorInstruction.Companion.addThrowRuntimeError
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
@@ -242,9 +243,11 @@ class InstructionGenerator : ASTVisitor<Void?> {
                     helper = addThrowRuntimeError()
                     checkAndAddPrint(IOInstruction.PRINT_STRING)
                 }
+                RuntimeErrorInstruction.THROW_OVERFLOW_ERROR -> {
+                    helper = addThrowOverflowError(msgLabelGenerator, dataSegment)
+                }
                 RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO -> TODO()
                 RuntimeErrorInstruction.CHECK_NULL_POINTER -> TODO()
-                RuntimeErrorInstruction.THROW_OVERFLOW_ERROR -> TODO()
                 RuntimeErrorInstruction.FREE_ARRAY -> TODO()
                 RuntimeErrorInstruction.FREE_PAIR -> TODO()
             }
