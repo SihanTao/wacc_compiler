@@ -14,6 +14,7 @@ class IntNode(
 ) : ExprNode() {
     init {
         type = BasicType(BasicTypeEnum.INTEGER)
+        weight = 1
     }
 
     override fun <T> accept(astVisitor: ASTVisitor<T>): T? {

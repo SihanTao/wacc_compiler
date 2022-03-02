@@ -16,5 +16,6 @@ class FunctionCallNode(private val function: FuncNode, private val params: List<
     init {
         funcSymbolTable = SymbolTable(currScope)
         type = function.returnType
+        weight = 1
     }
 }

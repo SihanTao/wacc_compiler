@@ -23,6 +23,7 @@ class ArrayNode(
 
     init {
         type = ArrayType(contentType)
+        weight = 2
     }
 
     fun getContentSize(): Int {

@@ -24,6 +24,7 @@ class PairNode : ExprNode {
         this.fst = fst
         this.snd = snd
         type = PairType(fst.type, snd.type)
+        weight = 1
     }
 
     override fun <T> accept(astVisitor: ASTVisitor<T>): T? {

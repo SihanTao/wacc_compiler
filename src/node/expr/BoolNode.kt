@@ -14,6 +14,7 @@ class BoolNode(
 ) : ExprNode() {
     init {
         type = BasicType(BasicTypeEnum.BOOLEAN)
+        weight = 1
     }
 
     override fun <T> accept(astVisitor: ASTVisitor<T>): T? {

@@ -15,6 +15,7 @@ class StringNode(val string: String) : ExprNode() {
 
     init {
         type = BasicType(BasicTypeEnum.STRING)
+        weight = 1
     }
 
     override fun <T> accept(astVisitor: ASTVisitor<T>): T? {

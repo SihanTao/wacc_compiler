@@ -23,6 +23,7 @@ class ArrayElemNode(
     val indexDepth: Int
 
     init {
+        this.weight = 1
         this.type = type
         this.arrayDepth = (array.type as ArrayType).depth
         this.indexDepth = index.size

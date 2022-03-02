@@ -28,6 +28,7 @@ class CharNode(private val liter: String) : ExprNode() {
         } else {
             char = liter[1]
         }
+        weight = 1
     }
 
     override fun <T> accept(astVisitor: ASTVisitor<T>): T? {

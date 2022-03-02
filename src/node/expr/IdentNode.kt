@@ -14,6 +14,7 @@ class IdentNode(type: Type?, val name: String, var symbol: Symbol?) : ExprNode()
 
     init {
         this.type = type
+        weight = 1
     }
 
     override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
