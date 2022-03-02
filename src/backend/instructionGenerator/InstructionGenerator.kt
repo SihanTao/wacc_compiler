@@ -23,11 +23,14 @@ import node.expr.*
 import node.stat.*
 import type.Type.Companion.POINTERSIZE
 import type.Type.Companion.WORDSIZE
+import type.Utils.Companion.ARRAY_T
 import type.Utils.Companion.BOOL_T
 import type.Utils.Companion.CHAR_ARRAY_T
 import type.Utils.Companion.CHAR_T
 import type.Utils.Companion.INT_T
+import type.Utils.Companion.PAIR_T
 import type.Utils.Companion.STRING_T
+import java.lang.UnsupportedOperationException
 
 class InstructionGenerator : ASTVisitor<Void?> {
 
@@ -193,7 +196,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
             INT_T -> IOInstruction.PRINT_INT
             CHAR_T -> IOInstruction.PRINT_CHAR
             BOOL_T -> IOInstruction.PRINT_BOOL
-            else -> TODO("NOT IMPLEMENTED YET in visitPrintNode")
+            ARRAY_T, PAIR_T -> IOInstruction.PRINT_REFERENCE
+            else -> throw UnsupportedOperationException("All types should be included.")
         }
 
         instructions.add(BL(io.toString()))
