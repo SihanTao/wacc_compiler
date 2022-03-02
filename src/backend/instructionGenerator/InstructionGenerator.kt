@@ -9,6 +9,7 @@ import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrint
 import backend.instructions.LDR.LdrMode
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
+import backend.instructions.RuntimeErrorInstruction.Companion.addCheckDivByZero
 import backend.instructions.RuntimeErrorInstruction.Companion.addThrowOverflowError
 import backend.instructions.RuntimeErrorInstruction.Companion.addThrowRuntimeError
 import backend.instructions.addressing.AddressingMode2
@@ -246,7 +247,11 @@ class InstructionGenerator : ASTVisitor<Void?> {
                     helper =
                         addThrowOverflowError(msgLabelGenerator, dataSegment)
                 }
-                RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO -> TODO()
+                RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO -> helper =
+                    addCheckDivByZero(
+                        msgLabelGenerator,
+                        dataSegment
+                    )
                 RuntimeErrorInstruction.CHECK_NULL_POINTER -> TODO()
                 RuntimeErrorInstruction.FREE_ARRAY -> TODO()
                 RuntimeErrorInstruction.FREE_PAIR -> TODO()
@@ -729,13 +734,31 @@ class InstructionGenerator : ASTVisitor<Void?> {
             Utils.Binop.MUL -> {
                 instructions.add(SMULL(expr1Reg, expr1Reg, operand2))
             }
-            Utils.Binop.AND -> instructions.add(AND(expr1Reg, expr1Reg, operand2))
+            Utils.Binop.AND -> instructions.add(
+                AND(
+                    expr1Reg,
+                    expr1Reg,
+                    operand2
+                )
+            )
             Utils.Binop.OR -> instructions.add(OR(expr1Reg, expr1Reg, operand2))
             Utils.Binop.DIV -> {
-                instructions.addAll(Operator.addDivMod(expr1Reg, expr2Reg, Utils.Binop.DIV))
+                instructions.addAll(
+                    Operator.addDivMod(
+                        expr1Reg,
+                        expr2Reg,
+                        Utils.Binop.DIV
+                    )
+                )
             }
             Utils.Binop.MOD -> {
-                instructions.addAll(Operator.addDivMod(expr1Reg, expr2Reg, Utils.Binop.MOD))
+                instructions.addAll(
+                    Operator.addDivMod(
+                        expr1Reg,
+                        expr2Reg,
+                        Utils.Binop.MOD
+                    )
+                )
             }
             else -> TODO()
         }
@@ -752,8 +775,18 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
 
         if (node.operator == Utils.Binop.MUL) {
-            instructions.add(Cmp(expr2Reg, Operand2(expr1Reg, Operand2Operator.ASR, 31)))
-            instructions.add(BL(Cond.NE, RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()))
+            instructions.add(
+                Cmp(
+                    expr2Reg,
+                    Operand2(expr1Reg, Operand2Operator.ASR, 31)
+                )
+            )
+            instructions.add(
+                BL(
+                    Cond.NE,
+                    RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()
+                )
+            )
             checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
         }
 

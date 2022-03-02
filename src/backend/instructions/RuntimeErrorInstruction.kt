@@ -25,6 +25,25 @@ enum class RuntimeErrorInstruction : Instruction {
             "\"ArrayIndexOutOfBoundsError: index too large\\n\\0\""
         private const val PRINT_OVERFLOW_MSG =
             "\"OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n\\0\""
+        private const val PRINT_DIV_ZERO_MSG =
+            "\"DivideByZeroError: divide or modulo by zero\\n\\0\""
+
+        fun addCheckDivByZero(
+            labelGenerator: LabelGenerator,
+            data: MutableMap<Label, String>
+        ): List<Instruction> {
+            val label = labelGenerator.getLabel()
+            data[label] = PRINT_DIV_ZERO_MSG
+
+            return listOf(
+                Label(CHECK_DIVIDE_BY_ZERO.toString()),
+                Push(ARMRegister.LR),
+                Cmp(ARMRegister.R1, 0),
+                LDR(ARMRegister.R0, LabelAddressing(label), LdrMode.LDREQ),
+                BL(Cond.EQ, THROW_RUNTIME_ERROR.toString()),
+                Pop(ARMRegister.PC)
+            )
+        }
 
         fun addThrowRuntimeError(): List<Instruction> {
             return listOf(
