@@ -10,16 +10,25 @@ class SymbolTable(val parentSymbolTable: SymbolTable?) {
     private val dictionary = HashMap<String, Symbol>()
     var tableSize = 0
 
+    fun add(name: String, expr: ExprNode?, offset: Int): Boolean {
+        if (dictionary.containsKey(name)) {
+            ErrorHandler.symbolRedeclare(null, name)
+            return true
+        }
+
+        dictionary[name] = Symbol(expr, offset)
+        tableSize += expr!!.type!!.size()
+        return false
+    }
+
     fun add(name: String, expr: ExprNode?): Boolean {
         if (dictionary.containsKey(name)) {
             ErrorHandler.symbolRedeclare(null, name)
             return true
         }
 
-        if (expr != null) {
-            tableSize += expr.type!!.size()
-            dictionary[name] = Symbol(expr, tableSize)
-        }
+        tableSize += expr!!.type!!.size()
+        dictionary[name] = Symbol(expr, tableSize)
 
         return false
     }
@@ -39,6 +48,15 @@ class SymbolTable(val parentSymbolTable: SymbolTable?) {
     }
 
     fun getStackOffset(name: String, symbol: Symbol): Int {
-        return symbol.offset
+        if (dictionary.containsKey(name) && dictionary[name] == symbol) {
+            return symbol.offset
+        }
+
+        if (parentSymbolTable != null) {
+            return parentSymbolTable.getStackOffset(name, symbol) - parentSymbolTable.tableSize
+        }
+
+        println("SymbolTable getStackOffset Wrong")
+        return -1
     }
 }
