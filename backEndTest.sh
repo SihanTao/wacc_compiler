@@ -1,7 +1,7 @@
 #!/bin/bash
 SRC_DIR="$(pwd)/test"
 
-VALID_EXAMPLES="${SRC_DIR}/wacc_examples/valid/expressions"
+VALID_EXAMPLES="${SRC_DIR}/wacc_examples/valid"
 
 mkdir -p "${SRC_DIR}/log"
 mkdir -p "${SRC_DIR}/log/out"
