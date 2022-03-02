@@ -229,7 +229,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
 
     private fun checkAndAddRuntimeError(runtimeErrorInstruction: RuntimeErrorInstruction) {
-
         if (!existedHelperFunction.contains(runtimeErrorInstruction)) {
             existedHelperFunction.add(runtimeErrorInstruction)
             val helper = when (runtimeErrorInstruction){
@@ -242,8 +241,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 RuntimeErrorInstruction.FREE_PAIR -> TODO()
             }
             armHelperFunctions.addAll(helper)
-
-
         }
     }
 
