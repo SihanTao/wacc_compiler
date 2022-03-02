@@ -47,6 +47,24 @@ enum class RuntimeErrorInstruction : Instruction {
             )
         }
 
+        fun addCheckNullPointer(
+            labelGenerator: LabelGenerator,
+            data: MutableMap<Label, String>
+        ): List<Instruction> {
+            val msgLabel = labelGenerator.getLabel()
+            data[msgLabel] = PRINT_NULL_REF_MSG
+
+            return listOf(
+                Label(CHECK_NULL_POINTER.toString()),
+                Push(ARMRegister.LR),
+                Cmp(ARMRegister.R0, Operand2(0)),
+                LDR(ARMRegister.R0, LabelAddressing(msgLabel), LdrMode.LDREQ),
+                BL(Cond.EQ, THROW_RUNTIME_ERROR.toString()),
+                Pop(ARMRegister.PC)
+            )
+
+        }
+
         fun addFree(
             labelGenerator: LabelGenerator,
             data: MutableMap<Label, String>

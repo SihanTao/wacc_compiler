@@ -10,6 +10,7 @@ import backend.instructions.IOInstruction.Companion.addPrintOrRead
 import backend.instructions.LDR.LdrMode
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckDivByZero
+import backend.instructions.RuntimeErrorInstruction.Companion.addCheckNullPointer
 import backend.instructions.RuntimeErrorInstruction.Companion.addFree
 import backend.instructions.RuntimeErrorInstruction.Companion.addThrowOverflowError
 import backend.instructions.RuntimeErrorInstruction.Companion.addThrowRuntimeError
@@ -408,7 +409,9 @@ class InstructionGenerator : ASTVisitor<Void?> {
                     msgLabelGenerator,
                     dataSegment
                 )
-                RuntimeErrorInstruction.CHECK_NULL_POINTER -> TODO()
+                RuntimeErrorInstruction.CHECK_NULL_POINTER -> helper =
+                    addCheckNullPointer(msgLabelGenerator, dataSegment)
+
             }
 
             if (runtimeErrorInstruction != RuntimeErrorInstruction.THROW_RUNTIME_ERROR) {
@@ -725,7 +728,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         /* BL null pointer check */
         instructions.add(BL(RuntimeErrorInstruction.CHECK_NULL_POINTER.toString()))
-        // TODO: add check null pointer
         checkAndAddRuntimeError(RuntimeErrorInstruction.CHECK_NULL_POINTER)
 
         /* get the reg pointing to child
