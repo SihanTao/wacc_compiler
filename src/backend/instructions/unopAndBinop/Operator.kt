@@ -7,6 +7,7 @@ import backend.instructions.operand.Operand2
 import type.Utils
 import java.lang.UnsupportedOperationException
 import javax.accessibility.AccessibleStateSet
+import kotlin.jvm.internal.PropertyReference1
 
 class Operator {
     companion object {
@@ -15,18 +16,22 @@ class Operator {
             Rn: ARMRegister,
             op: Utils.Binop
         ): List<Instruction> {
-            return listOf(
+            val res: MutableList<Instruction> = mutableListOf(
                 Mov(ARMRegister.R0, Operand2(Rd)),
                 Mov(ARMRegister.R1, Operand2(Rn)),
-                BL(RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO.toString()),
-                if (op == Utils.Binop.DIV) {
-                    BL("__aeabi_idiv")
-                } else {
-                    // MOD
-                    BL("__aeabi_idivmod")
-                },
-                Mov(Rd, Operand2(ARMRegister.R1))
+                BL(RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO.toString())
             )
+
+            if (op == Utils.Binop.DIV) {
+                res.add(BL("__aeabi_idiv"))
+                res.add(Mov(Rd, Operand2(ARMRegister.R0)))
+            } else {
+                // MOD
+                res.add(BL("__aeabi_idivmod"))
+                res.add(Mov(Rd, Operand2(ARMRegister.R1)))
+            }
+
+            return res.toList()
         }
 
         fun addCompare(
