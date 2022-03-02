@@ -4,7 +4,7 @@ import backend.ARMRegister
 import backend.instructionGenerator.LabelGenerator
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.LabelAddressing
-import backend.instructions.arithmeticLogic.Add
+import backend.instructions.UnopAndBiop.Add
 import backend.instructions.operand.Operand2
 import java.util.*
 

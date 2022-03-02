@@ -1,4 +1,4 @@
-package backend.instructions.arithmeticLogic
+package backend.instructions.UnopAndBiop
 
 import backend.ARMRegister
 import backend.Cond

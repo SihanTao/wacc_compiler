@@ -1,7 +1,8 @@
-package backend.instructions
+package backend.instructions.UnopAndBiop
 
 import backend.ARMRegister
 import backend.Cond
+import backend.instructions.Instruction
 import backend.instructions.operand.Operand2
 
 class Sub(
