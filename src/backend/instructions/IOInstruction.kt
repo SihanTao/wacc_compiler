@@ -4,13 +4,16 @@ import backend.ARMRegister
 import backend.instructionGenerator.LabelGenerator
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.LabelAddressing
-import backend.instructions.unopAndBinop.Add
 import backend.instructions.operand.Operand2
+import backend.instructions.unopAndBinop.Add
 import java.util.*
 
-enum class IOInstruction: Instruction {
+enum class IOInstruction : Instruction {
     // Print
-    PRINT_INT, PRINT_BOOL, PRINT_CHAR, PRINT_STRING, PRINT_LN, PRINT_REFERENCE;
+    PRINT_INT, PRINT_BOOL, PRINT_CHAR, PRINT_STRING, PRINT_LN, PRINT_REFERENCE,
+
+    // Read
+    READ_INT, READ_CHAR;
 
     override fun toString(): String {
         if (this == PRINT_CHAR) {
@@ -28,9 +31,11 @@ enum class IOInstruction: Instruction {
         private const val PRINT_LN_MSG = "\"\\0\""
         private const val PRINT_REF_MSG = "\"%p\\0\""
         private const val PRINT_CHAR_MSG = "\" %c\\0\""
+        private const val PRINT_NULL_REF_MSG =
+            "\"NullReferenceError: dereference a null reference\\n\\0\""
 
-        // The main print function
-        fun addPrint(
+        // The main print or read function
+        fun addPrintOrRead(
             ioInstruction: IOInstruction,
             labelGenerator: LabelGenerator,
             dataSegment: MutableMap<Label, String>
@@ -42,6 +47,8 @@ enum class IOInstruction: Instruction {
                 PRINT_BOOL -> addPrintBool(dataSegment, labelGenerator)
                 PRINT_CHAR -> return emptyList()
                 PRINT_REFERENCE -> addPrintRef(dataSegment, labelGenerator)
+                READ_INT -> addRead(READ_INT, dataSegment, labelGenerator)
+                READ_CHAR -> addRead(READ_CHAR, dataSegment, labelGenerator)
             }
         }
 
@@ -49,13 +56,17 @@ enum class IOInstruction: Instruction {
             dataSegment: MutableMap<Label, String>,
             labelGenerator: LabelGenerator
         ): List<Instruction> {
-            val printIntLabel = addMsg(PRINT_INT_MSG, dataSegment, labelGenerator)
+            val printIntLabel =
+                addMsg(PRINT_INT_MSG, dataSegment, labelGenerator)
             val instructions: MutableList<Instruction> = ArrayList(
                 listOf(
                     /* add the helper function label */
                     Label(PRINT_INT.toString()),
                     Push(ARMRegister.LR),  /* put the content in r0 int o r1 as the snd arg of printf */
-                    Mov(ARMRegister.R1, Operand2(ARMRegister.R0)),  /* fst arg of printf is the format */
+                    Mov(
+                        ARMRegister.R1,
+                        Operand2(ARMRegister.R0)
+                    ),  /* fst arg of printf is the format */
                     LDR(ARMRegister.R0, LabelAddressing(printIntLabel))
                 )
             )
@@ -71,13 +82,17 @@ enum class IOInstruction: Instruction {
             println("In addPrintRef")
             val label = labelGenerator.getLabel()
             dataSegment[label] = PRINT_REF_MSG
-            val printIntLabel = addMsg(PRINT_REF_MSG, dataSegment, labelGenerator)
+            val printIntLabel =
+                addMsg(PRINT_REF_MSG, dataSegment, labelGenerator)
             val instructions: MutableList<Instruction> = ArrayList(
                 listOf(
                     /* add the helper function label */
                     Label(PRINT_REFERENCE.toString()),
                     Push(ARMRegister.LR),  /* put the content in r0 int o r1 as the snd arg of printf */
-                    Mov(ARMRegister.R1, Operand2(ARMRegister.R0)),  /* fst arg of printf is the format */
+                    Mov(
+                        ARMRegister.R1,
+                        Operand2(ARMRegister.R0)
+                    ),  /* fst arg of printf is the format */
                     LDR(ARMRegister.R0, LabelAddressing(printIntLabel))
                 )
             )
@@ -166,9 +181,20 @@ enum class IOInstruction: Instruction {
                     Label(PRINT_BOOL.toString()),
                     Push(ARMRegister.LR),
                     /* cmp the content in r0 with 0 */
-                    Cmp(ARMRegister.R0, Operand2(0)),  /* if not equal to 0 LDR true */
-                    LDR(ARMRegister.R0, LabelAddressing(msgTrue), LDR.LdrMode.LDRNE),
-                    LDR(ARMRegister.R0, LabelAddressing(msgFalse), LDR.LdrMode.LDREQ)
+                    Cmp(
+                        ARMRegister.R0,
+                        Operand2(0)
+                    ),  /* if not equal to 0 LDR true */
+                    LDR(
+                        ARMRegister.R0,
+                        LabelAddressing(msgTrue),
+                        LDR.LdrMode.LDRNE
+                    ),
+                    LDR(
+                        ARMRegister.R0,
+                        LabelAddressing(msgFalse),
+                        LDR.LdrMode.LDREQ
+                    )
                 )
             )
             instructions.addAll(addCommonPrint())
@@ -185,6 +211,39 @@ enum class IOInstruction: Instruction {
             )
         }
 
+        private fun addRead(
+            readInstruction: IOInstruction,
+            dataSegment: MutableMap<Label, String>,
+            labelGenerator: LabelGenerator
+        ): List<Instruction> {
+            /* add the helper function label */
+            val readLabel = Label(readInstruction.toString())
+
+            /* add the format into the data list */
+            val asciiMsg: String =
+                if (readInstruction === READ_INT) PRINT_INT_MSG else PRINT_CHAR_MSG
+            val msgLabel = labelGenerator.getLabel()
+            dataSegment[msgLabel] = asciiMsg
+
+            return listOf(
+                readLabel,
+                Push(ARMRegister.LR),
+                Mov(
+                    ARMRegister.R1,
+                    Operand2(ARMRegister.R0)
+                ),
+                LDR(
+                    ARMRegister.R0,
+                    LabelAddressing(msgLabel)
+                ),
+                Add(ARMRegister.R0, ARMRegister.R0, Operand2(4)), BL(
+                    SyscallInstruction.SCANF.toString()
+                ),
+                Pop(ARMRegister.PC)
+            )
+        }
+
+
         private fun addMsg(
             msg: String,
             data: MutableMap<Label, String>,
@@ -196,3 +255,4 @@ enum class IOInstruction: Instruction {
         }
     }
 }
+

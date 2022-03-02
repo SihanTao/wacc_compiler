@@ -6,7 +6,7 @@ import backend.ARMRegisterAllocator
 import backend.ASTVisitor
 import backend.Cond
 import backend.instructions.*
-import backend.instructions.IOInstruction.Companion.addPrint
+import backend.instructions.IOInstruction.Companion.addPrintOrRead
 import backend.instructions.LDR.LdrMode
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckDivByZero
@@ -24,7 +24,6 @@ import backend.instructions.unopAndBinop.Operator.Companion.addCompare
 import node.ProgramNode
 import node.expr.*
 import node.stat.*
-import org.antlr.v4.runtime.atn.SemanticContext
 import type.Type.Companion.POINTERSIZE
 import type.Type.Companion.WORDSIZE
 import type.Utils
@@ -185,7 +184,25 @@ class InstructionGenerator : ASTVisitor<Void?> {
     }
 
     override fun visitReadNode(node: ReadNode): Void? {
-        TODO("Not yet implemented")
+        /* visit the expr first, treat it as left-hand side expr so that we get its address instead of value */
+        isExprLhs = true
+        visit(node.inputExpr)
+        isExprLhs = false
+
+        /* get the type of expr to determine whether we need to read an int or a char */
+        val type = node.inputExpr.type
+
+        /* choose between read_int and read_char */
+        val readType =
+            if (type == INT_T) IOInstruction.READ_INT else IOInstruction.READ_CHAR
+
+        instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegisterAllocator.curr())))
+        instructions.add(BL(readType.toString()))
+
+        checkAndAddPrintOrRead(readType)
+        ARMRegisterAllocator.free()
+
+        return null
     }
 
     override fun visitPrintNode(node: PrintNode): Void? {
@@ -207,7 +224,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         instructions.add(BL(io.toString()))
 
-        checkAndAddPrint(io)
+        checkAndAddPrintOrRead(io)
 
         ARMRegisterAllocator.free()
 
@@ -219,15 +236,15 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(BL(IOInstruction.PRINT_LN.toString()))
         val io = IOInstruction.PRINT_LN
 
-        checkAndAddPrint(io)
+        checkAndAddPrintOrRead(io)
 
         return null
     }
 
-    private fun checkAndAddPrint(io: IOInstruction) {
+    private fun checkAndAddPrintOrRead(io: IOInstruction) {
         if (!existedHelperFunction.contains(io)) {
             existedHelperFunction.add(io)
-            val helperFunctions = addPrint(
+            val helperFunctions = addPrintOrRead(
                 io,
                 labelGenerator = msgLabelGenerator,
                 dataSegment = dataSegment
@@ -235,7 +252,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
             armHelperFunctions.addAll(helperFunctions)
         }
     }
-
 
     private fun checkAndAddRuntimeError(runtimeErrorInstruction: RuntimeErrorInstruction) {
         if (!existedHelperFunction.contains(runtimeErrorInstruction)) {
@@ -246,7 +262,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                     addCheckArrayBound(msgLabelGenerator, dataSegment)
                 RuntimeErrorInstruction.THROW_RUNTIME_ERROR -> {
                     helper = addThrowRuntimeError()
-                    checkAndAddPrint(IOInstruction.PRINT_STRING)
+                    checkAndAddPrintOrRead(IOInstruction.PRINT_STRING)
                 }
                 RuntimeErrorInstruction.THROW_OVERFLOW_ERROR -> {
                     helper =
