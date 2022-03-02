@@ -1,24 +1,33 @@
 package instruction
 
-import instruction.shiftOperand.Immediate
-import instruction.shiftOperand.ShifterOperand
+import instruction.shifter_operand.*
+import register.Register
 
-class Add(val rd: register.Register, val rn: register.Register,
+class ADD(val rd: Register, val rn: Register,
           val Op: ShifterOperand,
-          val cond: Cond = Cond.AL,
+          var cond: Cond = Cond.AL,
           val S: Boolean = false,
 ):ARM11Instruction {
+    constructor(rd: Register, rn: Register, rm: Register):
+            this(rd=rd, rn=rn, Op= Reg(rm))
 
-    constructor(rd: register.Register, rn: register.Register, rm: register.Register):
-            this(rd=rd, rn=rn, Op=Register(rm))
+    constructor(rd: Register, rn: Register, Imm: Int):
+            this(rd=rd, rn=rn, Op=Imm(Imm))
 
-    constructor(rd: register.Register, rn: register.Register, Imm: Int):
-            this(rd=rd, rn=rn, Op=Immediate(Imm))
+    constructor(rd: Register, rn: Register, rm: Register, shift: Shift, imm: Int):
+            this(rd=rd, rn=rn, Op=ShiftImm(rm, shift, imm))
+
+    constructor(rd: Register, rn: Register, rm: Register, shift: Shift, rs: Register):
+            this(rd=rd, rn=rn, Op=ShiftReg(rm, shift, rs))
+
+    fun on(cond: Cond): ADD {
+        this.cond = cond
+        return this
+    }
 
     override fun toString(): String {
         val s = if (S) "S" else ""
         return "ADD$cond${s} $rd, $rn, $Op"
     }
-
 
 }
