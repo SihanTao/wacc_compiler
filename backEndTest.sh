@@ -1,7 +1,7 @@
 #!/bin/bash
 SRC_DIR="$(pwd)/test"
 
-VALID_EXAMPLES="${SRC_DIR}/wacc_examples/valid"
+VALID_EXAMPLES="${SRC_DIR}/wacc_examples/valid/basic/exit"
 
 mkdir -p "${SRC_DIR}/log"
 mkdir -p "${SRC_DIR}/log/out"
@@ -59,9 +59,14 @@ for file in $FILES_TO_TEST;do
     # generate our output
     ./compile $file
     mv "$NAME.s" "$OUT_DIR/$NAME.s"
-    arm-linux-gnueabi-gcc -o "$OUT_DIR/${NAME}_11.s" -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "$OUT_DIR/$NAME.s" > "$OUT_DIR/${NAME}_11.s"
-    echo $INPUT | qemu-arm -L /usr/arm-linux-gnueabi/ "$OUT_DIR/${NAME}_11.s" > "$OUT_DIR/$NAME.out"
-    let our_code=$?
+    arm-linux-gnueabi-gcc -o "$OUT_DIR/${NAME}" -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "$OUT_DIR/$NAME.s"
+    echo "$INPUT" | $REFERENCE_EMULATOR "$OUT_DIR/${NAME}.s" > "$OUT_DIR/$NAME.out"
+    echo "$INPUT" | qemu-arm -L /usr/arm-linux-gnueabi/ "$OUT_DIR/${NAME}"
+    our_code=$?
+
+    awk '/-- Emulation Output:/{flag=1; next}
+     /---------------------------------------------------------------/{flag=0}
+      flag' "$OUT_DIR/$NAME.out" > tmp.out && mv tmp.out "$OUT_DIR/$NAME.out"
 
     # generate reference file
     echo $INPUT | $REFERENCE_COMPILER $file -a -x > "$OUT_DIR/${NAME}_REF.txt"
@@ -69,30 +74,26 @@ for file in $FILES_TO_TEST;do
     # get the asm and output from the generated file
     awk '/===========================================================/{n++}
       {
-        if ( n == 1 )
-          print >"tmp.s";
-        else if ( n == 3)
-          print > "tmp.out";
+          if (n == 3)
+            print > "tmp.out";
       }' "$OUT_DIR/${NAME}_REF.txt"
-    sed -i '1d' tmp.s && mv tmp.s "$OUT_DIR/${NAME}_REF.s"
     sed -i '1d' tmp.out && mv tmp.out "$OUT_DIR/${NAME}_REF.out"
 
-    let their_code=$(tail -n 3 "$OUT_DIR/${NAME}_REF.txt" | head -n 1 | grep -Eo '[0-9]+')
+    their_code=$(tail -n 3 "$OUT_DIR/${NAME}_REF.txt" | head -n 1 | grep -Eo '[0-9]+')
 
     failed=false
 
     # compare exit codes
     if [[ our_code -ne their_code ]]; then
       failed=true
-      echo "our exit code is ${our_code} but the correct exit code
-      is ${their_code}" > "$FAILS_DIR/$NAME.txt"
-      echo "-----------------------------------------" > "$FAILS_DIR/$NAME.txt"
+      echo "our exit code is ${our_code} but the correct exit code is ${their_code}" > "$FAILS_DIR/$NAME.txt"
     fi
 
     # compare our output and reference output
-    if ! cmp -s "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out"; then
+    if ! diff -b -B "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out"; then
+      echo "our output is different from refCompile"
       failed=true
-      diff "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out" > "$FAILS_DIR/$NAME.txt"
+      diff -b -B "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out" > "$FAILS_DIR/$NAME.txt"
     fi
 
     if [[ "$failed" = false ]]; then
