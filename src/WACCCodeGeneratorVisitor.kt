@@ -28,7 +28,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         generator.addCode(PUSH(Register.LR))
         symbolManager.newTable()
         visitStatNode(node.body)
-        generator.addCode(LDR(register.Register.R0, 0))
+        generator.addCode(LDR(Register.R0, 0))
         generator.addCode(POP(Register.PC))
     }
 
@@ -312,6 +312,8 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         generator.addCode("\tLDR ${reg.name}, [${reg.name}]")
         freeRegister(reg)
         generator.addCheckErrorBoundsFunc()
+
+
     }
 
     private fun visitArrayNode(node: ArrayNode) {
@@ -435,9 +437,8 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     }
 
     private fun visitCharNode(node: CharNode) {
-        val dest = nextAvailableRegister()
-        generator.addCode("\tMOV ${dest.name}, #${node.char.toInt()}")
-        freeRegister(dest)
+        val dest = registerAllocator.peekRegister()
+        generator.addCode(MOV(dest, node.char.code))
     }
 
     private fun visitFunctionCallNode(node: FunctionCallNode) {
