@@ -489,30 +489,23 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     }
 
     private fun visitPairNode(node: PairNode) {
+        val destReg = registerAllocator.consumeRegister()
         if (node.fst == null && node.snd == null) {
-            generator.addCode("\tLDR ${availableRegister[0]}, =0")
+            generator.addCode(LDR(destReg, 0))
         } else {
-            val pairLocation = nextAvailableRegister()
-            generator.addCode("\tLDR r0, =8")
-            generator.addCode("\tBL malloc")
-            generator.addCode("\tMOV ${pairLocation.name}, r0")
+            generator.addCode(LDR(Register.R0, 8))
+            generator.addCode(BL("malloc"))
+            generator.addCode((MOV(destReg, Register.R0)))
 
-            visitExprNode(node.fst!!)
-            generator.addCode("\tLDR r0, =${typeSize(node.fst!!.type!!)}")
-            generator.addCode("\tBL malloc")
-            val opcode1 = if (typeSize(node.fst!!.type!!) == 1) "STRB" else "STR"
-            generator.addCode("\t$opcode1 ${availableRegister[0]}, [r0]")
-            generator.addCode("\tSTR r0, [${pairLocation.name}]")
-
-            visitExprNode(node.snd!!)
-            generator.addCode("\tLDR r0, =${typeSize(node.snd!!.type!!)}")
-            generator.addCode("\tBL malloc")
-            val opcode2 = if (typeSize(node.snd!!.type!!) == 1) "STRB" else "STR"
-            generator.addCode("\t$opcode2 ${availableRegister[0]}, [r0]")
-            generator.addCode("\tSTR r0, [${pairLocation.name}, #4]")
-
-            freeRegister(pairLocation)
+            listOf(node.fst!!, node.snd!!).forEachIndexed{ i, expr ->
+                visitExprNode(expr)
+                generator.addCode(LDR(Register.R0, typeSize(expr.type!!)))
+                generator.addCode(BL("malloc"))
+                generator.addCode(STORE(destReg, ImmOffset(Register.R0), expr.type))
+                generator.addCode(STR(Register.R0, ImmOffset(destReg, 4*i)))
+            }
         }
+        registerAllocator.freeRegister(destReg)
     }
 
     private fun visitStringNode(node: StringNode) {
