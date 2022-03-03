@@ -12,7 +12,6 @@ import java.io.FileWriter
 import kotlin.system.exitProcess
 
 private const val SYNTAX_ERROR_EXIT_CODE = 100
-private const val SEMANTIC_ERROR_EXIT_CODE = 200
 
 fun main(args: Array<String>) {
     try {

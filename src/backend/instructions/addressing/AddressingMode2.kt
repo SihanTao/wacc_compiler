@@ -5,12 +5,12 @@ import backend.instructions.operand.Immediate
 
 class AddressingMode2 private constructor(/*
     addressing mode 2 pattern:
-    OFFSET:                                     POSTINDEX:                                  PREINDEX:
-    [<Rn>, #+/<immed_12>]                       [<Rn>], #+/<immed_12>                       [<Rn>], #+/<immed_12>
-    [<Rn>]                                      [<Rn>]                                      [<Rn>]
-    [<Rn>, +/-<Rm>]                             [<Rn>], +/-<Rm>                             [<Rn>, +/-<Rm>]!
-    [<Rn>, +/-<Rm>, LSL/LSR/ASR/ROR #<immed_5>] [<Rn>], +/-<Rm>, LSL/LSR/ASR/ROR #<immed_5> [<Rn>, +/-<Rm>, LSL/LSR/ASR/ROR #<immed_5>]!
-    [<Rn>, +/-<Rm>, RRX]                        [<Rn>], +/-<Rm>, RRX                        [<Rn>, +/-<Rm>, RRX]!
+    OFFSET:                                      PRE_INDEX:
+    [<Rn>, #+/<immed_12>]                        [<Rn>], #+/<immed_12>
+    [<Rn>]                                       [<Rn>]
+    [<Rn>, +/-<Rm>]                              [<Rn>, +/-<Rm>]!
+    [<Rn>, +/-<Rm>, LSL/LSR/ASR/ROR #<immed_5>]  [<Rn>, +/-<Rm>, LSL/LSR/ASR/ROR #<immed_5>]!
+    [<Rn>, +/-<Rm>, RRX]                         [<Rn>, +/-<Rm>, RRX]!
      */
     private val mode: AddrMode2,
     Rn: ARMRegister,
@@ -43,13 +43,13 @@ class AddressingMode2 private constructor(/*
         val str = StringBuilder()
         return when (mode) {
             AddrMode2.OFFSET -> {
-                str.append(if (rn != null) rn else "")
+                str.append(rn ?: "")
                 str.append(if (rm != null) ", $rm" else "")
                 str.append(if (operator != null) ", " + operator.name + " " else "")
                 str.append(if (immediate != null && immediate.value != 0) ", $immediate" else "")
                 "[$str]"
             }
-            AddrMode2.PREINDEX -> {
+            AddrMode2.PRE_INDEX -> {
                 str.append(if (rn != null) "[$rn" else "")
                 if (rm == null) {
                     str.append(if (immediate != null) ", $immediate" else "]")
@@ -60,10 +60,6 @@ class AddressingMode2 private constructor(/*
                 }
                 return "$str]!"
             }
-            AddrMode2.POSTINDEX -> {
-                TODO("POSTINDEX NOT IMPLEMENTED!")
-
-            }
         }
     }
 
@@ -72,7 +68,7 @@ class AddressingMode2 private constructor(/*
     }
 
     enum class AddrMode2 {
-        OFFSET, PREINDEX, POSTINDEX
+        OFFSET, PRE_INDEX
     }
 
     init {

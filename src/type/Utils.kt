@@ -115,10 +115,6 @@ class Utils {
         @JvmStatic
         val compareStatAllowedTypes: Set<Type> = setOf(STRING_T, INT_T, CHAR_T)
 
-        @JvmStatic
-        val notPrintable: Set<Type> = setOf(ArrayType(CHAR_T))
-
-
     }
 
 }

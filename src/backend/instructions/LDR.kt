@@ -26,6 +26,6 @@ class LDR(private val register: ARMRegister, private val addressing: Addressing,
     }
 
     enum class LdrMode {
-        LDR, LDRB, LDRSB, LDREQ, LDRNE, LDRLT, LDRCS
+        LDR, LDRSB, LDREQ, LDRNE, LDRLT, LDRCS
     }
 }

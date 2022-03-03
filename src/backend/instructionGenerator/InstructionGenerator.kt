@@ -333,7 +333,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(
                 STR(
                     reg!!,
-                    AddressingMode2(AddrMode2.PREINDEX, ARMRegister.SP, -size),
+                    AddressingMode2(AddrMode2.PRE_INDEX, ARMRegister.SP, -size),
                     mode
                 )
             )
@@ -880,7 +880,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 instructions.add(Sub(expr1Reg, expr1Reg, operand2, Cond.S))
             }
             Utils.Binop.MUL -> {
-                instructions.add(SMULL(expr1Reg, expr1Reg, operand2))
+                instructions.add(SMULL(expr1Reg, operand2))
             }
             Utils.Binop.AND -> {
                 instructions.add(
