@@ -3,7 +3,7 @@ package instruction
 import instruction.shifter_operand.*
 import register.Register
 
-class OOR(val rd: Register, val rn: Register,
+class ORR(val rd: Register, val rn: Register,
           val Op: ShifterOperand,
           var cond: Cond = Cond.AL,
           val S: Boolean = false,
@@ -20,7 +20,7 @@ class OOR(val rd: Register, val rn: Register,
     constructor(rd: Register, rn: Register, rm: Register, shift: Shift, rs: Register):
             this(rd=rd, rn=rn, Op= ShiftReg(rm, shift, rs))
 
-    fun on(cond: Cond): OOR {
+    fun on(cond: Cond): ORR {
         this.cond = cond
         return this
     }

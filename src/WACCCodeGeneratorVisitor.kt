@@ -16,7 +16,6 @@ import type.*
 
 class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     private val registerAllocator = RegisterAllocator()
-    private var symbolTable: SymbolTable<Pair<Int, Int>>? = null
     private val symbolManager = SymbolManager()
 
     fun visitProgramNode(node: ProgramNode) {
@@ -335,97 +334,101 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     }
 
     private fun visitBinopNode(node: BinopNode) {
+        val op: (Register, Register) -> List<ARM11Instruction>
         when (node.operator) {
             Utils.Binop.PLUS -> {
-                val add = {l:Register,r:Register -> generator.addCode("\tADD $l, $l, $r");
-                    generator.addCode("\tBLVS p_throw_overflow_error")}
-                binOpAlgo2(node.expr1, node.expr2, add)
-                generator.addPrintThrowErrorOverflowFunc()
+                op = {l, r -> listOf(
+                        ADD(l, l, r),
+                        BL("p_throw_overflow_error").on(Cond.VS)
+                )}
+                generator.addCodeDependency(ThrowOverflowError())
             }
             Utils.Binop.MINUS -> {
-                val sub = {l:Register,r:Register -> generator.addCode("\tSUB $l, $l, $r");
-                    generator.addCode("\tBLVS p_throw_overflow_error")}
-                binOpAlgo2(node.expr1, node.expr2, sub)
-                generator.addPrintThrowErrorOverflowFunc()
+                op = {l, r -> listOf(
+                        SUB(l, l, r),
+                        BL("p_throw_overflow_error").on(Cond.VS)
+                )}
+                generator.addCodeDependency(ThrowOverflowError())
             }
             Utils.Binop.MUL -> {
-                val mult = {l:Register,r:Register -> generator.addCode("\tSMULL $l, $r, $l, $r");
-                        generator.addCode("\tCMP $r, $l, ASR #31");
-                        generator.addCode("\tBLNE p_throw_overflow_error")}
-                binOpAlgo2(node.expr1, node.expr2, mult)
-                generator.addPrintThrowErrorOverflowFunc()
+                op = {l, r -> listOf(
+                        SMULL(l, r, l, r),
+                        CMP(r, ShiftImm(l, Shift.ASR, 31)),
+                        BL("p_throw_overflow_error").on(Cond.NE)
+                )}
+                generator.addCodeDependency(ThrowOverflowError())
             }
             Utils.Binop.DIV -> {
-                val div = {l:Register,r:Register -> generator.addCode("\tMOV r0, $l");
-                    generator.addCode("\tMOV r1, $r");
-                    generator.addCode("\tBL p_check_divide_by_zero")
-                    generator.addCode("\tBL __aeabi_idiv")
-                    generator.addCode("\tMOV ${l.name}, r0")
-                }
-                binOpAlgo2(node.expr1, node.expr2, div)
-                generator.addPrintDivByZeroFunc()
+                op = {l, r -> listOf(
+                        MOV(Register.R0, l),
+                        MOV(Register.R1, r),
+                        BL("p_check_divide_by_zero"),
+                        BL("__aeabi_idiv"),
+                        MOV(l, Register.R0)
+                )}
+                generator.addCodeDependency(CheckDivideByZero())
             }
             Utils.Binop.MOD -> {
-                val mod = {l:Register,r:Register -> generator.addCode("\tMOV r0, $l");
-                    generator.addCode("\tMOV r1, $r");
-                    generator.addCode("\tBL p_check_divide_by_zero")
-                    generator.addCode("\tBL __aeabi_idivmod")
-                    generator.addCode("\tMOV ${l.name}, r0")
-                }
-                binOpAlgo2(node.expr1, node.expr2, mod)
-                generator.addPrintDivByZeroFunc()
+                op = {l, r -> listOf(
+                        MOV(Register.R0, l),
+                        MOV(Register.R1, r),
+                        BL("p_check_divide_by_zero"),
+                        BL("__aeabi_idivmod"),
+                        MOV(l, Register.R0)
+                )}
+                generator.addCodeDependency(CheckDivideByZero())
             }
             Utils.Binop.GREATER -> {
-                val gt = {l:Register,r:Register -> generator.addCode("\tCMP $l, $r");
-                    generator.addCode("\tMOVGT ${l.name}, #1");
-                    generator.addCode("\tMOVLE ${l.name}, #0");
-                }
-                binOpAlgo2(node.expr1, node.expr2, gt)
+                op = {l, r -> listOf(
+                        CMP(l, r),
+                        MOV(l, 1).on(Cond.GT),
+                        MOV(l, 0).on(Cond.LE)
+                )}
             }
             Utils.Binop.GREATER_EQUAL -> {
-                val ge = {l:Register,r:Register -> generator.addCode("\tCMP $l, $r");
-                    generator.addCode("\tMOVGE $l, #1");
-                    generator.addCode("\tMOVLT $l, #0");
-                }
-                binOpAlgo2(node.expr1, node.expr2, ge)
+                op = {l, r -> listOf(
+                        CMP(l, r),
+                        MOV(l, 1).on(Cond.GE),
+                        MOV(l, 0).on(Cond.LT)
+                )}
             }
             Utils.Binop.LESS -> {
-                val gt = {l:Register,r:Register -> generator.addCode("\tCMP $l, $r");
-                    generator.addCode("\tMOVLT $l, #1");
-                    generator.addCode("\tMOVGE $l, #0");
-                }
-                binOpAlgo2(node.expr1, node.expr2, gt)
+                op = {l, r -> listOf(
+                        CMP(l, r),
+                        MOV(l, 1).on(Cond.LT),
+                        MOV(l, 0).on(Cond.GE)
+                )}
             }
             Utils.Binop.LESS_EQUAL -> {
-                val gt = {l:Register,r:Register -> generator.addCode("\tCMP $l, $r");
-                    generator.addCode("\tMOVLE $l, #1");
-                    generator.addCode("\tMOVGT $l, #0");
-                }
-                binOpAlgo2(node.expr1, node.expr2, gt)
+                op = {l, r -> listOf(
+                        CMP(l, r),
+                        MOV(l, 1).on(Cond.LE),
+                        MOV(l, 0).on(Cond.GT)
+                )}
             }
             Utils.Binop.EQUAL -> {
-                val gt = {l:Register,r:Register -> generator.addCode("\tCMP $l, $r");
-                    generator.addCode("\tMOVEQ $l, #1");
-                    generator.addCode("\tMOVNE $l, #0");
-                }
-                binOpAlgo2(node.expr1, node.expr2, gt)
+                op = {l, r -> listOf(
+                        CMP(l, r),
+                        MOV(l, 1).on(Cond.EQ),
+                        MOV(l, 0).on(Cond.NE)
+                )}
             }
             Utils.Binop.INEQUAL -> {
-                val gt = {l:Register,r:Register -> generator.addCode("\tCMP $l, $r");
-                    generator.addCode("\tMOVNE $l, #1");
-                    generator.addCode("\tMOVEQ $l, #0");
-                }
-                binOpAlgo2(node.expr1, node.expr2, gt)
+                op = {l, r -> listOf(
+                        CMP(l, r),
+                        MOV(l, 1).on(Cond.NE),
+                        MOV(l, 0).on(Cond.EQ)
+                )}
             }
             Utils.Binop.AND -> {
-                val add = {l:Register,r:Register -> generator.addCode("\tAND $l, $r")}
-                binOpAlgo2(node.expr1, node.expr2, add)
+                op = {l, r -> listOf(AND(l, l, r))}
             }
             Utils.Binop.OR -> {
-                val add = {l:Register,r:Register -> generator.addCode("\tORR $l, $l, $r")}
-                binOpAlgo2(node.expr1, node.expr2, add)
+                op = {l, r -> listOf(ORR(l, l, r))}
+
             }
         }
+        computeBinopExpr(node.expr1, node.expr2, op)
     }
 
 
@@ -530,34 +533,8 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
 
     }
 
-
-    private fun binOpAlgo2(expr1: ExprNode, expr2: ExprNode, op: (lexpr: Register, rexpr: Register) -> Unit) {
-        if (numberOfAvailableRegisters() > 2) {
-            visitExprNode(expr1)
-            val dest1 = nextAvailableRegister()
-            visitExprNode(expr2)
-            val dest2 = nextAvailableRegister()
-            op(dest1, dest2)
-            freeRegister(dest2)
-            freeRegister(dest1)
-        } else {
-            visitExprNode(expr1)
-            var dest = nextAvailableRegister()
-            generator.addCode("\tPUSH {${dest.name}}")
-            freeRegister(dest)
-
-            visitExprNode(expr2)
-            dest = nextAvailableRegister()
-            val lastReg = nextAvailableRegister()
-            generator.addCode("\tPOP {${lastReg.name}}")
-            op(dest, lastReg)
-            freeRegister(lastReg)
-            freeRegister(dest)
-        }
-    }
-
     /* =======================================================
-     *             Variable Assignment Helper
+     *                      Helper
      * =======================================================
  */
     private fun computePairElemLocation(node: PairElemNode) {
@@ -591,6 +568,31 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         }
         registerAllocator.freeRegister(locationReg)
         generator.addCodeDependency(CheckArrayBounds())
+    }
+
+    private fun computeBinopExpr(lhs: ExprNode, rhs: ExprNode, op: (lexpr: Register, rexpr: Register) -> List<ARM11Instruction>) {
+        if (registerAllocator.noOfFreeRegisters() > 2) {
+            visitExprNode(lhs)
+            val lhsReg = registerAllocator.consumeRegister()
+            visitExprNode(rhs)
+            val rhsReg = registerAllocator.peekRegister()
+            op(lhsReg, rhsReg).forEach { ins -> generator.addCode(ins) }
+            registerAllocator.freeRegister(lhsReg)
+        } else {
+            visitExprNode(rhs)
+            var rhsReg = registerAllocator.consumeRegister()
+            generator.addCode(PUSH(rhsReg))
+            symbolManager.incStackBy(4)
+            registerAllocator.freeRegister(rhsReg)
+
+            visitExprNode(lhs)
+            val lhsReg = registerAllocator.consumeRegister()
+            rhsReg = registerAllocator.peekRegister()
+            generator.addCode(POP(rhsReg))
+            symbolManager.prevScope()
+            op(lhsReg, rhsReg).forEach { ins -> generator.addCode(ins) }
+            registerAllocator.freeRegister(lhsReg)
+        }
     }
 
     private fun typeSize(type: Type): Int {
