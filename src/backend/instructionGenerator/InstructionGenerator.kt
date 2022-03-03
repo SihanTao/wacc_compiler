@@ -139,12 +139,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitReturnNode(node: ReturnNode): Void? {
         visit(node.expr)
-        instructions.add(
-            Mov(
-                ARMRegister.R0,
-                Operand2(ARMRegisterAllocator.curr())
-            )
-        )
+        instructions.add(Mov(ARMRegister.R0, ARMRegisterAllocator.curr()))
         ARMRegisterAllocator.free()
         if (funcStackSize != 0) {
             instructions.add(
@@ -170,7 +165,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
          */
         visit(node.exitCode)
         // MOV r0, r4
-        instructions.add(Mov(ARMRegister.R0, Operand2(ARMRegister.R4)))
+        instructions.add(Mov(ARMRegister.R0, ARMRegister.R4))
         // BL exit
         instructions.add(BL(SyscallInstruction.EXIT.toString()))
 
@@ -271,12 +266,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val readType =
             if (type == INT_T) IOInstruction.READ_INT else IOInstruction.READ_CHAR
 
-        instructions.add(
-            Mov(
-                ARMRegister.R0,
-                Operand2(ARMRegisterAllocator.curr())
-            )
-        )
+        instructions.add(Mov(ARMRegister.R0, ARMRegisterAllocator.curr()))
         instructions.add(BL(readType.toString()))
 
         checkAndAddPrintOrRead(readType)
@@ -287,12 +277,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitPrintNode(node: PrintNode): Void? {
         visit(node.expr!!)
-        instructions.add(
-            Mov(
-                ARMRegister.R0,
-                Operand2(ARMRegisterAllocator.curr())
-            )
-        )
+        instructions.add(Mov(ARMRegister.R0, ARMRegisterAllocator.curr()))
 
         val io: IOInstruction = when (node.expr.type!!) {
             STRING_T, CHAR_ARRAY_T -> IOInstruction.PRINT_STRING
@@ -361,24 +346,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
 
         /* 4 get result, put in register */
-        instructions.add(
-            Mov(
-                ARMRegisterAllocator.allocate(),
-                Operand2(ARMRegister.R0)
-            )
-        )
+        instructions.add(Mov(ARMRegisterAllocator.allocate(), ARMRegister.R0))
 
         return null
     }
 
     override fun visitFreeNode(node: FreeNode): Void? {
         visit(node.expr)
-        instructions.add(
-            Mov(
-                ARMRegister.R0,
-                Operand2(ARMRegisterAllocator.curr())
-            )
-        )
+        instructions.add(Mov(ARMRegister.R0, ARMRegisterAllocator.curr()))
         ARMRegisterAllocator.free()
 
         instructions.add(BL(FREE_PAIR.toString()))
@@ -624,8 +599,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
                     AddressingMode2(AddrMode2.OFFSET, addrReg)
                 )
             )
-            instructions.add(Mov(ARMRegister.R0, Operand2(indexReg)))
-            instructions.add(Mov(ARMRegister.R1, Operand2(addrReg)))
+            instructions.add(Mov(ARMRegister.R0, indexReg))
+            instructions.add(Mov(ARMRegister.R1, addrReg))
             instructions.add(BL(CHECK_ARRAY_BOUND.toString()))
             instructions.add(Add(addrReg, addrReg, Operand2(POINTERSIZE)))
             val elemSize: Int = node.type!!.size() / 2
@@ -671,7 +646,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         /* MOV the result pointer of the array to the next available register */
         val addrReg: ARMRegister = ARMRegisterAllocator.allocate()
 
-        instructions.add(Mov(addrReg, Operand2(ARMRegister.R0)))
+        instructions.add(Mov(addrReg, ARMRegister.R0))
 
         /* Store array content into registers */
         /* Decide whether to store a byte or a word */
@@ -712,7 +687,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
          * reg is expected register where visit will put value in
          */
 
-        val reg: ARMRegister = ARMRegisterAllocator.next()!!
+        val register: ARMRegister = ARMRegisterAllocator.next()!!
         /* e.g. In read fst a, (fst a) is lhs but (a) is rhs */
         val isLhsOutside: Boolean = isExprLhs
         isExprLhs = false
@@ -720,9 +695,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         isExprLhs = isLhsOutside
 
         /* move pair pointer to r0, prepare for null pointer check  */
-        instructions.add(
-            Mov(ARMRegister.R0, Operand2(reg))
-        )
+        instructions.add(Mov(ARMRegister.R0, register))
 
         /* BL null pointer check */
         instructions.add(BL(CHECK_NULL_POINTER.toString()))
@@ -733,16 +706,16 @@ class InstructionGenerator : ASTVisitor<Void?> {
          */
 
         val addrMode: AddressingMode2 = if (node.isFirst()) {
-            AddressingMode2(AddrMode2.OFFSET, reg)
+            AddressingMode2(AddrMode2.OFFSET, register)
         } else {
-            AddressingMode2(AddrMode2.OFFSET, reg, POINTERSIZE)
+            AddressingMode2(AddrMode2.OFFSET, register, POINTERSIZE)
         }
 
         if (isExprLhs) {
-            instructions.add(LDR(reg, addrMode))
+            instructions.add(LDR(register, addrMode))
         } else {
-            instructions.add(LDR(reg, addrMode))
-            instructions.add(LDR(reg, reg))
+            instructions.add(LDR(register, addrMode))
+            instructions.add(LDR(register, register))
         }
 
         return null
@@ -766,7 +739,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )
         val pairPointer: ARMRegister = ARMRegisterAllocator.allocate()
 
-        instructions.add(Mov(pairPointer, Operand2(ARMRegister.R0)))
+        instructions.add(Mov(pairPointer, ARMRegister.R0))
 
         /* 2 visit both child */
         visitPairChildExpr(
@@ -953,7 +926,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
 
         if (expr1.weight() < expr2.weight()) {
-            instructions.add(Mov(expr2Reg, Operand2(expr1Reg)))
+            instructions.add(Mov(expr2Reg, expr1Reg))
         }
 
         ARMRegisterAllocator.free()

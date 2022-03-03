@@ -11,6 +11,8 @@ class Mov(val cond: Cond, val Rd: ARMRegister, val operand2: Operand2) :
     * MOV{cond} Rd, #imm16
     * */
 
+    constructor(Rd: ARMRegister, Rm: ARMRegister): this(Cond.NONE, Rd, Operand2(Rm))
+
     constructor(Rd: ARMRegister, operand2: Operand2) : this(
         Cond.NONE,
         Rd,
