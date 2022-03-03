@@ -33,6 +33,10 @@ class WACCCodeGenerator {
         }
     }
 
+    fun addGlobalDirective(symbol: String) {
+
+    }
+
     fun generateAssembleCode(writer: PrintWriter) {
         if (!staticDataTable.isEmpty()) {
             writer.println(".data")
@@ -49,6 +53,7 @@ class WACCCodeGenerator {
         codeDependencies.forEach { func -> library.addAll(func.getInstructions(this)) }
 
         writer.println(".text")
+        writer.println()
         textSectionCode.forEach{code -> writer.println(formatCode(code))}
         library.forEach{code -> writer.println(formatCode(code))}
     }
@@ -60,5 +65,7 @@ class WACCCodeGenerator {
             return instruction.toString()
         }
     }
+
+    fun addCode(str: String) {}
 
 }

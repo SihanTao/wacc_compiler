@@ -1,6 +1,7 @@
 package instruction
 
 import instruction.addressing_mode.AddressingMode
+import instruction.addressing_mode.Constant
 import instruction.addressing_mode.ImmOffset
 import instruction.addressing_mode.StaticRef
 import register.Register
@@ -10,7 +11,10 @@ class LDR(val rd: Register,
           var cond: Cond = Cond.AL,): ARM11Instruction
 {
     constructor(rd: Register, `=`: String):
-            this(rd, StaticRef(`=`))
+            this(rd, StaticRef(`=`), cond=Cond.AL)
+
+    constructor(rd: Register, `=`: Int):
+            this(rd, Constant(`=`), cond=Cond.AL)
 
     fun on(cond: Cond): LDR {
         this.cond = cond
