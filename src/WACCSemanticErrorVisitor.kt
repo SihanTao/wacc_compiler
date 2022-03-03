@@ -360,15 +360,16 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
 
         val indexList: MutableList<ExprNode> = java.util.ArrayList()
 
+        var type = array.type
         for (exprContext in ctx.expr()) {
             val index: ExprNode = visit(exprContext) as ExprNode
             semanticError = semanticError || typeCheck(exprContext, INT_T, index.type!!)
             indexList.add(index)
+
+            type = (type as ArrayType).getContentType()
         }
 
-        val arrayType = array.type as ArrayType
-
-        return ArrayElemNode(array, indexList, arrayType.getContentType(), arrayIdent, symbol)
+        return ArrayElemNode(array, indexList, type!!, arrayIdent, symbol)
     }
 
     override fun visitArrayExpr(ctx: ArrayExprContext?): Node {
