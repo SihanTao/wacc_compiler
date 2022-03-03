@@ -302,21 +302,34 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     }
 
     private fun visitArrayNode(node: ArrayNode) {
-        val arraySize = node.length * typeSize(node.contentType!!) + typeSize(BasicType(BasicTypeEnum.INTEGER))
-        generator.addCode("\tLDR r0, =$arraySize")
-        generator.addCode("\tBL malloc")
-        val arrayDest = nextAvailableRegister()
-        generator.addCode("\tMOV ${arrayDest.name}, r0")
-        var exprDest = 4
+        var arraySize = typeSize(BasicType(BasicTypeEnum.INTEGER))
+        if (node.length > 0) {
+            arraySize += node.length * typeSize(node.contentType!!)
+        }
+
+        generator.addCode(LDR(Register.R0, arraySize))
+        generator.addCode(BL("malloc"))
+        val dest = registerAllocator.consumeRegister()
+        generator.addCode(MOV(dest, Register.R0))
+
+        var elemDest = 4
         for (expr in node.content) {
             visitExprNode(expr)
-            val opcode = if (typeSize(node.contentType!!) == 1) "STRB" else "STR"
-            generator.addCode("\t$opcode ${availableRegister[0]}, [${arrayDest.name}, #$exprDest]")
-            exprDest += typeSize(node.contentType!!)
+            val exprReg = registerAllocator.peekRegister()
+            val elemSize = typeSize(node.contentType!!)
+            if (elemSize == 1) {
+                generator.addCode(STRB(exprReg, ImmOffset(exprReg, elemDest)))
+            } else {
+                generator.addCode(STR(exprReg, ImmOffset(exprReg, elemDest)))
+            }
+            elemDest += elemSize
         }
-        generator.addCode("\tLDR ${availableRegister[0]}, =${node.length}")
-        generator.addCode("\tSTR ${availableRegister[0]}, [${arrayDest.name}]")
-        freeRegister(arrayDest)
+
+        val lengthReg = registerAllocator.peekRegister()
+        generator.addCode(LDR(lengthReg, node.length))
+        generator.addCode(STR(lengthReg, ImmOffset(dest)))
+        registerAllocator.freeRegister(dest)
+
     }
 
     private fun visitBinopNode(node: BinopNode) {
