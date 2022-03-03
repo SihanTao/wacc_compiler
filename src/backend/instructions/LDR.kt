@@ -4,14 +4,17 @@ import backend.ARMRegister
 import backend.instructions.addressing.Addressing
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.ImmAddressing
+import backend.instructions.addressing.LabelAddressing
 
-class LDR(val register: ARMRegister, val addressing: Addressing, private val mode: LdrMode) : Instruction {
+class LDR(private val register: ARMRegister, private val addressing: Addressing, private val mode: LdrMode) : Instruction {
 
     constructor(register: ARMRegister, addressing: Addressing) : this(register, addressing, LdrMode.LDR)
 
     // Constructor for immediate : e.g. LDR r4, =4
     constructor(register: ARMRegister, int: Int): this(register, ImmAddressing(int))
 
+    // Constructor for labels : LDR r4, =msg_0
+    constructor(register: ARMRegister, label: Label): this(register, LabelAddressing(label))
     constructor(register: ARMRegister, register2: ARMRegister): this(register, AddressingMode2(AddressingMode2.AddrMode2.OFFSET, register2))
 
     @Override

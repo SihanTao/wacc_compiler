@@ -443,12 +443,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val label = msgLabelGenerator.getLabel()
         dataSegment[label] = str
 
-        instructions.add(
-            LDR(
-                ARMRegisterAllocator.allocate(),
-                LabelAddressing(label)
-            )
-        )
+        instructions.add(LDR(ARMRegisterAllocator.allocate(), label))
 
         return null
     }
@@ -620,13 +615,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 }
             } else {
                 indexReg = ARMRegisterAllocator.allocate()
-                instructions
-                    .add(
-                        LDR(
-                            indexReg,
-                            ImmAddressing(index.value)
-                        )
-                    )
+                instructions.add(LDR(indexReg, index.value))
             }
 
             /* check array bound */
@@ -705,12 +694,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         /* STR the size of the array in the first byte */
         val sizeReg: ARMRegister = ARMRegisterAllocator.allocate()
-        instructions.add(
-            LDR(
-                sizeReg,
-                ImmAddressing(node.length)
-            )
-        )
+        instructions.add(LDR(sizeReg, node.length))
 
         instructions.add(
             STR(
@@ -768,24 +752,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
     override fun visitPairNode(node: PairNode): Void? {
         /* null is also a pairNode */
         if (node.fst == null || node.snd == null) {
-            instructions.add(
-                LDR(
-                    ARMRegisterAllocator.allocate(),
-                    ImmAddressing(0)
-                )
-            )
+            instructions.add(LDR(ARMRegisterAllocator.allocate(), 0))
             return null
         }
 
         /* 1 malloc pair */
         /* 1.1 move size of a pair in r0
          * a pair in heap is 2 pointers */
-        instructions.add(
-            LDR(
-                ARMRegister.R0,
-                ImmAddressing(2 * POINTERSIZE)
-            )
-        )
+        instructions.add(LDR(ARMRegister.R0, 2 * POINTERSIZE))
 
         /* 1.2 BL malloc and get pointer in general use register */
         instructions.add(
@@ -821,12 +795,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         visit(child)
 
         /* move size of fst in r0 */
-        instructions.add(
-            LDR(
-                ARMRegister.R0,
-                ImmAddressing(child.type!!.size())
-            )
-        )
+        instructions.add(LDR(ARMRegister.R0, child.type!!.size()))
 
         /* BL malloc */
         instructions.add(
