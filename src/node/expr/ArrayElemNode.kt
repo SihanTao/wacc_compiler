@@ -6,15 +6,18 @@ import backend.ASTVisitor
 import type.ArrayType
 import type.Type
 
+/**
+ * Represent the array_elem expression
+ * Examples: a[0], a[2][7], b[5], where `a` and `b` are arrays
+ */
+
 class ArrayElemNode(
-    /**
-     * Represent the array_elem expression
-     * Examples: a[0], a[2][7], b[5], where `a` and `b` are arrays
-     */
     /* the array where this array_elem is located */
-    val array: ExprNode, /* a list of indices needed in multilevel indexing. e.g. a[3][4][5] */
+    val array: ExprNode,
+    /* a list of indices needed in multilevel indexing. e.g. a[3][4][5] */
     var index: List<ExprNode>,
     type: Type,
+    /* name of the array identifier*/
     val name: String,
     val symbol: Symbol
 ): ExprNode() {
