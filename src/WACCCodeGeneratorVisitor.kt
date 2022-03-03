@@ -431,9 +431,8 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
 
     private fun visitBoolNode(node: BoolNode) {
         val value = if (node.`val`) 1 else 0
-        val dest = nextAvailableRegister()
-        generator.addCode("\tMOV ${dest.name}, #$value")
-        freeRegister(dest)
+        val dest = registerAllocator.peekRegister()
+        generator.addCode(MOV(dest, value))
     }
 
     private fun visitCharNode(node: CharNode) {
