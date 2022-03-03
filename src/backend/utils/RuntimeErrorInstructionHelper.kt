@@ -1,16 +1,14 @@
-package backend.instructions
+package backend.utils
 
-import backend.ARMRegister
-import backend.Cond
-import backend.instructionGenerator.LabelGenerator
+import backend.instructions.*
+import backend.register.ARMRegister
 import backend.instructions.LDR.LdrMode
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.LabelAddressing
-import backend.instructions.operand.Operand2
 import java.util.*
 
-enum class RuntimeErrorInstruction : Instruction {
+enum class RuntimeErrorInstructionHelper: Instruction {
     CHECK_DIVIDE_BY_ZERO, THROW_RUNTIME_ERROR, CHECK_ARRAY_BOUND, CHECK_NULL_POINTER,
     THROW_OVERFLOW_ERROR, FREE_PAIR;
 
@@ -109,7 +107,7 @@ enum class RuntimeErrorInstruction : Instruction {
         fun addThrowRuntimeError(): List<Instruction> {
             return listOf(
                 Label(THROW_RUNTIME_ERROR.toString()),
-                BL(IOInstruction.PRINT_STRING.toString()),
+                BL(IOInstructionHelper.PRINT_STRING.toString()),
                 Mov(ARMRegister.R0, Operand2(-1)),
                 BL(SyscallInstruction.EXIT.toString())
             )

@@ -1,6 +1,6 @@
 package backend.instructions
 
-import backend.ARMRegister
+import backend.register.ARMRegister
 
 class Pop(register: ARMRegister) : Instruction {
     private val register: ARMRegister

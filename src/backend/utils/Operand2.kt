@@ -1,6 +1,6 @@
-package backend.instructions.operand
+package backend.utils
 
-import backend.ARMRegister
+import backend.register.ARMRegister
 
 class Operand2 {
     enum class Operand2Operator {
@@ -18,8 +18,11 @@ class Operand2 {
     }
 
     /* Can be a constant */
-    constructor(immediate: Immediate?) : this(null, Operand2Operator.NONE, immediate)
-    constructor(intVal: Int) : this(null, Operand2Operator.NONE, Immediate(intVal))
+    constructor(immediate: Immediate?) : this(null,
+        Operand2Operator.NONE, immediate)
+    constructor(intVal: Int) : this(null,
+        Operand2Operator.NONE, Immediate(intVal)
+    )
 
     /* Can be a register with optional shift
     *  Rm{, shift}

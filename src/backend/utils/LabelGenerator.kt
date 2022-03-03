@@ -1,4 +1,4 @@
-package backend.instructionGenerator
+package backend.utils
 
 import backend.instructions.Label
 

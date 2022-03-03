@@ -1,6 +1,6 @@
 package backend.instructions
 
-import backend.ARMRegister
+import backend.register.ARMRegister
 import backend.instructions.addressing.Addressing
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.ImmAddressing

@@ -1,6 +1,6 @@
 package backend.instructions
 
-import backend.Cond
+import backend.utils.Cond
 
 class B(val cond: Cond, val label: Label): Instruction {
     constructor(cond: Cond, labelName: String): this(cond, Label(labelName))

@@ -1,3 +1,5 @@
+package frontend
+
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.tree.TerminalNode
 import type.Type
@@ -45,13 +47,13 @@ class ErrorHandler private constructor() {
         }
 
         fun symbolNotExist(ctx: ParserRuleContext?, ident: String) {
-            val msg = "Symbol $ident is not found in the current scope of the program"
+            val msg = "symbolTable.Symbol $ident is not found in the current scope of the program"
             errorHandler(ctx, msg)
             exitProcess(SEMANTIC_ERROR_CODE)
         }
 
         fun symbolRedeclare(ctx: ParserRuleContext?, ident: String) {
-            val msg = "Symbol $ident has already been declared in the current scope of the program"
+            val msg = "symbolTable.Symbol $ident has already been declared in the current scope of the program"
             errorHandler(ctx, msg)
         }
 

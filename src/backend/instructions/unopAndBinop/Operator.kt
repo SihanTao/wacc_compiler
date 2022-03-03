@@ -1,9 +1,10 @@
 package backend.instructions.unopAndBinop
 
-import backend.ARMRegister
-import backend.Cond
+import backend.register.ARMRegister
+import backend.utils.Cond
 import backend.instructions.*
-import backend.instructions.operand.Operand2
+import backend.utils.Operand2
+import backend.utils.RuntimeErrorInstructionHelper
 import type.Utils
 import java.lang.UnsupportedOperationException
 
@@ -20,7 +21,7 @@ class Operator {
             val res: MutableList<Instruction> = mutableListOf(
                 Mov(ARMRegister.R0, Operand2(Rd)),
                 Mov(ARMRegister.R1, Operand2(Rn)),
-                BL(RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO.toString())
+                BL(RuntimeErrorInstructionHelper.CHECK_DIVIDE_BY_ZERO.toString())
             )
 
             if (op == Utils.Binop.DIV) {

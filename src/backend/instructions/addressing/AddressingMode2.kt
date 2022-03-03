@@ -1,7 +1,7 @@
 package backend.instructions.addressing
 
-import backend.ARMRegister
-import backend.instructions.operand.Immediate
+import backend.register.ARMRegister
+import backend.utils.Immediate
 
 class AddressingMode2 private constructor(/*
     addressing mode 2 pattern:

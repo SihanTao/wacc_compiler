@@ -1,14 +1,13 @@
-package backend.instructions
+package backend.utils
 
-import backend.ARMRegister
-import backend.instructionGenerator.LabelGenerator
+import backend.instructions.*
+import backend.register.ARMRegister
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.LabelAddressing
-import backend.instructions.operand.Operand2
 import backend.instructions.unopAndBinop.Add
 import java.util.*
 
-enum class IOInstruction : Instruction {
+enum class IOInstructionHelper: Instruction {
     // Print
     PRINT_INT, PRINT_BOOL, PRINT_CHAR, PRINT_STRING, PRINT_LN, PRINT_REFERENCE,
 
@@ -34,11 +33,11 @@ enum class IOInstruction : Instruction {
 
         // The main print or read function
         fun addPrintOrRead(
-            ioInstruction: IOInstruction,
+            ioInstructionHelper: IOInstructionHelper,
             labelGenerator: LabelGenerator,
             dataSegment: MutableMap<Label, String>
         ): List<Instruction> {
-            return when (ioInstruction) {
+            return when (ioInstructionHelper) {
                 PRINT_STRING -> addPrintString(dataSegment, labelGenerator)
                 PRINT_LN -> addPrintln(dataSegment, labelGenerator)
                 PRINT_INT -> addPrintInt(dataSegment, labelGenerator)
@@ -210,7 +209,7 @@ enum class IOInstruction : Instruction {
         }
 
         private fun addRead(
-            readInstruction: IOInstruction,
+            readInstruction: IOInstructionHelper,
             dataSegment: MutableMap<Label, String>,
             labelGenerator: LabelGenerator
         ): List<Instruction> {

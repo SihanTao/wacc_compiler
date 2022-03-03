@@ -1,9 +1,9 @@
 package backend.instructions.unopAndBinop
 
-import backend.ARMRegister
-import backend.Cond
+import backend.register.ARMRegister
+import backend.utils.Cond
 import backend.instructions.Instruction
-import backend.instructions.operand.Operand2
+import backend.utils.Operand2
 
 class Sub(
     private val Rd: ARMRegister,

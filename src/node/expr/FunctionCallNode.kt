@@ -1,7 +1,7 @@
 package node.expr
 
 import node.FuncNode
-import SymbolTable
+import symbolTable.SymbolTable
 import backend.ASTVisitor
 
 class FunctionCallNode(

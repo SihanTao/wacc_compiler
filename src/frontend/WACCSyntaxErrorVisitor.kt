@@ -1,3 +1,5 @@
+package frontend
+
 import antlr.WACCParser
 import antlr.WACCParserBaseVisitor
 import antlr.WACCParser.IntLiterContext

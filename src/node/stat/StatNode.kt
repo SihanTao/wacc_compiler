@@ -1,6 +1,6 @@
 package node.stat
 
-import SymbolTable
+import symbolTable.SymbolTable
 import node.Node
 
     /**

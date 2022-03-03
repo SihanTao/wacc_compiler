@@ -1,8 +1,8 @@
 package backend.instructions.unopAndBinop
 
-import backend.ARMRegister
+import backend.register.ARMRegister
 import backend.instructions.Instruction
-import backend.instructions.operand.Operand2
+import backend.utils.Operand2
 
 class RSBS(
     private val Rd: ARMRegister,

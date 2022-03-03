@@ -1,5 +1,10 @@
 package backend
 
+import backend.directive.Code
+import backend.directive.Data
+import backend.directive.Directive
+import backend.directive.Text
+
 class CodeGenerator(data: Data?, text: Text?, code: Code?) {
 
     private val directives: MutableList<Directive?>

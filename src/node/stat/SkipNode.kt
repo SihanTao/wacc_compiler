@@ -1,6 +1,6 @@
 package node.stat
 
-import SymbolTable
+import symbolTable.SymbolTable
 import backend.ASTVisitor
 
 class SkipNode(symbolTable: SymbolTable) : StatNode() {

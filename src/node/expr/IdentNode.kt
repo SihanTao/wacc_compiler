@@ -1,6 +1,6 @@
 package node.expr
 
-import Symbol
+import symbolTable.Symbol
 import backend.ASTVisitor
 import type.Type
 

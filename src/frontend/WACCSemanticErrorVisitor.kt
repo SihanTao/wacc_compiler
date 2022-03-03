@@ -1,8 +1,12 @@
-import ErrorHandler.Companion.SEMANTIC_ERROR_CODE
-import ErrorHandler.Companion.invalidFuncArgCount
-import ErrorHandler.Companion.invalidPairError
-import ErrorHandler.Companion.returnFromMainError
-import ErrorHandler.Companion.symbolRedeclare
+package frontend
+
+import frontend.ErrorHandler.Companion.SEMANTIC_ERROR_CODE
+import frontend.ErrorHandler.Companion.invalidFuncArgCount
+import frontend.ErrorHandler.Companion.invalidPairError
+import frontend.ErrorHandler.Companion.returnFromMainError
+import frontend.ErrorHandler.Companion.symbolRedeclare
+import symbolTable.Symbol
+import symbolTable.SymbolTable
 import antlr.WACCParser.*
 import antlr.WACCParserBaseVisitor
 import node.*
@@ -77,7 +81,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             globalFuncTable!![funcName]!!.functionBody = functionBody
         }
 
-        /* visit the body of the program and create the root SymbolTable here */
+        /* visit the body of the program and create the root symbolTable.SymbolTable here */
         isMainFunction = true
         symbolTable = SymbolTable(symbolTable)
 
@@ -300,7 +304,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     }
 
     override fun visitScopeStat(ctx: ScopeStatContext?): Node {
-        /* simply create a new SymbolTable to represent a BEGIN ... END statement */
+        /* simply create a new symbolTable.SymbolTable to represent a BEGIN ... END statement */
         symbolTable = SymbolTable(symbolTable)
         val body: StatNode = visit(ctx!!.stat()) as StatNode
         val scopeNode = SequenceNode(body)

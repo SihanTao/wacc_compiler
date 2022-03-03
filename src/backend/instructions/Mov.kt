@@ -1,8 +1,8 @@
 package backend.instructions
 
-import backend.ARMRegister
-import backend.Cond
-import backend.instructions.operand.Operand2
+import backend.register.ARMRegister
+import backend.utils.Cond
+import backend.utils.Operand2
 
 class Mov(val cond: Cond, val Rd: ARMRegister, val operand2: Operand2) :
     Instruction {

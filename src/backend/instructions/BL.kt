@@ -1,6 +1,6 @@
 package backend.instructions
 
-import backend.Cond
+import backend.utils.Cond
 
 class BL(private val cond: Cond, val label: String) : Instruction {
     // BL {cond} Label

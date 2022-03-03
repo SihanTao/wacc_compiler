@@ -1,7 +1,7 @@
 package backend.instructions
 
-import backend.ARMRegister
-import backend.instructions.operand.Operand2
+import backend.register.ARMRegister
+import backend.utils.Operand2
 
 class Cmp(val Rd: ARMRegister, val operand2: Operand2) : Instruction {
     constructor(Rd: ARMRegister, operand2: Int): this(Rd, Operand2(operand2))

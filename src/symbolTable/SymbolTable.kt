@@ -1,10 +1,13 @@
+package symbolTable
+
+import frontend.ErrorHandler
 import node.expr.ExprNode
 
 class SymbolTable(val parentSymbolTable: SymbolTable?) {
     /**
-     * SymbolTable will record an identifier String and an ExprNode as the node representing the value
-     * of that identifier in the current scope. It will also contain a copy of its parent SymbolTable.
-     * The parent of the root SymbolTable will be set to null.
+     * symbolTable.SymbolTable will record an identifier String and an ExprNode as the node representing the value
+     * of that identifier in the current scope. It will also contain a copy of its parent symbolTable.SymbolTable.
+     * The parent of the root symbolTable.SymbolTable will be set to null.
      */
 
     private val dictionary = HashMap<String, Symbol>()
@@ -56,7 +59,7 @@ class SymbolTable(val parentSymbolTable: SymbolTable?) {
             return parentSymbolTable.getStackOffset(name, symbol) - parentSymbolTable.tableSize
         }
 
-        println("SymbolTable getStackOffset Wrong")
+        println("symbolTable.SymbolTable getStackOffset Wrong")
         return -1
     }
 }

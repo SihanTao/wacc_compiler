@@ -1,7 +1,7 @@
 package node.expr
 
-import ErrorHandler.Companion.indexOutOfBoundError
-import Symbol
+import frontend.ErrorHandler.Companion.indexOutOfBoundError
+import symbolTable.Symbol
 import backend.ASTVisitor
 import type.ArrayType
 import type.Type

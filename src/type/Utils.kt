@@ -1,5 +1,6 @@
 package type
 
+import frontend.ErrorHandler
 import org.antlr.v4.runtime.ParserRuleContext
 
 class Utils {

@@ -1,27 +1,29 @@
-package backend.instructionGenerator
+package backend
 
-import SymbolTable
-import backend.ARMRegister
-import backend.ARMRegisterAllocator
-import backend.ASTVisitor
-import backend.Cond
+import symbolTable.SymbolTable
 import backend.instructions.*
-import backend.instructions.IOInstruction.Companion.addPrintOrRead
+import backend.utils.IOInstructionHelper.Companion.addPrintOrRead
 import backend.instructions.LDR.LdrMode
-import backend.instructions.RuntimeErrorInstruction.*
-import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
-import backend.instructions.RuntimeErrorInstruction.Companion.addCheckDivByZero
-import backend.instructions.RuntimeErrorInstruction.Companion.addCheckNullPointer
-import backend.instructions.RuntimeErrorInstruction.Companion.addFree
-import backend.instructions.RuntimeErrorInstruction.Companion.addThrowOverflowError
-import backend.instructions.RuntimeErrorInstruction.Companion.addThrowRuntimeError
+import backend.utils.RuntimeErrorInstructionHelper.*
+import backend.utils.RuntimeErrorInstructionHelper.Companion.addCheckArrayBound
+import backend.utils.RuntimeErrorInstructionHelper.Companion.addCheckDivByZero
+import backend.utils.RuntimeErrorInstructionHelper.Companion.addCheckNullPointer
+import backend.utils.RuntimeErrorInstructionHelper.Companion.addFree
+import backend.utils.RuntimeErrorInstructionHelper.Companion.addThrowOverflowError
+import backend.utils.RuntimeErrorInstructionHelper.Companion.addThrowRuntimeError
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
-import backend.instructions.operand.Immediate
-import backend.instructions.operand.Operand2
-import backend.instructions.operand.Operand2.Operand2Operator
+import backend.utils.Immediate
+import backend.utils.Operand2
+import backend.utils.Operand2.Operand2Operator
 import backend.instructions.unopAndBinop.*
 import backend.instructions.unopAndBinop.Operator.Companion.addCompare
+import backend.register.ARMRegister
+import backend.register.ARMRegisterAllocator
+import backend.utils.Cond
+import backend.utils.IOInstructionHelper
+import backend.utils.LabelGenerator
+import backend.utils.RuntimeErrorInstructionHelper
 import node.FuncNode
 import node.ProgramNode
 import node.expr.*
@@ -195,7 +197,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         funcStackSize += stackSize
 
         // visit all the nodes
-        // Set up the current Symbol Table
+        // Set up the current symbolTable.Symbol Table
         currentSymbolTable = node.scope
         for (elem in nodes) {
             visit(elem)
@@ -264,7 +266,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         /* choose between read_int and read_char */
         val readType =
-            if (type == INT_T) IOInstruction.READ_INT else IOInstruction.READ_CHAR
+            if (type == INT_T) IOInstructionHelper.READ_INT else IOInstructionHelper.READ_CHAR
 
         instructions.add(Mov(ARMRegister.R0, ARMRegisterAllocator.curr()))
         instructions.add(BL(readType.toString()))
@@ -279,12 +281,12 @@ class InstructionGenerator : ASTVisitor<Void?> {
         visit(node.expr!!)
         instructions.add(Mov(ARMRegister.R0, ARMRegisterAllocator.curr()))
 
-        val io: IOInstruction = when (node.expr.type!!) {
-            STRING_T, CHAR_ARRAY_T -> IOInstruction.PRINT_STRING
-            INT_T -> IOInstruction.PRINT_INT
-            CHAR_T -> IOInstruction.PRINT_CHAR
-            BOOL_T -> IOInstruction.PRINT_BOOL
-            else -> IOInstruction.PRINT_REFERENCE // Array type and pair type
+        val io: IOInstructionHelper = when (node.expr.type!!) {
+            STRING_T, CHAR_ARRAY_T -> IOInstructionHelper.PRINT_STRING
+            INT_T -> IOInstructionHelper.PRINT_INT
+            CHAR_T -> IOInstructionHelper.PRINT_CHAR
+            BOOL_T -> IOInstructionHelper.PRINT_BOOL
+            else -> IOInstructionHelper.PRINT_REFERENCE // Array type and pair type
         }
 
         instructions.add(BL(io.toString()))
@@ -298,8 +300,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitPrintlnNode(node: PrintlnNode): Void? {
         visit(PrintNode(node.expr))
-        instructions.add(BL(IOInstruction.PRINT_LN.toString()))
-        val io = IOInstruction.PRINT_LN
+        instructions.add(BL(IOInstructionHelper.PRINT_LN.toString()))
+        val io = IOInstructionHelper.PRINT_LN
 
         checkAndAddPrintOrRead(io)
 
@@ -362,7 +364,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         return null
     }
 
-    private fun checkAndAddPrintOrRead(io: IOInstruction) {
+    private fun checkAndAddPrintOrRead(io: IOInstructionHelper) {
         if (!existedHelperFunction.contains(io)) {
             existedHelperFunction.add(io)
             val helperFunctions = addPrintOrRead(
@@ -374,16 +376,16 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
     }
 
-    private fun checkAndAddRuntimeError(runtimeErrorInstruction: RuntimeErrorInstruction) {
-        if (!existedHelperFunction.contains(runtimeErrorInstruction)) {
-            existedHelperFunction.add(runtimeErrorInstruction)
+    private fun checkAndAddRuntimeError(runtimeErrorInstructionHelper: RuntimeErrorInstructionHelper) {
+        if (!existedHelperFunction.contains(runtimeErrorInstructionHelper)) {
+            existedHelperFunction.add(runtimeErrorInstructionHelper)
             val helper: List<Instruction>
-            when (runtimeErrorInstruction) {
+            when (runtimeErrorInstructionHelper) {
                 CHECK_ARRAY_BOUND -> helper =
                     addCheckArrayBound(msgLabelGenerator, dataSegment)
                 THROW_RUNTIME_ERROR -> {
                     helper = addThrowRuntimeError()
-                    checkAndAddPrintOrRead(IOInstruction.PRINT_STRING)
+                    checkAndAddPrintOrRead(IOInstructionHelper.PRINT_STRING)
                 }
                 THROW_OVERFLOW_ERROR -> {
                     helper =
@@ -403,7 +405,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
             }
 
-            if (runtimeErrorInstruction != THROW_RUNTIME_ERROR) {
+            if (runtimeErrorInstructionHelper != THROW_RUNTIME_ERROR) {
                 checkAndAddRuntimeError(THROW_RUNTIME_ERROR)
                 existedHelperFunction.add(THROW_RUNTIME_ERROR)
             }

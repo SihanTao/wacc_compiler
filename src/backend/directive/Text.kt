@@ -1,4 +1,6 @@
-package backend
+package backend.directive
+
+import backend.directive.Directive
 
 class Text : Directive {
     @Override

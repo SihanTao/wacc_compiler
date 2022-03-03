@@ -1,10 +1,13 @@
 // import ANTLR package
 import antlr.*
-import backend.Code
+import backend.directive.Code
 import backend.CodeGenerator
-import backend.Data
-import backend.Text
-import backend.instructionGenerator.InstructionGenerator
+import backend.directive.Data
+import backend.directive.Text
+import backend.InstructionGenerator
+import frontend.WACCSemanticErrorVisitor
+import frontend.WACCSyntaxErrorListener
+import frontend.WACCSyntaxErrorVisitor
 import org.antlr.v4.runtime.*
 import java.io.File
 import java.io.FileNotFoundException

@@ -1,3 +1,5 @@
+package symbolTable
+
 import node.expr.ExprNode
 
 class Symbol(val node: ExprNode?, val offset: Int) {

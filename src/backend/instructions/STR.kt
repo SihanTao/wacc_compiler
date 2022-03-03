@@ -1,6 +1,6 @@
 package backend.instructions
 
-import backend.ARMRegister
+import backend.register.ARMRegister
 import backend.instructions.addressing.Addressing
 
 class STR(

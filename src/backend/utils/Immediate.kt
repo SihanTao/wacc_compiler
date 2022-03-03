@@ -1,4 +1,4 @@
-package backend.instructions.operand
+package backend.utils
 
 class Immediate(val value: Int, val isChar: Boolean) {
     constructor(value: Int) : this(value, false)
