@@ -18,18 +18,10 @@ class AddressingMode2 private constructor(/*
     operator: AddrMode2Operator?,
     immed: Immediate?
 ) : Addressing {
-    private val Rn: ARMRegister?
-    private val Rm: ARMRegister?
+    private val rn: ARMRegister?
+    private val rm: ARMRegister?
     private val operator: AddrMode2Operator?
-    private val immed: Immediate?
-
-    constructor(
-        mode: AddrMode2,
-        Rn: ARMRegister,
-        Rm: ARMRegister?,
-        operator: AddrMode2Operator?
-    ) : this(mode, Rn, Rm, operator, null)
-
+    private val immediate: Immediate?
 
     constructor(mode: AddrMode2, Rn: ARMRegister) : this(
         mode,
@@ -51,20 +43,20 @@ class AddressingMode2 private constructor(/*
         val str = StringBuilder()
         return when (mode) {
             AddrMode2.OFFSET -> {
-                str.append(if (Rn != null) Rn else "")
-                str.append(if (Rm != null) ", $Rm" else "")
+                str.append(if (rn != null) rn else "")
+                str.append(if (rm != null) ", $rm" else "")
                 str.append(if (operator != null) ", " + operator.name + " " else "")
-                str.append(if (immed != null && immed.value != 0) ", $immed" else "")
+                str.append(if (immediate != null && immediate.value != 0) ", $immediate" else "")
                 "[$str]"
             }
             AddrMode2.PREINDEX -> {
-                str.append(if (Rn != null) "[$Rn" else "")
-                if (Rm == null) {
-                    str.append(if (immed != null) ", $immed" else "]")
+                str.append(if (rn != null) "[$rn" else "")
+                if (rm == null) {
+                    str.append(if (immediate != null) ", $immediate" else "]")
                 } else {
-                    str.append(", $Rm")
+                    str.append(", $rm")
                     str.append(if (operator != null) ", " + operator.name + " " else "")
-                    str.append(if (immed != null) ", $immed" else "")
+                    str.append(if (immediate != null) ", $immediate" else "")
                 }
                 return "$str]!"
             }
@@ -84,9 +76,9 @@ class AddressingMode2 private constructor(/*
     }
 
     init {
-        this.Rn = Rn
-        this.Rm = Rm
+        this.rn = Rn
+        this.rm = Rm
         this.operator = operator
-        this.immed = immed
+        this.immediate = immed
     }
 }

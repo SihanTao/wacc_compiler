@@ -680,11 +680,11 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         for (i in 0 until node.length) {
             visit(node.content[i])
-            val STRIndex: Int = i * node.getContentSize() + WORDSIZE
+            val strIndex: Int = i * node.getContentSize() + WORDSIZE
             instructions.add(
                 STR(
                     ARMRegisterAllocator.curr(),
-                    AddressingMode2(AddrMode2.OFFSET, addrReg, STRIndex),
+                    AddressingMode2(AddrMode2.OFFSET, addrReg, strIndex),
                     mode
                 )
             )

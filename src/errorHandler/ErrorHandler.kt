@@ -1,4 +1,3 @@
-import antlr.WACCParser
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.tree.TerminalNode
 import type.Type

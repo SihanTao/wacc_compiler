@@ -8,16 +8,16 @@ import backend.instructions.operand.Operand2
 class Add : Instruction {
     /* ADD{cond}{S} <Rd>, <Rn>, <operand2> */
     private val cond: Cond
-    private val Rn: ARMRegister
-    private val Rd: ARMRegister
+    private val rn: ARMRegister
+    private val rd: ARMRegister
     private val operand2: Operand2
 
     constructor(
         Rd: ARMRegister, Rn: ARMRegister,
         operand2: Operand2
     ) {
-        this.Rd = Rd
-        this.Rn = Rn
+        this.rd = Rd
+        this.rn = Rn
         this.operand2 = operand2
         this.cond = Cond.NONE
     }
@@ -26,13 +26,13 @@ class Add : Instruction {
         Rd: ARMRegister, Rn: ARMRegister,
         operand2: Operand2, cond: Cond
     ) {
-        this.Rd = Rd
-        this.Rn = Rn
+        this.rd = Rd
+        this.rn = Rn
         this.operand2 = operand2
         this.cond = cond
     }
 
     override fun toString(): String {
-        return "ADD$cond $Rd, $Rn, $operand2"
+        return "ADD$cond $rd, $rn, $operand2"
     }
 }

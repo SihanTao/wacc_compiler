@@ -10,12 +10,12 @@ class Operand2 {
 
     private var immed: Immediate?
     private var operator: Operand2Operator
-    private var Rm: ARMRegister?
+    private var rm: ARMRegister?
 
     constructor(Rm: ARMRegister?, operator: Operand2Operator, immed: Immediate?) {
         this.immed = immed
         this.operator = operator
-        this.Rm = Rm
+        this.rm = Rm
     }
 
     constructor(immed: Immediate?) : this(null, Operand2Operator.NONE, immed)
@@ -26,7 +26,7 @@ class Operand2 {
 
     override fun toString(): String {
         val res = StringBuilder()
-        if (Rm != null) res.append(Rm.toString())
+        if (rm != null) res.append(rm.toString())
         if (operator != Operand2Operator.NONE) res.append(", $operator ")
         if (immed != null) res.append(immed.toString())
         return res.toString()
