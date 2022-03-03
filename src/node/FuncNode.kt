@@ -1,5 +1,6 @@
 package node
 
+import backend.ASTVisitor
 import node.expr.IdentNode
 import node.stat.StatNode
 import type.Type
@@ -22,5 +23,9 @@ class FuncNode(
             size += ident.type!!.size()
         }
         return size
+    }
+
+    override fun <T> accept(astVisitor: ASTVisitor<T>): T? {
+        return astVisitor.visitFuncNode(this)
     }
 }

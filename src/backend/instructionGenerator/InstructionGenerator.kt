@@ -72,12 +72,20 @@ class InstructionGenerator : ASTVisitor<Void?> {
         * .text
         *
         * .global main
+        * f_...
+        *   ...
+        *
         * main:
         *   PUSH {lr}
         *   LDR r0, =0
+        *   ...
         *   POP {pc}
         *   .ltorg
         * */
+
+        for (func in node.functions.values) {
+            visit(func)
+        }
 
         // main:
         instructions.add(Label("main"))
@@ -125,7 +133,6 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )
         instructions.add(LTORG())
 
-        println("Leave FuncNode")
         return null
     }
 
