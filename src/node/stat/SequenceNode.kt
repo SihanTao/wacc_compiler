@@ -8,7 +8,7 @@ class SequenceNode : StatNode {
      * <stat> ; <stat> sequential statement
     </stat></stat></stat> */
     val body: MutableList<StatNode> = ArrayList<StatNode>()
-    private var isFuncBody = false
+    var isFuncBody = false
     private var isBeginEnd = false
 
     constructor(node: StatNode) {

@@ -81,15 +81,22 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         isMainFunction = true
         symbolTable = SymbolTable(symbolTable)
 
-        val body: StatNode = visit(ctx.stat()) as StatNode
-        body.scope = symbolTable
+        var body: StatNode = visit(ctx.stat()) as StatNode
+
+        if (body !is SequenceNode) {
+            body = SequenceNode(body)
+            if (body.scope == null) {
+                body.scope = symbolTable
+            }
+        }
+
         symbolTable = symbolTable!!.parentSymbolTable
+
+
         if (semanticError) {
             exitProcess(SEMANTIC_ERROR_CODE)
         }
-        return if (body !is SequenceNode) {
-            ProgramNode(globalFuncTable!!, SequenceNode(body))
-        } else ProgramNode(globalFuncTable!!, body)
+        return ProgramNode(globalFuncTable!!, body)
     }
 
     override fun visitFunc(ctx: FuncContext?): Node {
@@ -111,15 +118,19 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             tempStackAddr += param.type!!.size()
             symbolTable!!.add(param.name, param, tempStackAddr)
         }
-//        for (param in funcNode.paramList!!) {
-//            semanticError = semanticError or symbolTable!!.add(param!!.name, param)
-//        }
 
         val functionBody: StatNode = visit(ctx.stat()) as StatNode
         functionBody.scope = symbolTable
         symbolTable = symbolTable!!.parentSymbolTable
 
-        return functionBody
+        if (functionBody is SequenceNode) {
+            functionBody.isFuncBody = true
+            return functionBody
+        }
+        val enclosedBody = SequenceNode(functionBody)
+        enclosedBody.isFuncBody = true
+
+        return enclosedBody
     }
 
     override fun visitParam(ctx: ParamContext?): Node {
@@ -153,11 +164,10 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
             expr.type = varType
         }
 
-        val node: StatNode = DeclareStatNode(varName, expr)
-        node.scope = symbolTable
-
         semanticError = semanticError || symbolTable!!.add(varName, expr)
 
+        val node: StatNode = DeclareStatNode(varName, expr)
+        node.scope = symbolTable
 
         return node
     }
@@ -236,6 +246,7 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
     override fun visitPrintStat(ctx: PrintStatContext?): Node {
         val printContent: ExprNode? = visit(ctx!!.expr()) as ExprNode?
         val node: StatNode = PrintNode(printContent)
+        node.scope = symbolTable
 
         return node
     }
@@ -294,6 +305,12 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val body: StatNode = visit(ctx!!.stat()) as StatNode
         val scopeNode = SequenceNode(body)
         scopeNode.scope = symbolTable
+
+        // Avoid Null scope
+        if (scopeNode.scope == null) {
+            scopeNode.scope = symbolTable
+        }
+
         symbolTable = symbolTable!!.parentSymbolTable
 
         return scopeNode
