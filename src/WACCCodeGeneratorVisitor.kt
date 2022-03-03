@@ -11,6 +11,7 @@ import node.stat.*
 import register.Register
 import register.RegisterAllocator
 import type.*
+import kotlin.math.exp
 
 class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     private val registerAllocator = RegisterAllocator()
@@ -521,24 +522,19 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     }
 
     private fun visitUnopNode(node: UnopNode) {
+        visitExprNode(node.expr)
+        val exprReg = registerAllocator.peekRegister()
         when (node.operator) {
-            Utils.Unop.NOT -> {
-                visitExprNode(node.expr)
-                generator.addCode("\tEOR ${availableRegister[0]}, ${availableRegister[0]}, #1")
-            }
-            Utils.Unop.LEN -> {
-                visitExprNode(node.expr)
-                generator.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}]")
-            }
+            Utils.Unop.NOT -> generator.addCode(EOR(exprReg, exprReg, 1))
+            Utils.Unop.LEN -> generator.addCode(LDR(exprReg, ImmOffset(exprReg)))
             Utils.Unop.MINUS -> {
-                visitExprNode(node.expr)
-                generator.addCode("\tRSBS ${availableRegister[0]}, ${availableRegister[0]}, #0");
-                generator.addCode("\tBLVS p_throw_overflow_error");
-                generator.addPrintThrowErrorOverflowFunc()
+                generator.addCode(RSBS(exprReg, exprReg, 0))
+                generator.addCode(BL("p_throw_overflow_error").on(Cond.VS))
+                generator.addCodeDependency(ThrowOverflowError())
             }
-            Utils.Unop.ORD -> { visitExprNode(node.expr) }
-            Utils.Unop.CHR -> { visitExprNode(node.expr) }
+            else -> { /*Do Nothing */}
         }
+
     }
 
 
