@@ -9,6 +9,9 @@ import java.lang.UnsupportedOperationException
 
 class Operator {
     companion object {
+        private const val DIVIDE_LABEL_MSG = "__aeabi_idiv"
+        private const val MOD_LABEL_MSG = "__aeabi_idivmod"
+
         fun addDivMod(
             Rd: ARMRegister,
             Rn: ARMRegister,
@@ -21,11 +24,11 @@ class Operator {
             )
 
             if (op == Utils.Binop.DIV) {
-                res.add(BL("__aeabi_idiv"))
+                res.add(BL(DIVIDE_LABEL_MSG))
                 res.add(Mov(Rd, Operand2(ARMRegister.R0)))
             } else {
                 // MOD
-                res.add(BL("__aeabi_idivmod"))
+                res.add(BL(MOD_LABEL_MSG))
                 res.add(Mov(Rd, Operand2(ARMRegister.R1)))
             }
 
