@@ -291,29 +291,9 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
      */
 
     private fun visitArrayElemNode(node: ArrayElemNode) {
-        val res = symbolTable!!.lookupAll(node.arrayIdent)!!
-        val destScopeDepth = res.second
-        var offset = res.first
-        for (i in currScopeDepth downTo (destScopeDepth + 1)) {
-            offset += symbolTable!!.lookupAll("#localVariableNo_$i")!!.first
-        }
-        val reg = nextAvailableRegister()
-        generator.addCode("\tADD ${reg.name}, sp, #${offset}")
-
-        for (index in node.index) {
-            visitExprNode(index)
-            generator.addCode("\tLDR ${reg.name}, [${reg.name}]")
-            generator.addCode("\tMOV r0, ${availableRegister[0]}")
-            generator.addCode("\tMOV r1, ${reg.name}")
-            generator.addCode("\tBL p_check_array_bounds")
-            generator.addCode("\tADD ${reg.name}, ${reg.name}, #4")
-            generator.addCode("\tADD ${reg.name}, ${reg.name}, ${availableRegister[0]}, LSL #${log2(typeSize(node.type!!))}")
-        }
-        generator.addCode("\tLDR ${reg.name}, [${reg.name}]")
-        freeRegister(reg)
-        generator.addCheckErrorBoundsFunc()
-
-
+        computeArrayElemLocation(node)
+        val resultReg = registerAllocator.peekRegister()
+        generator.addCode(LDR(resultReg, ImmOffset(resultReg)))
     }
 
     private fun visitArrayNode(node: ArrayNode) {
@@ -596,12 +576,12 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         generator.addCodeDependency(CheckNullPointer())
     }
 
-    private fun computeArrayElemLocation(lhs: ArrayElemNode) {
+    private fun computeArrayElemLocation(node: ArrayElemNode) {
         /* compute the address of PairElem and store it in first available register */
         val locationReg = registerAllocator.consumeRegister()
-        val arrayLocation = symbolManager.lookup(lhs.arrayIdent)
+        val arrayLocation = symbolManager.lookup(node.arrayIdent)
         generator.addCode(ADD(locationReg, Register.SP, arrayLocation))
-        for (index in lhs.index) {
+        for (index in node.index) {
             visitExprNode(index)
             val indexExprReg = registerAllocator.peekRegister()
             generator.addCode(LDR(locationReg, ImmOffset(locationReg)))
@@ -609,7 +589,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
             generator.addCode(MOV(Register.R1, locationReg))
             generator.addCode(BL("p_check_array_bounds"))
             generator.addCode(ADD(locationReg, locationReg, 4))
-            generator.addCode(ADD(locationReg, locationReg, ShiftImm(indexExprReg, Shift.LSL, log2(typeSize(lhs.type!!)))))
+            generator.addCode(ADD(locationReg, locationReg, ShiftImm(indexExprReg, Shift.LSL, log2(typeSize(node.type!!)))))
         }
         registerAllocator.freeRegister(locationReg)
         generator.addCodeDependency(CheckArrayBounds())
