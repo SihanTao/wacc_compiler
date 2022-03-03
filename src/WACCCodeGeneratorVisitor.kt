@@ -512,8 +512,9 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     }
 
     private fun visitStringNode(node: StringNode) {
-        val msgInt = generator.addStringToTable(node.string, node.length - 2)
-        generator.addCode("\tLDR r4, =msg_$msgInt")
+        val msgCode = generator.addDataElement(node.string)
+        val resulrReg = registerAllocator.peekRegister()
+        generator.addCode(LDR(resulrReg, "msg_$msgCode"))
     }
 
     private fun visitUnopNode(node: UnopNode) {
