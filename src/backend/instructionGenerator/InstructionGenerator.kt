@@ -8,6 +8,7 @@ import backend.Cond
 import backend.instructions.*
 import backend.instructions.IOInstruction.Companion.addPrintOrRead
 import backend.instructions.LDR.LdrMode
+import backend.instructions.RuntimeErrorInstruction.*
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckArrayBound
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckDivByZero
 import backend.instructions.RuntimeErrorInstruction.Companion.addCheckNullPointer
@@ -16,8 +17,6 @@ import backend.instructions.RuntimeErrorInstruction.Companion.addThrowOverflowEr
 import backend.instructions.RuntimeErrorInstruction.Companion.addThrowRuntimeError
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.AddressingMode2.AddrMode2
-import backend.instructions.addressing.ImmAddressing
-import backend.instructions.addressing.LabelAddressing
 import backend.instructions.operand.Immediate
 import backend.instructions.operand.Operand2
 import backend.instructions.operand.Operand2.Operand2Operator
@@ -382,8 +381,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )
         ARMRegisterAllocator.free()
 
-        instructions.add(BL(RuntimeErrorInstruction.FREE_PAIR.toString()))
-        checkAndAddRuntimeError(RuntimeErrorInstruction.FREE_PAIR)
+        instructions.add(BL(FREE_PAIR.toString()))
+        checkAndAddRuntimeError(FREE_PAIR)
 
         return null
     }
@@ -405,33 +404,33 @@ class InstructionGenerator : ASTVisitor<Void?> {
             existedHelperFunction.add(runtimeErrorInstruction)
             val helper: List<Instruction>
             when (runtimeErrorInstruction) {
-                RuntimeErrorInstruction.CHECK_ARRAY_BOUND -> helper =
+                CHECK_ARRAY_BOUND -> helper =
                     addCheckArrayBound(msgLabelGenerator, dataSegment)
-                RuntimeErrorInstruction.THROW_RUNTIME_ERROR -> {
+                THROW_RUNTIME_ERROR -> {
                     helper = addThrowRuntimeError()
                     checkAndAddPrintOrRead(IOInstruction.PRINT_STRING)
                 }
-                RuntimeErrorInstruction.THROW_OVERFLOW_ERROR -> {
+                THROW_OVERFLOW_ERROR -> {
                     helper =
                         addThrowOverflowError(msgLabelGenerator, dataSegment)
                 }
-                RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO -> helper =
+                CHECK_DIVIDE_BY_ZERO -> helper =
                     addCheckDivByZero(
                         msgLabelGenerator,
                         dataSegment
                     )
-                RuntimeErrorInstruction.FREE_PAIR -> helper = addFree(
+                FREE_PAIR -> helper = addFree(
                     msgLabelGenerator,
                     dataSegment
                 )
-                RuntimeErrorInstruction.CHECK_NULL_POINTER -> helper =
+                CHECK_NULL_POINTER -> helper =
                     addCheckNullPointer(msgLabelGenerator, dataSegment)
 
             }
 
-            if (runtimeErrorInstruction != RuntimeErrorInstruction.THROW_RUNTIME_ERROR) {
-                checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_RUNTIME_ERROR)
-                existedHelperFunction.add(RuntimeErrorInstruction.THROW_RUNTIME_ERROR)
+            if (runtimeErrorInstruction != THROW_RUNTIME_ERROR) {
+                checkAndAddRuntimeError(THROW_RUNTIME_ERROR)
+                existedHelperFunction.add(THROW_RUNTIME_ERROR)
             }
 
             armHelperFunctions.addAll(helper)
@@ -593,9 +592,9 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )) + stackOffset
         instructions.add(Add(addrReg, ARMRegister.SP, Operand2(offset)))
 
-        checkAndAddRuntimeError(RuntimeErrorInstruction.CHECK_ARRAY_BOUND)
+        checkAndAddRuntimeError(CHECK_ARRAY_BOUND)
         checkAndAddRuntimeError(
-            RuntimeErrorInstruction.THROW_RUNTIME_ERROR
+            THROW_RUNTIME_ERROR
         )
 
         var indexReg: ARMRegister
@@ -627,7 +626,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             )
             instructions.add(Mov(ARMRegister.R0, Operand2(indexReg)))
             instructions.add(Mov(ARMRegister.R1, Operand2(addrReg)))
-            instructions.add(BL(RuntimeErrorInstruction.CHECK_ARRAY_BOUND.toString()))
+            instructions.add(BL(CHECK_ARRAY_BOUND.toString()))
             instructions.add(Add(addrReg, addrReg, Operand2(POINTERSIZE)))
             val elemSize: Int = node.type!!.size() / 2
             instructions.add(
@@ -726,8 +725,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )
 
         /* BL null pointer check */
-        instructions.add(BL(RuntimeErrorInstruction.CHECK_NULL_POINTER.toString()))
-        checkAndAddRuntimeError(RuntimeErrorInstruction.CHECK_NULL_POINTER)
+        instructions.add(BL(CHECK_NULL_POINTER.toString()))
+        checkAndAddRuntimeError(CHECK_NULL_POINTER)
 
         /* get the reg pointing to child
          * store snd in the same register, save register space
@@ -836,20 +835,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 instructions.add(LDR(currentARMRegister, currentARMRegister))
             }
             Utils.Unop.MINUS -> {
-                instructions.add(
-                    RSBS(
-                        currentARMRegister,
-                        currentARMRegister,
-                        0
-                    )
-                )
+                instructions.add(RSBS(currentARMRegister, currentARMRegister, 0))
                 instructions.add(
                     BL(
                         Cond.VS,
-                        RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()
+                        THROW_OVERFLOW_ERROR.toString()
                     )
                 )
-                checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
+                checkAndAddRuntimeError(THROW_OVERFLOW_ERROR)
             }
             else -> {
             } // For ORD and CHR, do nothing
@@ -933,10 +926,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(
                 BL(
                     Cond.VS,
-                    RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()
+                    THROW_OVERFLOW_ERROR.toString()
                 )
             )
-            checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
+            checkAndAddRuntimeError(THROW_OVERFLOW_ERROR)
         }
 
         if (node.operator == Utils.Binop.MUL) {
@@ -949,14 +942,14 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(
                 BL(
                     Cond.NE,
-                    RuntimeErrorInstruction.THROW_OVERFLOW_ERROR.toString()
+                    THROW_OVERFLOW_ERROR.toString()
                 )
             )
-            checkAndAddRuntimeError(RuntimeErrorInstruction.THROW_OVERFLOW_ERROR)
+            checkAndAddRuntimeError(THROW_OVERFLOW_ERROR)
         }
 
         if (node.operator == Utils.Binop.DIV || node.operator == Utils.Binop.MOD) {
-            checkAndAddRuntimeError(RuntimeErrorInstruction.CHECK_DIVIDE_BY_ZERO)
+            checkAndAddRuntimeError(CHECK_DIVIDE_BY_ZERO)
         }
 
         if (expr1.weight() < expr2.weight()) {

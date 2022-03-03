@@ -6,8 +6,6 @@ import backend.instructions.*
 import backend.instructions.operand.Operand2
 import type.Utils
 import java.lang.UnsupportedOperationException
-import javax.accessibility.AccessibleStateSet
-import kotlin.jvm.internal.PropertyReference1
 
 class Operator {
     companion object {
