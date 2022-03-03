@@ -713,7 +713,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
          */
 
         val reg: ARMRegister = ARMRegisterAllocator.next()!!
-        /* e.g. read fst a, (fst a) is lhs but (a) is rhs */
+        /* e.g. In read fst a, (fst a) is lhs but (a) is rhs */
         val isLhsOutside: Boolean = isExprLhs
         isExprLhs = false
         visit(node.pair)

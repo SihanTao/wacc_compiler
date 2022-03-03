@@ -4,7 +4,7 @@ import backend.ASTVisitor
 import node.expr.ExprNode
 
 /**
- * Represent a printline statement
+ * Represent a println statement
  */
 
 class PrintlnNode(

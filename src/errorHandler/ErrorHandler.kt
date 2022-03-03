@@ -11,7 +11,7 @@ class ErrorHandler private constructor() {
      */
 
 
-    /* add a private constructor to prevent this class from instantization */
+    /* add a private constructor to prevent this class from instantiation */
     init {
         throw IllegalStateException("SemanticErrorHandler cannot be instantiated!")
     }

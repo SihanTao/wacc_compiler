@@ -20,7 +20,7 @@ class ARMRegisterAllocator {
             return registers[--counter]
         }
 
-        // The counter points to the next free reg to be used
+        // The counter is the next free reg to be used
         fun curr(): ARMRegister {
             return registers[if (counter > GENERAL_REG_START) counter - 1 else counter]
         }

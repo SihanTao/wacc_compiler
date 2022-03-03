@@ -8,17 +8,17 @@ class Operand2 {
         LSL, LSR, ASR, ROR, RRX, NONE
     }
 
-    private var immed: Immediate?
+    private var immediate: Immediate?
     private var operator: Operand2Operator
     private var rm: ARMRegister?
 
-    constructor(Rm: ARMRegister?, operator: Operand2Operator, immed: Immediate?) {
-        this.immed = immed
+    constructor(Rm: ARMRegister?, operator: Operand2Operator, immediate: Immediate?) {
+        this.immediate = immediate
         this.operator = operator
         this.rm = Rm
     }
 
-    constructor(immed: Immediate?) : this(null, Operand2Operator.NONE, immed)
+    constructor(immediate: Immediate?) : this(null, Operand2Operator.NONE, immediate)
     constructor(intVal: Int) : this(null, Operand2Operator.NONE, Immediate(intVal))
     constructor(Rm: ARMRegister) : this(Rm, Operand2Operator.NONE, null)
     constructor(Rm: ARMRegister, operator: Operand2Operator) : this(Rm, operator, null)
@@ -28,7 +28,7 @@ class Operand2 {
         val res = StringBuilder()
         if (rm != null) res.append(rm.toString())
         if (operator != Operand2Operator.NONE) res.append(", $operator ")
-        if (immed != null) res.append(immed.toString())
+        if (immediate != null) res.append(immediate.toString())
         return res.toString()
     }
 }
