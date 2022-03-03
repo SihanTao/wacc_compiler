@@ -293,7 +293,12 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     private fun visitArrayElemNode(node: ArrayElemNode) {
         computeArrayElemLocation(node)
         val resultReg = registerAllocator.peekRegister()
-        generator.addCode(LDR(resultReg, ImmOffset(resultReg)))
+        if (typeSize(node.type!!) == 1) {
+            TODO("not sure")
+            generator.addCode(LDRSB(resultReg, ImmOffset(resultReg)))
+        } else {
+            generator.addCode(LDR(resultReg, ImmOffset(resultReg)))
+        }
     }
 
     private fun visitArrayNode(node: ArrayNode) {
@@ -459,24 +464,15 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         val dest = registerAllocator.peekRegister()
         generator.addCode(LDR(dest, node.value))
     }
-    private fun visitPairElemNode(node: PairElemNode) {
-        visitExprNode(node.pair)
-        generator.addCode("\tMOV r0, ${availableRegister[0]}")
-        generator.addCode("\tBL p_check_null_pointer")
-        var type: Type
-        if (node.isFirst) {
-            generator.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}]")
-            // WRONG
-            type = node.fst().type!!
-        } else {
-            generator.addCode("\tLDR ${availableRegister[0]}, [${availableRegister[0]}, #4]")
-            // WRONG
-            type = node.snd().type!!
-        }
-        val opcode = if (typeSize(type)==1) "LDRSB" else "LDR"
-        generator.addCode("\t$opcode ${availableRegister[0]}, [${availableRegister[0]}]")
-        generator.addCheckNullPointerError()
 
+    private fun visitPairElemNode(node: PairElemNode) {
+        computePairElemLocation(node)
+        val resultReg = registerAllocator.peekRegister()
+        if (typeSize(node.type!!) == 1) {
+            LDRSB(resultReg, ImmOffset(resultReg))
+        } else {
+            LDR(resultReg, ImmOffset(resultReg))
+        }
     }
 
     private fun visitPairNode(node: PairNode) {
@@ -562,13 +558,13 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
      *             Variable Assignment Helper
      * =======================================================
  */
-    private fun computePairElemLocation(lhs: PairElemNode) {
+    private fun computePairElemLocation(node: PairElemNode) {
         /* compute the address of PairElem and store it in first available register */
         val locationReg = registerAllocator.peekRegister()
-        visitExprNode(lhs.pair)
+        visitExprNode(node.pair)
         generator.addCode(MOV(Register.R0, locationReg))
         generator.addCode(BL("p_check_null_pointer"))
-        if (lhs.isFirst) {
+        if (node.isFirst) {
             generator.addCode(LDR(locationReg, ImmOffset(locationReg)))
         } else {
             generator.addCode(LDR(locationReg, ImmOffset(locationReg, 4)))
