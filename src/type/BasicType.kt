@@ -26,4 +26,8 @@ class BasicType(val typeEnum: BasicTypeEnum) : Type {
             BasicTypeEnum.STRING -> POINTERSIZE
         }
     }
+
+    override fun hashCode(): Int {
+        return typeEnum.hashCode()
+    }
 }

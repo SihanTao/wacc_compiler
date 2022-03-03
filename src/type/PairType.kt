@@ -4,10 +4,6 @@ import type.Type.Companion.POINTERSIZE
 
 class PairType constructor(val fstType: Type? = null, val sndType: Type? = null) : Type {
 
-    fun asPairType(): PairType {
-        return this
-    }
-
     override fun equals(other: Any?): Boolean {
         if (other == null) {
             return true
@@ -25,11 +21,8 @@ class PairType constructor(val fstType: Type? = null, val sndType: Type? = null)
 
     private fun subTypeCoerce(thisType: Type?, thatType: Type?): Boolean {
         if (thisType == null || thatType == null) {
-            /* if either thisType or thatType is null, then we can coerce them
-       * see comments in PairNode class for more information */
             return true
         } else if (thisType is PairType) {
-            /*  */
             return thatType is PairType
         }
         return thisType == thatType
@@ -37,5 +30,11 @@ class PairType constructor(val fstType: Type? = null, val sndType: Type? = null)
 
     override fun toString(): String {
         return "Pair<$fstType, $sndType>"
+    }
+
+    override fun hashCode(): Int {
+        var result = fstType?.hashCode() ?: 0
+        result = 31 * result + (sndType?.hashCode() ?: 0)
+        return result
     }
 }
