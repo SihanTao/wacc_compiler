@@ -476,9 +476,8 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     }
 
     private fun visitIntNode(node: IntNode) {
-        val dest = nextAvailableRegister()
-        generator.addCode("\tLDR ${dest.name}, =${node.value}")
-        freeRegister(dest)
+        val dest = registerAllocator.peekRegister()
+        generator.addCode(LDR(dest, node.value))
     }
     private fun visitPairElemNode(node: PairElemNode) {
         visitExprNode(node.pair)
