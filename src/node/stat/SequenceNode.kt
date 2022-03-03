@@ -47,6 +47,6 @@ class SequenceNode : StatNode {
     }
 
     fun size(): Int {
-        return scope?.tableSize ?: 0
+        return if (isFuncBody) 0 else scope!!.tableSize
     }
 }

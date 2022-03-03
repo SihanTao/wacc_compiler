@@ -182,6 +182,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val nodes: List<StatNode> = node.body
 
         // SUB enough space in stack
+        // when this is a function body, stackSize = 0
         val stackSize: Int = node.size()
         var temp = stackSize
         while (temp > 0) {
@@ -197,6 +198,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
             temp -= stackStep
         }
 
+        funcStackSize += stackSize
+
         // visit all the nodes
         // Set up the current Symbol Table
         currentSymbolTable = node.scope
@@ -205,6 +208,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
         // All stat in the node are visited, returned to parent scope
         currentSymbolTable = currentSymbolTable!!.parentSymbolTable
+
+        funcStackSize -= stackSize
 
         // restore the stack
         temp = stackSize
