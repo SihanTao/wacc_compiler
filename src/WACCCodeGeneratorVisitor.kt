@@ -1,6 +1,8 @@
 import instruction.*
 import instruction.addressing_mode.AddressingMode
 import instruction.addressing_mode.ImmOffset
+import instruction.addressing_mode.ImmPreIndex
+import instruction.addressing_mode.Sign
 import instruction.shifter_operand.Shift
 import instruction.shifter_operand.ShiftImm
 import instruction.waccLibrary.*
@@ -439,24 +441,26 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     }
 
     private fun visitFunctionCallNode(node: FunctionCallNode) {
-        val currSymbolTable = symbolTable
-        val scopeDepth = currScopeDepth
-        var paramsSize = 0;
-        for (param in node.params.reversed()) {
+        var paramsSize = 0
+        node.params.reversed().forEach { param ->
             visitExprNode(param)
-            val size = typeSize(param.type!!)
-            val opcode = if (size == 1) "STRB" else "STR"
-            paramsSize += size
-            generator.addCode("\t$opcode ${availableRegister[0]}, [sp, #-${size}]!")
-            symbolTable = SymbolTable(symbolTable)
-            currScopeDepth += 1
-            symbolTable!!.add("#localVariableNo_$currScopeDepth", Pair(size, currScopeDepth))
+            val exprReg = registerAllocator.peekRegister()
+            val paramSize = typeSize(param.type!!)
+            if (paramSize == 1) {
+                generator.addCode(STRB(exprReg, ImmPreIndex(Register.SP, Pair(Sign.MINUS, paramSize))))
+            } else {
+                generator.addCode(STR(exprReg, ImmPreIndex(Register.SP, Pair(Sign.MINUS, paramSize))))
+            }
+            symbolManager.incStackBy(paramSize)
+            paramsSize += paramSize
         }
-        generator.addCode("\tBL f_${node.function.identifier}")
-        if (paramsSize > 0) generator.addCode("\tADD sp, sp, #$paramsSize")
-        generator.addCode("\tMOV ${availableRegister[0]}, r0")
-        currScopeDepth = scopeDepth
-        symbolTable = currSymbolTable
+
+        generator.addCode(BL("f_${node.function.identifier}"))
+        val resultReg = registerAllocator.peekRegister()
+        if (paramsSize > 0) generator.addCode(ADD(Register.SP, Register.SP, paramsSize))
+        generator.addCode(MOV(resultReg, Register.R0))
+        repeat(node.params.size) {symbolManager.prevScope()}
+
     }
 
     private fun visitIdentNode(node: IdentNode) {
