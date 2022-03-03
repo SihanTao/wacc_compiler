@@ -56,6 +56,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
     // Used to record the number of bytes used by the function
     private var funcStackSize = 0
 
+    private var stackOffset = 0
+
     companion object {
         private const val MAX_STACK_STEP = 1024
         private const val BRANCH_LABEL = "L"
@@ -317,7 +319,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitFunctionCallNode(node: FunctionCallNode): Void? {
         var paramSize = 0
-        var stackOffset = 0
+        stackOffset = 0
 
         for (expr in node.params.reversed()) {
             val reg = ARMRegisterAllocator.next()
@@ -336,6 +338,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             stackOffset += size
         }
 
+        stackOffset = 0
         instructions.add(
             BL(
                 "f_" + node.function.name
@@ -518,7 +521,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             currentSymbolTable!!.tableSize - currentSymbolTable!!.getStackOffset(
                 node.name,
                 node.symbol!!
-            )
+            ) + stackOffset
 
         val mode = if (typeSize > 1) LdrMode.LDR else LdrMode.LDRSB
 
@@ -587,7 +590,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 - currentSymbolTable!!.getStackOffset(
             node.name,
             node.symbol
-        ))
+        )) + stackOffset
         instructions.add(Add(addrReg, ARMRegister.SP, Operand2(offset)))
 
         checkAndAddRuntimeError(RuntimeErrorInstruction.CHECK_ARRAY_BOUND)
