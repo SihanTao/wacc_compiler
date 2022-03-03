@@ -96,7 +96,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         // Load the main body
         visit(node.body)
         // set the exit value:
-        instructions.add(LDR(ARMRegister.R0, ImmAddressing(0)))
+        instructions.add(LDR(ARMRegister.R0, 0))
         // POP {pc}
         instructions.add(Pop(ARMRegister.PC))
         // .ltorg
@@ -255,7 +255,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
     override fun visitIntNode(node: IntNode): Void? {
         // First allocate the register: start from R4 if
         val register: ARMRegister = ARMRegisterAllocator.allocate()
-        instructions.add(LDR(register, ImmAddressing(node.value)))
+        instructions.add(LDR(register, node.value))
         return null
     }
 
@@ -674,7 +674,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         /* load R0 with the number of bytes needed*/
         instructions.add(
-            LDR(ARMRegister.R0, ImmAddressing(size))
+            LDR(ARMRegister.R0, size)
         )
 
         // Malloc
