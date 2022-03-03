@@ -2,7 +2,6 @@ package backend.instructions.operand
 
 import backend.ARMRegister
 
-/* operand specified as Table 1-14 in ARM spec */
 class Operand2 {
     enum class Operand2Operator {
         LSL, LSR, ASR, ROR, RRX, NONE
@@ -18,8 +17,13 @@ class Operand2 {
         this.rm = Rm
     }
 
+    /* Can be a constant */
     constructor(immediate: Immediate?) : this(null, Operand2Operator.NONE, immediate)
     constructor(intVal: Int) : this(null, Operand2Operator.NONE, Immediate(intVal))
+
+    /* Can be a register with optional shift
+    *  Rm{, shift}
+    * */
     constructor(Rm: ARMRegister) : this(Rm, Operand2Operator.NONE, null)
     constructor(Rm: ARMRegister, operator: Operand2Operator) : this(Rm, operator, null)
     constructor(Rm: ARMRegister, operator: Operand2Operator, value: Int): this(Rm, operator, Immediate(value))
