@@ -81,7 +81,7 @@ enum class RuntimeErrorInstruction : Instruction {
                 Push(ARMRegister.LR),
                 Cmp(ARMRegister.R0, Operand2(0)),
                 LDR(ARMRegister.R0, LabelAddressing(msg), LdrMode.LDREQ),
-                B(THROW_RUNTIME_ERROR.toString(), Cond.EQ),
+                B(Cond.EQ, THROW_RUNTIME_ERROR.toString()),
                 Push(ARMRegister.R0),
                 LDR(
                     ARMRegister.R0,

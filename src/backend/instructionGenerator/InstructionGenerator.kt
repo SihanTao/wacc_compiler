@@ -447,8 +447,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         visit(node.condition)
         val condRegister = ARMRegisterAllocator.curr()
-        instructions.add(Cmp(condRegister, Operand2(1)))
-        instructions.add(B(ifLabel, Cond.EQ))
+        instructions.add(Cmp(condRegister, 1))
+        instructions.add(B(Cond.EQ, ifLabel))
 
         ARMRegisterAllocator.free()
 
@@ -468,7 +468,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitWhileNode(node: WhileNode): Void? {
         val testLabel = branchLabelGenerator.getLabel()
-        instructions.add(B(testLabel, Cond.NONE))
+        instructions.add(B(Cond.NONE, testLabel))
 
         val loopLabel = branchLabelGenerator.getLabel()
         instructions.add(loopLabel)
@@ -481,7 +481,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         visit(node.cond)
 
         instructions.add(Cmp(ARMRegisterAllocator.curr(), Operand2(1)))
-        instructions.add(B(cond = Cond.EQ, label = loopLabel))
+        instructions.add(B(Cond.EQ, loopLabel))
 
         ARMRegisterAllocator.free()
 
