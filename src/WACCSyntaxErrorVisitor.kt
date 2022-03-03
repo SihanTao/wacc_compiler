@@ -74,7 +74,7 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
         /*
             Fixed an error
          */
-        if (c.toInt() > CHARACTER_MAX_VALUE) {
+        if (c.code > CHARACTER_MAX_VALUE) {
             parser.notifyErrorListeners(
                 ctx.getStart(),
                 "Char literal " + ctx.text + " is not defined for WACC",
@@ -125,7 +125,7 @@ class WACCSyntaxErrorVisitor(private val parser: WACCParser) : WACCParserBaseVis
 
     override fun visitScopeStat(ctx: WACCParser.ScopeStatContext?): isEndReturnedOrExited {
         super.visitScopeStat(ctx)
-        return false;
+        return false
     }
 
 

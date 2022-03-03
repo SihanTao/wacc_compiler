@@ -7,7 +7,7 @@ class SequenceNode : StatNode {
      * Represent BEGIN <stat> END scope statement, as well as
      * <stat> ; <stat> sequential statement
     </stat></stat></stat> */
-    val body: MutableList<StatNode> = ArrayList<StatNode>()
+    val body: MutableList<StatNode> = ArrayList()
     var isFuncBody = false
     private var isBeginEnd = false
 

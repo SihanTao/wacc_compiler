@@ -15,10 +15,6 @@ class BasicType(val typeEnum: BasicTypeEnum) : Type {
         } else typeEnum == other.typeEnum
     }
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
-
     override fun toString(): String {
         return typeEnum.toString()
     }

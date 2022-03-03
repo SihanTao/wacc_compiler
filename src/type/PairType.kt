@@ -19,10 +19,6 @@ class PairType constructor(val fstType: Type? = null, val sndType: Type? = null)
                 && subTypeCoerce(sndType, other.sndType))
     }
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
-
     override fun size(): Int {
         return POINTERSIZE
     }

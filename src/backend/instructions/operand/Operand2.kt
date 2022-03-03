@@ -18,10 +18,10 @@ class Operand2 {
         this.Rm = Rm
     }
 
-    constructor(immed: Immediate?) : this(null, Operand2Operator.NONE, immed) {}
-    constructor(intVal: Int) : this(null, Operand2Operator.NONE, Immediate(intVal)) {}
-    constructor(Rm: ARMRegister) : this(Rm, Operand2Operator.NONE, null) {}
-    constructor(Rm: ARMRegister, operator: Operand2Operator) : this(Rm, operator, null) {}
+    constructor(immed: Immediate?) : this(null, Operand2Operator.NONE, immed)
+    constructor(intVal: Int) : this(null, Operand2Operator.NONE, Immediate(intVal))
+    constructor(Rm: ARMRegister) : this(Rm, Operand2Operator.NONE, null)
+    constructor(Rm: ARMRegister, operator: Operand2Operator) : this(Rm, operator, null)
     constructor(Rm: ARMRegister, operator: Operand2Operator, value: Int): this(Rm, operator, Immediate(value))
 
     override fun toString(): String {

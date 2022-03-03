@@ -1,6 +1,6 @@
 package backend
 
-class ARMRegisterAllocator() {
+class ARMRegisterAllocator {
     companion object {
         // R0-R12 is the general purpose register. start from R4 to be the same
         // in refCompile

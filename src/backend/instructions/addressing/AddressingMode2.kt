@@ -28,8 +28,7 @@ class AddressingMode2 private constructor(/*
         Rn: ARMRegister,
         Rm: ARMRegister?,
         operator: AddrMode2Operator?
-    ) : this(mode, Rn, Rm, operator, null) {
-    }
+    ) : this(mode, Rn, Rm, operator, null)
 
 
     constructor(mode: AddrMode2, Rn: ARMRegister) : this(
@@ -38,8 +37,7 @@ class AddressingMode2 private constructor(/*
         null,
         null,
         null
-    ) {
-    }
+    )
 
     constructor(mode: AddrMode2, Rn: ARMRegister, value: Int) : this(
         mode,
