@@ -11,7 +11,6 @@ import node.stat.*
 import register.Register
 import register.RegisterAllocator
 import type.*
-import kotlin.math.exp
 
 class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     private val registerAllocator = RegisterAllocator()
@@ -461,17 +460,13 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     }
 
     private fun visitIdentNode(node: IdentNode) {
-        val res = symbolTable!!.lookupAll(node.name)!!
-        val destScopeDepth = res.second
-        var offset = res.first
-        for (i in currScopeDepth downTo (destScopeDepth + 1)) {
-            offset += symbolTable!!.lookupAll("#localVariableNo_$i")!!.first
+        val stackLocation = symbolManager.lookup(node.name)
+        val resultReg = registerAllocator.peekRegister()
+        if (typeSize(node.type!!) == 1) {
+            generator.addCode(LDRSB(resultReg, ImmOffset(Register.SP, stackLocation)))
+        } else {
+            generator.addCode(LDR(resultReg, ImmOffset(Register.SP, stackLocation)))
         }
-        val opcode = if (typeSize(node.type!!)==1) "LDRSB" else "LDR"
-        val operand = if (offset == 0) "[sp]" else "[sp, #$offset]"
-        val dest = nextAvailableRegister()
-        generator.addCode("\t$opcode $dest, $operand")
-        freeRegister(dest)
     }
 
     private fun visitIntNode(node: IntNode) {
