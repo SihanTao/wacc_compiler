@@ -60,7 +60,15 @@ class AddressingMode2 private constructor(/*
                 "[$str]"
             }
             AddrMode2.PREINDEX -> {
-                TODO("PREINDEX NOT IMPLEMENTED!")
+                str.append(if (Rn != null) "[$Rn" else "")
+                if (Rm == null) {
+                    str.append(if (immed != null) ", $immed" else "]")
+                } else {
+                    str.append(", $Rm")
+                    str.append(if (operator != null) ", " + operator.name + " " else "")
+                    str.append(if (immed != null) ", $immed" else "")
+                }
+                return "$str]!"
             }
             AddrMode2.POSTINDEX -> {
                 TODO("POSTINDEX NOT IMPLEMENTED!")
