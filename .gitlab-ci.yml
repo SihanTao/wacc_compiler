@@ -13,10 +13,12 @@ variables:
 build-job:
   stage: build
   script:
+    - make clean
     - make
   artifacts:
     paths:
       - bin/
+      - src/antlr
 
 array-syntax-test:
   stage: test-syntax
