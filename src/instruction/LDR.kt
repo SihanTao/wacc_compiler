@@ -16,6 +16,9 @@ class LDR(val rd: Register,
     constructor(rd: Register, `=`: Int):
             this(rd, Constant(`=`), cond=Cond.AL)
 
+    constructor(rd: Register, addr: AddressingMode):
+            this(rd, addr, cond=Cond.AL)
+
     fun on(cond: Cond): LDR {
         this.cond = cond
         return this

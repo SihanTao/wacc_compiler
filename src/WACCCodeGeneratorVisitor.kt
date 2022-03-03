@@ -110,11 +110,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
             }
         }
 
-        if (typeSize(node.lhs.type!!) == 1) {
-            generator.addCode(STRB(resultReg, destination!!))
-        } else {
-            generator.addCode(STR(resultReg, destination!!))
-        }
+        generator.addCode(STORE(resultReg, destination!!, node.lhs.type!!))
 
         registerAllocator.freeRegister(resultReg)
     }
@@ -125,11 +121,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         val resultReg = registerAllocator.peekRegister()
         val stackLocation = symbolManager.lookup(node.identifier)
         visitExprNode(assignExpr)
-        if (typeSize(assignExpr.type!!) == 1) {
-            generator.addCode(STRB(resultReg, ImmOffset(Register.SP, stackLocation)))
-        } else {
-            generator.addCode(STR(resultReg, ImmOffset(Register.SP, stackLocation)))
-        }
+        generator.addCode(STORE(resultReg, ImmOffset(Register.SP, stackLocation), assignExpr.type!!))
     }
 
     private fun visitExitNode(node: ExitNode) {
@@ -295,7 +287,6 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         computeArrayElemLocation(node)
         val resultReg = registerAllocator.peekRegister()
         if (typeSize(node.type!!) == 1) {
-            TODO("not sure")
             generator.addCode(LDRSB(resultReg, ImmOffset(resultReg)))
         } else {
             generator.addCode(LDR(resultReg, ImmOffset(resultReg)))
@@ -318,11 +309,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
             visitExprNode(expr)
             val exprReg = registerAllocator.peekRegister()
             val elemSize = typeSize(node.contentType!!)
-            if (elemSize == 1) {
-                generator.addCode(STRB(exprReg, ImmOffset(exprReg, elemDest)))
-            } else {
-                generator.addCode(STR(exprReg, ImmOffset(exprReg, elemDest)))
-            }
+            generator.addCode(STORE(exprReg, ImmOffset(exprReg, elemDest), node.contentType))
             elemDest += elemSize
         }
 
@@ -449,11 +436,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
             visitExprNode(param)
             val exprReg = registerAllocator.peekRegister()
             val paramSize = typeSize(param.type!!)
-            if (paramSize == 1) {
-                generator.addCode(STRB(exprReg, ImmPreIndex(Register.SP, Pair(Sign.MINUS, paramSize))))
-            } else {
-                generator.addCode(STR(exprReg, ImmPreIndex(Register.SP, Pair(Sign.MINUS, paramSize))))
-            }
+            generator.addCode(STORE(exprReg, ImmPreIndex(Register.SP, Pair(Sign.MINUS, paramSize)), param.type!!))
             symbolManager.incStackBy(paramSize)
             paramsSize += paramSize
         }
@@ -504,7 +487,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
                 visitExprNode(expr)
                 generator.addCode(LDR(Register.R0, typeSize(expr.type!!)))
                 generator.addCode(BL("malloc"))
-                generator.addCode(STORE(destReg, ImmOffset(Register.R0), expr.type))
+                generator.addCode(STORE(destReg, ImmOffset(Register.R0), expr.type!!))
                 generator.addCode(STR(Register.R0, ImmOffset(destReg, 4*i)))
             }
         }
@@ -524,7 +507,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
             Utils.Unop.NOT -> generator.addCode(EOR(exprReg, exprReg, 1))
             Utils.Unop.LEN -> generator.addCode(LDR(exprReg, ImmOffset(exprReg)))
             Utils.Unop.MINUS -> {
-                generator.addCode(RSBS(exprReg, exprReg, 0))
+                generator.addCode(RSB(exprReg, exprReg, 0).S())
                 generator.addCode(BL("p_throw_overflow_error").on(Cond.VS))
                 generator.addCodeDependency(ThrowOverflowError())
             }
@@ -595,6 +578,14 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         }
     }
 
+    private fun STORE(reg: Register, addr: AddressingMode, type: Type): ARM11Instruction {
+        if(typeSize(type) == 1) {
+            return STRB(reg, addr)
+        } else {
+            return STR(reg, addr)
+        }
+    }
+
     private fun typeSize(type: Type): Int {
         when (type) {
             is BasicType -> when (type.typeEnum) {
@@ -657,7 +648,7 @@ class SymbolManager {
     }
 
     fun getScopeSize(): Int {
-        return symbolTable!!.lookup("#LOCAL_VARIABLE_SIZE_$currentScopeDepth").first
+        return symbolTable!!.lookup("#LOCAL_VARIABLE_SIZE_$currentScopeDepth")!!.first
     }
 
     fun finalise() {
