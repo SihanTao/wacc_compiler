@@ -1,7 +1,7 @@
 #!/bin/bash
 SRC_DIR="$(pwd)/test"
 
-VALID_EXAMPLES="${SRC_DIR}/wacc_examples/valid/basic/exit"
+VALID_EXAMPLES="${SRC_DIR}/wacc_examples/valid"
 
 mkdir -p "${SRC_DIR}/log"
 mkdir -p "${SRC_DIR}/log/out"
@@ -90,15 +90,16 @@ for file in $FILES_TO_TEST;do
     fi
 
     # compare our output and reference output
-    if ! diff -b -B "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out"; then
+    if ! diff -b -B "${OUT_DIR}/$NAME.out" "${OUT_DIR}/${NAME}_REF.out"; then
       echo "our output is different from refCompile"
       failed=true
-      diff -b -B "$OUT_DIR/$NAME.out" "$OUT_DIR/${NAME}_REF.out" > "$FAILS_DIR/$NAME.txt"
+      diff -b -B "${OUT_DIR}/$NAME.out" "${OUT_DIR}/${NAME}_REF.out" > "${FAILS_DIR}/$NAME.txt"
     fi
 
     if [[ "$failed" = false ]]; then
       echo "PASSED"
       let PASSED+=1
+      find $OUT_DIR -name "${NAME}.*" -delete
     else
       echo "FAILED"
     fi

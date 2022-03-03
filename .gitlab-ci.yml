@@ -3,6 +3,7 @@ stages:
   - test-syntax
   - test-semantic
   - test-general
+  - test-backend
 
 variables:
   VALID_TEST_DIR: "test/wacc_examples/valid"
@@ -137,6 +138,9 @@ runtimeErr-general-test:
   script:
     - /bin/bash test/test 0 "" "$VALID_TEST_DIR"/runtimeErr
 
-
+backend-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh
   
 
