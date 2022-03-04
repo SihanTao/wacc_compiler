@@ -64,6 +64,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         private const val MAX_STACK_STEP = 1024
         private const val BRANCH_LABEL = "L"
         private const val MSG_LABEL = "msg_"
+        private const val FUNCTION_LABEL = "f_"
     }
 
     fun getInstructions(): MutableList<Instruction> {
@@ -112,7 +113,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         funcStackSize -= node.paramListStackSize()
 
         /* add function label, PUSH {lr} */
-        instructions.add(Label("f_" + node.name))
+        instructions.add(Label(FUNCTION_LABEL + node.name))
         instructions.add(Push(LR))
 
         /* decrease stack, leave space for variable in function body
@@ -302,7 +303,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
 
         stackOffset = 0
-        instructions.add(BL("f_" + node.function.name))
+        instructions.add(BL(FUNCTION_LABEL + node.function.name))
 
         /* 3 add back stack pointer */
         if (paramSize > 0) {
