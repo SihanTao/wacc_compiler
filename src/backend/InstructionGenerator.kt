@@ -169,7 +169,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         // MOV r0, r4
         instructions.add(Mov(ARMRegister.R0, ARMRegister.R4))
         // BL exit
-        instructions.add(BL(SyscallInstruction.EXIT.toString()))
+        instructions.add(BL("${SyscallInstruction.EXIT}"))
 
         return null
     }
@@ -269,7 +269,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             if (type == INT_T) IOInstructionHelper.READ_INT else IOInstructionHelper.READ_CHAR
 
         instructions.add(Mov(ARMRegister.R0, ARMRegisterAllocator.curr()))
-        instructions.add(BL(readType.toString()))
+        instructions.add(BL("$readType"))
 
         checkAndAddPrintOrRead(readType)
         ARMRegisterAllocator.free()
@@ -289,7 +289,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             else -> IOInstructionHelper.PRINT_REFERENCE // Array type and pair type
         }
 
-        instructions.add(BL(io.toString()))
+        instructions.add(BL("$io"))
 
         checkAndAddPrintOrRead(io)
 
@@ -300,7 +300,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitPrintlnNode(node: PrintlnNode): Void? {
         visit(PrintNode(node.expr))
-        instructions.add(BL(IOInstructionHelper.PRINT_LN.toString()))
+        instructions.add(BL("${IOInstructionHelper.PRINT_LN}"))
         val io = IOInstructionHelper.PRINT_LN
 
         checkAndAddPrintOrRead(io)
@@ -330,11 +330,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         }
 
         stackOffset = 0
-        instructions.add(
-            BL(
-                "f_" + node.function.name
-            )
-        )
+        instructions.add(BL("f_" + node.function.name))
 
         /* 3 add back stack pointer */
         if (paramSize > 0) {
@@ -358,7 +354,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(Mov(ARMRegister.R0, ARMRegisterAllocator.curr()))
         ARMRegisterAllocator.free()
 
-        instructions.add(BL(FREE_PAIR.toString()))
+        instructions.add(BL("$FREE_PAIR"))
         checkAndAddRuntimeError(FREE_PAIR)
 
         return null
@@ -603,7 +599,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             )
             instructions.add(Mov(ARMRegister.R0, indexReg))
             instructions.add(Mov(ARMRegister.R1, addrReg))
-            instructions.add(BL(CHECK_ARRAY_BOUND.toString()))
+            instructions.add(BL("$CHECK_ARRAY_BOUND"))
             instructions.add(Add(addrReg, addrReg, Operand2(POINTERSIZE)))
             val elemSize: Int = node.type!!.size() / 2
             instructions.add(
@@ -643,7 +639,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         )
 
         // Malloc
-        instructions.add(BL(SyscallInstruction.MALLOC.toString()))
+        instructions.add(BL("${SyscallInstruction.MALLOC}"))
 
         /* MOV the result pointer of the array to the next available register */
         val addrReg: ARMRegister = ARMRegisterAllocator.allocate()
@@ -700,7 +696,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(Mov(ARMRegister.R0, register))
 
         /* BL null pointer check */
-        instructions.add(BL(CHECK_NULL_POINTER.toString()))
+        instructions.add(BL("$CHECK_NULL_POINTER"))
         checkAndAddRuntimeError(CHECK_NULL_POINTER)
 
         /* get the reg pointing to child
@@ -736,9 +732,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(LDR(ARMRegister.R0, 2 * POINTERSIZE))
 
         /* 1.2 BL malloc and get pointer in general use register */
-        instructions.add(
-            BL(SyscallInstruction.MALLOC.toString())
-        )
+        instructions.add(BL("${SyscallInstruction.MALLOC}"))
         val pairPointer: ARMRegister = ARMRegisterAllocator.allocate()
 
         instructions.add(Mov(pairPointer, ARMRegister.R0))
@@ -772,9 +766,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(LDR(ARMRegister.R0, child.type!!.size()))
 
         /* BL malloc */
-        instructions.add(
-            BL(SyscallInstruction.MALLOC.toString())
-        )
+        instructions.add(BL("${SyscallInstruction.MALLOC}"))
 
         /* STR the fst value into reg[0] */
         val mode =
@@ -801,22 +793,17 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
     override fun visitUnopNode(node: UnopNode): Void? {
         visit(node.expr)
-        val currentARMRegister = ARMRegisterAllocator.curr()
+        val currRegister = ARMRegisterAllocator.curr()
         when (node.operator) {
             Utils.Unop.NOT -> {
-                instructions.add(EOR(currentARMRegister, currentARMRegister, 1))
+                instructions.add(EOR(currRegister, currRegister, 1))
             }
             Utils.Unop.LEN -> {
-                instructions.add(LDR(currentARMRegister, currentARMRegister))
+                instructions.add(LDR(currRegister, currRegister))
             }
             Utils.Unop.MINUS -> {
-                instructions.add(RSBS(currentARMRegister, currentARMRegister, 0))
-                instructions.add(
-                    BL(
-                        Cond.VS,
-                        THROW_OVERFLOW_ERROR.toString()
-                    )
-                )
+                instructions.add(RSBS(currRegister, currRegister, 0))
+                instructions.add(BL(Cond.VS, "$THROW_OVERFLOW_ERROR"))
                 checkAndAddRuntimeError(THROW_OVERFLOW_ERROR)
             }
             else -> {
@@ -858,68 +845,29 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 instructions.add(SMULL(expr1Reg, operand2))
             }
             Utils.Binop.AND -> {
-                instructions.add(
-                    AND(
-                        expr1Reg,
-                        expr1Reg,
-                        operand2
-                    )
-                )
+                instructions.add(AND(expr1Reg, expr1Reg, operand2))
             }
             Utils.Binop.OR -> instructions.add(OR(expr1Reg, expr1Reg, operand2))
             Utils.Binop.DIV -> {
-                instructions.addAll(
-                    Operator.addDivMod(
-                        expr1Reg,
-                        expr2Reg,
-                        Utils.Binop.DIV
-                    )
-                )
+                instructions.addAll(Operator.addDivMod(expr1Reg, expr2Reg, Utils.Binop.DIV))
             }
             Utils.Binop.MOD -> {
-                instructions.addAll(
-                    Operator.addDivMod(
-                        expr1Reg,
-                        expr2Reg,
-                        Utils.Binop.MOD
-                    )
-                )
+                instructions.addAll(Operator.addDivMod(expr1Reg, expr2Reg, Utils.Binop.MOD))
             }
             else -> {
-                instructions.addAll(
-                    addCompare(
-                        expr1Reg,
-                        expr2Reg,
-                        node.operator
-                    )
-                )
+                instructions.addAll(addCompare(expr1Reg, expr2Reg, node.operator))
             }
         }
 
         // Deal with runtime error here
         if (node.operator == Utils.Binop.PLUS || node.operator == Utils.Binop.MINUS) {
-            instructions.add(
-                BL(
-                    Cond.VS,
-                    THROW_OVERFLOW_ERROR.toString()
-                )
-            )
+            instructions.add(BL(Cond.VS, "$THROW_OVERFLOW_ERROR"))
             checkAndAddRuntimeError(THROW_OVERFLOW_ERROR)
         }
 
         if (node.operator == Utils.Binop.MUL) {
-            instructions.add(
-                Cmp(
-                    expr2Reg,
-                    Operand2(expr1Reg, Operand2Operator.ASR, 31)
-                )
-            )
-            instructions.add(
-                BL(
-                    Cond.NE,
-                    THROW_OVERFLOW_ERROR.toString()
-                )
-            )
+            instructions.add(Cmp(expr2Reg, Operand2(expr1Reg, Operand2Operator.ASR, 31)))
+            instructions.add(BL(Cond.NE, "$THROW_OVERFLOW_ERROR"))
             checkAndAddRuntimeError(THROW_OVERFLOW_ERROR)
         }
 
