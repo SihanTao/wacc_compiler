@@ -13,7 +13,7 @@ class CodeGenerator(data: Data?, text: Text?, code: Code?) {
         val assemblyCodeBuilder = StringBuilder()
         for (directive in directives) {
             if (directive != null)
-                assemblyCodeBuilder.append(directive.toString())
+                assemblyCodeBuilder.append("$directive")
         }
         return assemblyCodeBuilder.toString()
     }

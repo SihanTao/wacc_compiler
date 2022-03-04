@@ -33,9 +33,9 @@ class Operand2 {
 
     override fun toString(): String {
         val res = StringBuilder()
-        if (rm != null) res.append(rm.toString())
+        if (rm != null) res.append("$rm")
         if (operator != Operand2Operator.NONE) res.append(", $operator ")
-        if (immediate != null) res.append(immediate.toString())
+        if (immediate != null) res.append("$immediate")
         return res.toString()
     }
 }

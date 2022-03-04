@@ -103,9 +103,9 @@ enum class IOInstructionHelper: Instruction {
                 Push(LR),
                 LDR(R0, LabelAddressing(printlnLabel)),  /* skip the first 4 byte of the msg which is the length of it */
                 Add(R0, R0, Operand2(4)),
-                BL(SyscallInstruction.PUTS.toString()),  /* refresh the r0 and buffer */
+                BL("${SyscallInstruction.PUTS}"),  /* refresh the r0 and buffer */
                 Mov(R0, Operand2(0)),
-                BL(SyscallInstruction.FFLUSH.toString()),
+                BL("${SyscallInstruction.FFLUSH}"),
                 Pop(PC)
             )
 
@@ -124,7 +124,7 @@ enum class IOInstructionHelper: Instruction {
 
             val instructions: MutableList<Instruction> =
                 mutableListOf( /* add the helper function label */
-                    Label(PRINT_STRING.toString()),
+                    Label("$PRINT_STRING"),
                     Push(LR),  /* put the string length into r1 as snd arg */
                     LDR(R1, AddressingMode2(R0)),
                     /* skip the fst 4 bytes which is the length of the string */
@@ -157,7 +157,7 @@ enum class IOInstructionHelper: Instruction {
             val instructions: MutableList<Instruction> = ArrayList(
                 listOf(
                     /* add the helper function label */
-                    Label(PRINT_BOOL.toString()),
+                    Label("$PRINT_BOOL"),
                     Push(LR),
                     /* cmp the content in r0 with 0 */
                     Cmp(R0, Operand2(0)),  /* if not equal to 0 LDR true */
@@ -172,9 +172,9 @@ enum class IOInstructionHelper: Instruction {
         private fun addCommonPrint(): MutableList<Instruction> {
             return mutableListOf( /* skip the first 4 byte of the msg which is the length of it */
                 Add(R0, R0, Operand2(4)),
-                BL(SyscallInstruction.PRINTF.toString()),  /* refresh the r0 and buffer */
+                BL("${SyscallInstruction.PRINTF}"),  /* refresh the r0 and buffer */
                 Mov(R0, Operand2(0)),
-                BL(SyscallInstruction.FFLUSH.toString()),
+                BL("${SyscallInstruction.FFLUSH}"),
                 Pop(PC)
             )
         }
@@ -185,7 +185,7 @@ enum class IOInstructionHelper: Instruction {
             labelGenerator: LabelGenerator
         ): List<Instruction> {
             /* add the helper function label */
-            val readLabel = Label(readInstruction.toString())
+            val readLabel = Label("$readInstruction")
 
             /* add the format into the data list */
             val asciiMsg: String =

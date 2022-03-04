@@ -36,11 +36,11 @@ enum class RuntimeErrorInstructionHelper: Instruction {
             data[label] = PRINT_DIV_ZERO_MSG
 
             return listOf(
-                Label(CHECK_DIVIDE_BY_ZERO.toString()),
+                Label("$CHECK_DIVIDE_BY_ZERO"),
                 Push(ARMRegister.LR),
                 Cmp(ARMRegister.R1, 0),
                 LDR(ARMRegister.R0, LabelAddressing(label), LdrMode.LDREQ),
-                BL(Cond.EQ, THROW_RUNTIME_ERROR.toString()),
+                BL(Cond.EQ, "$THROW_RUNTIME_ERROR"),
                 Pop(ARMRegister.PC)
             )
         }
@@ -53,11 +53,11 @@ enum class RuntimeErrorInstructionHelper: Instruction {
             data[msgLabel] = PRINT_NULL_REF_MSG
 
             return listOf(
-                Label(CHECK_NULL_POINTER.toString()),
+                Label("$CHECK_NULL_POINTER"),
                 Push(ARMRegister.LR),
                 Cmp(ARMRegister.R0, Operand2(0)),
                 LDR(ARMRegister.R0, LabelAddressing(msgLabel), LdrMode.LDREQ),
-                BL(Cond.EQ, THROW_RUNTIME_ERROR.toString()),
+                BL(Cond.EQ, "$THROW_RUNTIME_ERROR"),
                 Pop(ARMRegister.PC)
             )
 
@@ -75,17 +75,17 @@ enum class RuntimeErrorInstructionHelper: Instruction {
             )
 
             return listOf(
-                Label(FREE_PAIR.toString()),
+                Label("$FREE_PAIR"),
                 Push(ARMRegister.LR),
                 Cmp(ARMRegister.R0, Operand2(0)),
                 LDR(ARMRegister.R0, LabelAddressing(msg), LdrMode.LDREQ),
-                B(Cond.EQ, THROW_RUNTIME_ERROR.toString()),
+                B(Cond.EQ, "$THROW_RUNTIME_ERROR"),
                 Push(ARMRegister.R0),
                 LDR(
                     ARMRegister.R0,
                     AddressingMode2(ARMRegister.R0)
                 ),
-                BL(SyscallInstruction.FREE.toString()),
+                BL("${SyscallInstruction.FREE}"),
                 LDR(
                     ARMRegister.R0, AddressingMode2(ARMRegister.SP)
                 ),
@@ -93,9 +93,9 @@ enum class RuntimeErrorInstructionHelper: Instruction {
                     ARMRegister.R0,
                     AddressingMode2(AddrMode2.OFFSET, ARMRegister.R0, 4)
                 ),
-                BL(SyscallInstruction.FREE.toString()),
+                BL("${SyscallInstruction.FREE}"),
                 Pop(ARMRegister.R0),
-                BL(SyscallInstruction.FREE.toString()),
+                BL("${SyscallInstruction.FREE}"),
                 Pop(ARMRegister.PC)
             )
 
@@ -103,10 +103,10 @@ enum class RuntimeErrorInstructionHelper: Instruction {
 
         fun addThrowRuntimeError(): List<Instruction> {
             return listOf(
-                Label(THROW_RUNTIME_ERROR.toString()),
-                BL(IOInstructionHelper.PRINT_STRING.toString()),
+                Label("$THROW_RUNTIME_ERROR"),
+                BL("${IOInstructionHelper.PRINT_STRING}"),
                 Mov(ARMRegister.R0, Operand2(-1)),
-                BL(SyscallInstruction.EXIT.toString())
+                BL("${SyscallInstruction.EXIT}")
             )
         }
 
@@ -118,9 +118,9 @@ enum class RuntimeErrorInstructionHelper: Instruction {
             data[label] = PRINT_OVERFLOW_MSG
 
             return listOf(
-                Label(THROW_OVERFLOW_ERROR.toString()),
+                Label("$THROW_OVERFLOW_ERROR"),
                 LDR(ARMRegister.R0, LabelAddressing(label)),
-                BL(THROW_RUNTIME_ERROR.toString())
+                BL("$THROW_RUNTIME_ERROR")
             )
         }
 
@@ -134,7 +134,7 @@ enum class RuntimeErrorInstructionHelper: Instruction {
             data[indexOutOfBoundLabel] = PRINT_ARRAY_INDEX_TOO_LARGE_MSG
 
             return mutableListOf(
-                Label(CHECK_ARRAY_BOUND.toString()),
+                Label("$CHECK_ARRAY_BOUND"),
                 Push(ARMRegister.LR),
                 Cmp(ARMRegister.R0, Operand2(0)),
                 LDR(
@@ -142,7 +142,7 @@ enum class RuntimeErrorInstructionHelper: Instruction {
                     LabelAddressing(negativeIndexLabel),
                     LdrMode.LDRLT
                 ),
-                BL(Cond.LT, THROW_RUNTIME_ERROR.toString()),
+                BL(Cond.LT, "$THROW_RUNTIME_ERROR"),
                 LDR(
                     ARMRegister.R1,
                     AddressingMode2(ARMRegister.R1)
@@ -153,7 +153,7 @@ enum class RuntimeErrorInstructionHelper: Instruction {
                     LabelAddressing(indexOutOfBoundLabel),
                     LdrMode.LDRCS
                 ),
-                BL(Cond.CS, THROW_RUNTIME_ERROR.toString()),
+                BL(Cond.CS, "$THROW_RUNTIME_ERROR"),
                 Pop(ARMRegister.PC)
             )
         }

@@ -21,7 +21,7 @@ class Operator {
             val res: MutableList<Instruction> = mutableListOf(
                 Mov(ARMRegister.R0, Operand2(Rd)),
                 Mov(ARMRegister.R1, Operand2(Rn)),
-                BL(RuntimeErrorInstructionHelper.CHECK_DIVIDE_BY_ZERO.toString())
+                BL("${RuntimeErrorInstructionHelper.CHECK_DIVIDE_BY_ZERO}")
             )
 
             if (op == Utils.Binop.DIV) {
