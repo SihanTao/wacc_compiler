@@ -1,10 +1,9 @@
 package backend.utils
 
 import backend.instructions.*
-import backend.register.ARMRegister
+import backend.register.ARMRegister.*
 import backend.instructions.LDR.LdrMode
 import backend.instructions.addressing.AddressingMode2
-import backend.instructions.addressing.AddressingMode2.AddrMode2
 import backend.instructions.addressing.LabelAddressing
 import java.util.*
 
@@ -37,11 +36,11 @@ enum class RuntimeErrorInstructionHelper: Instruction {
 
             return listOf(
                 Label("$CHECK_DIVIDE_BY_ZERO"),
-                Push(ARMRegister.LR),
-                Cmp(ARMRegister.R1, 0),
-                LDR(ARMRegister.R0, LabelAddressing(label), LdrMode.LDREQ),
+                Push(LR),
+                Cmp(R1, 0),
+                LDR(R0, LabelAddressing(label), LdrMode.LDREQ),
                 BL(Cond.EQ, "$THROW_RUNTIME_ERROR"),
-                Pop(ARMRegister.PC)
+                Pop(PC)
             )
         }
 
@@ -54,11 +53,11 @@ enum class RuntimeErrorInstructionHelper: Instruction {
 
             return listOf(
                 Label("$CHECK_NULL_POINTER"),
-                Push(ARMRegister.LR),
-                Cmp(ARMRegister.R0, Operand2(0)),
-                LDR(ARMRegister.R0, LabelAddressing(msgLabel), LdrMode.LDREQ),
+                Push(LR),
+                Cmp(R0, Operand2(0)),
+                LDR(R0, LabelAddressing(msgLabel), LdrMode.LDREQ),
                 BL(Cond.EQ, "$THROW_RUNTIME_ERROR"),
-                Pop(ARMRegister.PC)
+                Pop(PC)
             )
 
         }
@@ -76,27 +75,27 @@ enum class RuntimeErrorInstructionHelper: Instruction {
 
             return listOf(
                 Label("$FREE_PAIR"),
-                Push(ARMRegister.LR),
-                Cmp(ARMRegister.R0, Operand2(0)),
-                LDR(ARMRegister.R0, LabelAddressing(msg), LdrMode.LDREQ),
+                Push(LR),
+                Cmp(R0, Operand2(0)),
+                LDR(R0, LabelAddressing(msg), LdrMode.LDREQ),
                 B(Cond.EQ, "$THROW_RUNTIME_ERROR"),
-                Push(ARMRegister.R0),
+                Push(R0),
                 LDR(
-                    ARMRegister.R0,
-                    AddressingMode2(ARMRegister.R0)
+                    R0,
+                    AddressingMode2(R0)
                 ),
                 BL("${SyscallInstruction.FREE}"),
                 LDR(
-                    ARMRegister.R0, AddressingMode2(ARMRegister.SP)
+                    R0, AddressingMode2(SP)
                 ),
                 LDR(
-                    ARMRegister.R0,
-                    AddressingMode2(ARMRegister.R0, 4)
+                    R0,
+                    AddressingMode2(R0, 4)
                 ),
                 BL("${SyscallInstruction.FREE}"),
-                Pop(ARMRegister.R0),
+                Pop(R0),
                 BL("${SyscallInstruction.FREE}"),
-                Pop(ARMRegister.PC)
+                Pop(PC)
             )
 
         }
@@ -105,7 +104,7 @@ enum class RuntimeErrorInstructionHelper: Instruction {
             return listOf(
                 Label("$THROW_RUNTIME_ERROR"),
                 BL("${IOInstructionHelper.PRINT_STRING}"),
-                Mov(ARMRegister.R0, Operand2(-1)),
+                Mov(R0, Operand2(-1)),
                 BL("${SyscallInstruction.EXIT}")
             )
         }
@@ -119,7 +118,7 @@ enum class RuntimeErrorInstructionHelper: Instruction {
 
             return listOf(
                 Label("$THROW_OVERFLOW_ERROR"),
-                LDR(ARMRegister.R0, LabelAddressing(label)),
+                LDR(R0, LabelAddressing(label)),
                 BL("$THROW_RUNTIME_ERROR")
             )
         }
@@ -135,26 +134,26 @@ enum class RuntimeErrorInstructionHelper: Instruction {
 
             return mutableListOf(
                 Label("$CHECK_ARRAY_BOUND"),
-                Push(ARMRegister.LR),
-                Cmp(ARMRegister.R0, Operand2(0)),
+                Push(LR),
+                Cmp(R0, Operand2(0)),
                 LDR(
-                    ARMRegister.R0,
+                    R0,
                     LabelAddressing(negativeIndexLabel),
                     LdrMode.LDRLT
                 ),
                 BL(Cond.LT, "$THROW_RUNTIME_ERROR"),
                 LDR(
-                    ARMRegister.R1,
-                    AddressingMode2(ARMRegister.R1)
+                    R1,
+                    AddressingMode2(R1)
                 ),
-                Cmp(ARMRegister.R0, Operand2(ARMRegister.R1)),
+                Cmp(R0, Operand2(R1)),
                 LDR(
-                    ARMRegister.R0,
+                    R0,
                     LabelAddressing(indexOutOfBoundLabel),
                     LdrMode.LDRCS
                 ),
                 BL(Cond.CS, "$THROW_RUNTIME_ERROR"),
-                Pop(ARMRegister.PC)
+                Pop(PC)
             )
         }
 
