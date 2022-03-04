@@ -82,7 +82,7 @@ class ErrorHandler private constructor() {
             /* when ctx is null, it indicates that there is a funcJunk error or symbolRedeclare error
            in SemanticChecker */
             if (ctx == null) {
-                System.err.println("Semantic error " + msg)
+                System.err.println("Semantic error $msg")
                 return
             }
             if (ctx is TerminalNode) {

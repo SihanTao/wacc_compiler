@@ -12,9 +12,9 @@ class BinopNode(var expr1: ExprNode, var expr2: ExprNode, var operator: Binop) :
      */
 
     init {
-        when (operator) {
-            Binop.PLUS, Binop.MINUS, Binop.MUL, Binop.DIV, Binop.MOD -> type = BasicType(BasicTypeEnum.INTEGER)
-            else -> type = BasicType(BasicTypeEnum.BOOLEAN)
+        type = when (operator) {
+            Binop.PLUS, Binop.MINUS, Binop.MUL, Binop.DIV, Binop.MOD -> BasicType(BasicTypeEnum.INTEGER)
+            else -> BasicType(BasicTypeEnum.BOOLEAN)
         }
         weight = expr1.weight() + expr2.weight() + 1
     }

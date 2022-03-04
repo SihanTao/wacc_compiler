@@ -1,6 +1,6 @@
 package backend.utils
 
-class Immediate(val value: Int, val isChar: Boolean) {
+class Immediate(val value: Int, private val isChar: Boolean) {
     constructor(value: Int) : this(value, false)
 
     override fun toString(): String {

@@ -6,8 +6,8 @@ interface Type : Node {
     // Type
     fun size(): Int
     companion object {
-        val POINTERSIZE = 4
-        val BYTESIZE = 1
-        val WORDSIZE = 4
+        const val POINTERSIZE = 4
+        const val BYTESIZE = 1
+        const val WORDSIZE = 4
     }
 }

@@ -27,14 +27,13 @@ class Data(private val messages: Map<Label, String>) : Directive {
     private fun getLength(s: String): Int {
         var isSlashAhead = false
         var count = 0
-        for (i in 0 until s.length) {
-            val c = s[i]
-            if (isSlashAhead && escapedChar.contains(c)) {
+        for (element in s) {
+            if (isSlashAhead && escapedChar.contains(element)) {
                 count--
                 isSlashAhead = false
-            } else if (isSlashAhead && !escapedChar.contains(c)) {
+            } else if (isSlashAhead && !escapedChar.contains(element)) {
                 isSlashAhead = false
-            } else if (!isSlashAhead && c == '\\') {
+            } else if (!isSlashAhead && element == '\\') {
                 isSlashAhead = true
             }
             count++

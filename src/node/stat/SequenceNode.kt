@@ -39,7 +39,7 @@ class SequenceNode : StatNode {
 
     /* This will help to determine whether there is a return statement at the end of a sequence */
     private val endValue: Boolean
-        get() = !body.isEmpty() && body[body.size - 1].isReturned
+        get() = body.isNotEmpty() && body[body.size - 1].isReturned
 
 
     override fun <T> accept(astVisitor: ASTVisitor<T>): T? {

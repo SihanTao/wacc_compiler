@@ -14,12 +14,6 @@ class Sub(
 
     /* SUB{cond}{S} <Rd>, <Rn>, <operand2> */
 
-    constructor(
-        rd: ARMRegister,
-        rn: ARMRegister,
-        operand2: Operand2
-    ) : this(rd, rn, operand2, Cond.NONE)
-
     constructor(rd: ARMRegister, rn: ARMRegister, constant: Int) : this(
         rd,
         rn,

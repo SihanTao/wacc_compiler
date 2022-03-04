@@ -1,7 +1,5 @@
 package backend.directive
 
-import backend.directive.Directive
-
 class Text : Directive {
     @Override
     override fun toString(): String {
