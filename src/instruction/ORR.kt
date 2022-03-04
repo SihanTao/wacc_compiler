@@ -27,6 +27,6 @@ class ORR(val rd: Register, val rn: Register,
 
     override fun toString(): String {
         val s = if (S) "S" else ""
-        return "OOR$cond${s} $rd, $rn, $Op"
+        return "ORR$cond${s} $rd, $rn, $Op"
     }
 }

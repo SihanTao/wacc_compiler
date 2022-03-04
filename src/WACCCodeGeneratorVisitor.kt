@@ -27,7 +27,6 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
 
         generator.addCode(LABEL("main"))
         generator.addCode(PUSH(Register.LR))
-        symbolManager.newTable()
         visitStatNode(node.body)
         generator.addCode(LDR(Register.R0, 0))
         generator.addCode(POP(Register.PC))
@@ -36,10 +35,15 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
 
     private fun visitFuncNode(node: FuncNode) {
         symbolManager.newTable()
+        var paramsSize = 0
         node.paramList?.forEach { param ->
+            paramsSize += typeSize(param!!.type!!)
+        }
+        symbolManager.setCurrScopeVarsSize(paramsSize)
+        node.paramList?.reversed()?.forEach { param ->
             symbolManager.addSymbol(param!!.name, typeSize(param.type!!))
         }
-        symbolManager.finalise()
+
 
         generator.addCode(PUSH(Register.LR))
         symbolManager.incStackBy(4)
@@ -119,7 +123,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     private fun visitDeclareStatNode(node: DeclareStatNode) {
         val assignExpr = node.rhs!!
         val resultReg = registerAllocator.peekRegister()
-        val stackLocation = symbolManager.lookup(node.identifier)
+        val stackLocation = symbolManager.addSymbol(node.identifier, typeSize(node.rhs.type!!))
         visitExprNode(assignExpr)
         generator.addCode(STORE(resultReg, ImmOffset(Register.SP, stackLocation), assignExpr.type!!))
     }
@@ -232,18 +236,19 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
 
     private fun visitScopeNode(node: ScopeNode) {
         /* Add all symbol of current scope to symbolManager */
-        symbolManager.nextScope()
+        var scopeSize = 0
         if (node.body.isEmpty()) return
         if (node.body[0] is DeclareStatNode) {
             val decStat = node.body[0] as DeclareStatNode
-            symbolManager.addSymbol(decStat.identifier, typeSize(decStat.rhs!!.type!!))
+            scopeSize += typeSize(decStat.rhs!!.type!!)
         } else if (node.body[0] is SequenceNode) {
             val seqStat = node.body[0] as SequenceNode
-            seqStat.body.forEach{ stat -> if (stat is DeclareStatNode) symbolManager.addSymbol(stat.identifier, typeSize(stat.rhs!!.type!!))}
+            seqStat.body.forEach{ stat -> if (stat is DeclareStatNode) scopeSize += typeSize(stat.rhs!!.type!!)}
         }
-        symbolManager.finalise()
 
-        val scopeSize = symbolManager.getScopeSize()
+        symbolManager.nextScope()
+        symbolManager.setCurrScopeVarsSize(scopeSize)
+
         if (scopeSize > 0) generator.addCode(SUB(Register.SP, Register.SP, scopeSize))
         node.body.forEach{stat -> visitStatNode(stat)}
         if (scopeSize > 0) generator.addCode(ADD(Register.SP, Register.SP, scopeSize))
@@ -361,7 +366,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
                         MOV(Register.R1, r),
                         BL("p_check_divide_by_zero"),
                         BL("__aeabi_idivmod"),
-                        MOV(l, Register.R0)
+                        MOV(l, Register.R1)
                 )}
                 generator.addCodeDependency(CheckDivideByZero())
             }
@@ -614,18 +619,19 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
 class SymbolManager {
     private var symbolTable: SymbolTable<Pair<Int, Int>>? = null
     private var currentScopeDepth = 0
-    private var currentScopeSize = 0
+    private var nextDeclarationPos = 0
 
     fun newTable() {
-        symbolTable = null
+        symbolTable = SymbolTable(null)
         currentScopeDepth = 0
-        currentScopeSize = 0
+        nextDeclarationPos = 0
     }
 
     fun nextScope() {
         symbolTable = SymbolTable(symbolTable)
         currentScopeDepth++
-        currentScopeSize = 0
+        symbolTable!!.add("#PREV_NEXT_DECLARATION", Pair(nextDeclarationPos, currentScopeDepth))
+        nextDeclarationPos = 0
     }
 
     fun incStackBy(byte: Int) {
@@ -634,35 +640,32 @@ class SymbolManager {
     }
 
     fun prevScope() {
+        nextDeclarationPos = symbolTable!!.lookup("#PREV_NEXT_DECLARATION")!!.first
         symbolTable = symbolTable!!.parentSymbolTable
         currentScopeDepth--
     }
 
-    /* Add symbol to symbolTable of currentScope.
-    *  All symbol of current scope MUST be added at first step of evaluation of scope */
-    fun addSymbol(symbol: String, size: Int) {
-        var tempSize = 0
-        symbolTable!!.add(symbol, Pair(size, currentScopeDepth))
-        tempSize += size
-        currentScopeSize += size
+    fun addSymbol(symbol: String, size: Int): Int {
+        nextDeclarationPos -= size
+        symbolTable!!.add(symbol, Pair(nextDeclarationPos, currentScopeDepth))
+        return nextDeclarationPos
     }
 
     fun getScopeSize(): Int {
         return symbolTable!!.lookup("#LOCAL_VARIABLE_SIZE_$currentScopeDepth")!!.first
     }
 
-    fun finalise() {
-        symbolTable!!.add("#LOCAL_VARIABLE_SIZE_$currentScopeDepth", Pair(currentScopeSize, currentScopeDepth))
-    }
-
     fun lookup(identifier: String): Int {
+        println(identifier)
         val res = symbolTable!!.lookupAll(identifier)!!
         val destScopeDepth = res.second
         var offset = res.first
+        println(destScopeDepth)
+        println(currentScopeDepth)
         for (i in currentScopeDepth downTo destScopeDepth + 1) {
             offset += symbolTable!!.lookupAll("#LOCAL_VARIABLE_SIZE_$i")!!.first
         }
-        offset += currentScopeSize
+        dumpStack()
         return offset
     }
 
@@ -680,4 +683,21 @@ class SymbolManager {
         }
         return res
     }
+
+    fun getNextDeclarationPos(): Int {
+        return nextDeclarationPos
+    }
+
+    fun setCurrScopeVarsSize(size: Int) {
+        symbolTable!!.add("#LOCAL_VARIABLE_SIZE_$currentScopeDepth", Pair(size, currentScopeDepth))
+        nextDeclarationPos = size
+    }
+
+    fun dumpStack() {
+        for (i in currentScopeDepth downTo 0) {
+            val size = symbolTable!!.lookupAll("#LOCAL_VARIABLE_SIZE_$i")!!.first
+            println("i: $i, $size")
+        }
+    }
+
 }

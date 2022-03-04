@@ -1,6 +1,6 @@
 import instruction.ARM11Instruction
+import instruction.LABEL
 import instruction.waccLibrary.WACCLibraryFunction
-import java.awt.Label
 import java.io.PrintWriter
 import java.util.*
 import kotlin.collections.HashSet
@@ -33,24 +33,21 @@ class WACCCodeGenerator {
         }
     }
 
-    fun addGlobalDirective(symbol: String) {
-
-    }
 
     fun generateAssembleCode(writer: PrintWriter) {
+        val library = LinkedList<ARM11Instruction>()
+        codeDependencies.forEach { func -> library.addAll(func.getInstructions(this)) }
+
         if (!staticDataTable.isEmpty()) {
             writer.println(".data")
         }
         writer.println()
         staticDataTable.forEach{str, msgNo ->
             writer.println("msg_$msgNo:")
-            writer.println("\t.word ${str.length + 2}")
-            writer.println("\t.ascii $str")
+            writer.println("\t.word ${strLength(str)}")
+            writer.println("\t.ascii \"$str\"")
         }
         writer.println()
-
-        val library = LinkedList<ARM11Instruction>()
-        codeDependencies.forEach { func -> library.addAll(func.getInstructions(this)) }
 
         writer.println(".text")
         writer.println()
@@ -59,13 +56,15 @@ class WACCCodeGenerator {
     }
 
     private fun formatCode(instruction: ARM11Instruction): String {
-        if (instruction is Label) {
-            return "\t" + instruction
-        } else {
+        if (instruction is LABEL) {
             return instruction.toString()
+        } else {
+            return "\t" + instruction.toString()
         }
     }
 
-    fun addCode(str: String) {}
+    private fun strLength(str: String): Int {
+        return str.length - str.count{ "\\".contains(it)}
+    }
 
 }

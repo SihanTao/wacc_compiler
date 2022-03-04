@@ -51,10 +51,10 @@ fun main(args: Array<String>) {
             val semanticChecker = WACCSemanticErrorVisitor()
             val ast = semanticChecker.visitProgram(tree) as ProgramNode
             val writer = PrintWriter("output.s")
-            val representation = WACCAssembleRepresentation()
-            val codeGenerator = WACCCodeGeneratorVisitor(representation)
-            codeGenerator.visitProgramNode(ast)
-            representation.generateAssembleCode(writer)
+            val codeGenerator = WACCCodeGenerator()
+            val codeGeneratorVisitor = WACCCodeGeneratorVisitor(codeGenerator)
+            codeGeneratorVisitor.visitProgramNode(ast)
+            codeGenerator.generateAssembleCode(writer)
             writer.close()
         }
 

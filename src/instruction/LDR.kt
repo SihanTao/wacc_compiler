@@ -8,7 +8,7 @@ import register.Register
 
 class LDR(val rd: Register,
           val addr: AddressingMode,
-          var cond: Cond = Cond.AL,): ARM11Instruction
+          var cond: Cond = Cond.AL): ARM11Instruction
 {
     constructor(rd: Register, `=`: String):
             this(rd, StaticRef(`=`), cond=Cond.AL)
