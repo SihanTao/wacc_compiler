@@ -211,11 +211,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val strMode = if (typeSize == 1) STR.STRMode.STRB else STR.STRMode.STR
 
         instructions.add(
-            STR(
-                ARMRegisterAllocator.curr(),
-                AddressingMode2(SP, offset),
-                strMode
-            )
+            STR(strMode, ARMRegisterAllocator.curr(), SP, offset)
         )
         ARMRegisterAllocator.free()
         return null
@@ -490,11 +486,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             if (node.rhs.type!!.size() > 1) STR.STRMode.STR else STR.STRMode.STRB
 
         instructions.add(
-            STR(
-                armRegister,
-                AddressingMode2(ARMRegisterAllocator.curr()),
-                strMode
-            )
+            STR(armRegister, ARMRegisterAllocator.curr(), strMode)
         )
 
         ARMRegisterAllocator.free()
@@ -589,11 +581,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             visit(node.content[i])
             val strIndex: Int = i * node.getContentSize() + WORDSIZE
             instructions.add(
-                STR(
-                    ARMRegisterAllocator.curr(),
-                    AddressingMode2(addrReg, strIndex),
-                    mode
-                )
+                STR(mode, ARMRegisterAllocator.curr(), addrReg, strIndex)
             )
             ARMRegisterAllocator.free()
         }
@@ -602,9 +590,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val sizeReg: ARMRegister = ARMRegisterAllocator.allocate()
         instructions.add(LDR(sizeReg, node.length))
 
-        instructions.add(
-            STR(sizeReg, AddressingMode2(addrReg))
-        )
+        instructions.add(STR(sizeReg, addrReg))
 
         ARMRegisterAllocator.free()
 
@@ -702,10 +688,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
         /* STR the fst value into reg[0] */
         val mode =
             if (child.type!!.size() > 1) STR.STRMode.STR else STR.STRMode.STRB
-        instructions.add(STR(fstVal!!, AddressingMode2(R0), mode))
+        instructions.add(STR(fstVal!!, R0, mode))
 
         /* STR the snd value into reg[1] */
-        instructions.add(STR(R0, AddressingMode2(pairPointer, offset)))
+        instructions.add(STR(R0, pairPointer, offset))
 
         /* free register used for storing child's value */
         ARMRegisterAllocator.free()
