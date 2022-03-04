@@ -14,7 +14,7 @@ class ThrowOverflowError : WACCLibraryFunction() {
         return listOf(
                 LABEL("p_throw_overflow_error"),
                 LDR(Register.R0, StaticRef("msg_$msgCode")),
-                BL("p_throw_overflow_error")
+                BL("p_throw_runtime_error")
         )
     }
 

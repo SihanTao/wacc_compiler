@@ -330,14 +330,14 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         when (node.operator) {
             Utils.Binop.PLUS -> {
                 op = {l, r -> listOf(
-                        ADD(l, l, r),
+                        ADD(l, l, r, S=true),
                         BL("p_throw_overflow_error").on(Cond.VS)
                 )}
                 generator.addCodeDependency(ThrowOverflowError())
             }
             Utils.Binop.MINUS -> {
                 op = {l, r -> listOf(
-                        SUB(l, l, r),
+                        SUB(l, l, r, S=true),
                         BL("p_throw_overflow_error").on(Cond.VS)
                 )}
                 generator.addCodeDependency(ThrowOverflowError())

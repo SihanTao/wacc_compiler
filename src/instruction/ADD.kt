@@ -6,19 +6,19 @@ import register.Register
 class ADD(val rd: Register, val rn: Register,
           val Op: ShifterOperand,
           var cond: Cond = Cond.AL,
-          val S: Boolean = false,
+          val S: Boolean = false
 ):ARM11Instruction {
-    constructor(rd: Register, rn: Register, rm: Register):
-            this(rd=rd, rn=rn, Op= Reg(rm))
+    constructor(rd: Register, rn: Register, rm: Register, cond: Cond = Cond.AL, S: Boolean = false):
+            this(rd=rd, rn=rn, Op= Reg(rm), cond = cond, S = S)
 
-    constructor(rd: Register, rn: Register, Imm: Int):
-            this(rd=rd, rn=rn, Op=Imm(Imm))
+    constructor(rd: Register, rn: Register, Imm: Int, cond: Cond = Cond.AL, S: Boolean = false):
+            this(rd=rd, rn=rn, Op=Imm(Imm), cond = cond, S = S)
 
-    constructor(rd: Register, rn: Register, rm: Register, shift: Shift, imm: Int):
-            this(rd=rd, rn=rn, Op=ShiftImm(rm, shift, imm))
+    constructor(rd: Register, rn: Register, rm: Register, shift: Shift, imm: Int, cond: Cond = Cond.AL, S: Boolean = false):
+            this(rd=rd, rn=rn, Op=ShiftImm(rm, shift, imm), cond = cond, S = S)
 
-    constructor(rd: Register, rn: Register, rm: Register, shift: Shift, rs: Register):
-            this(rd=rd, rn=rn, Op=ShiftReg(rm, shift, rs))
+    constructor(rd: Register, rn: Register, rm: Register, shift: Shift, rs: Register, cond: Cond = Cond.AL, S: Boolean = false):
+            this(rd=rd, rn=rn, Op=ShiftReg(rm, shift, rs), cond = cond, S = S)
 
     fun on(cond: Cond): ADD {
         this.cond = cond
