@@ -3,6 +3,8 @@ import instruction.addressing_mode.AddressingMode
 import instruction.addressing_mode.ImmOffset
 import instruction.addressing_mode.ImmPreIndex
 import instruction.addressing_mode.Sign
+import instruction.directive.GLOBAL
+import instruction.directive.LTORG
 import instruction.shifter_operand.Shift
 import instruction.shifter_operand.ShiftImm
 import instruction.waccLibrary.*
@@ -19,10 +21,11 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     private val symbolManager = SymbolManager()
 
     fun visitProgramNode(node: ProgramNode) {
-        generator.addCode(Global("main"))
+        generator.addCode(GLOBAL("main"))
         node.functions.forEach{ident, func ->
             generator.addCode(LABEL("f_$ident"))
             visitFuncNode(func)
+            generator.addCode(LTORG())
         }
 
         generator.addCode(LABEL("main"))
@@ -30,6 +33,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         visitStatNode(node.body)
         generator.addCode(LDR(Register.R0, 0))
         generator.addCode(POP(Register.PC))
+        generator.addCode(LTORG())
     }
 
 
