@@ -249,9 +249,25 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         symbolManager.nextScope()
         symbolManager.setCurrScopeVarsSize(scopeSize)
 
-        if (scopeSize > 0) generator.addCode(SUB(Register.SP, Register.SP, scopeSize))
+//        if (scopeSize > 0) generator.addCode(SUB(Register.SP, Register.SP, scopeSize))
+        if (scopeSize > 0) {
+            var temp = scopeSize
+            while (temp > 1024) {
+                generator.addCode(SUB(Register.SP, Register.SP, 1024))
+                temp -= 1024
+            }
+            generator.addCode(SUB(Register.SP, Register.SP, temp))
+        }
         node.body.forEach{stat -> visitStatNode(stat)}
-        if (scopeSize > 0) generator.addCode(ADD(Register.SP, Register.SP, scopeSize))
+//        if (scopeSize > 0) generator.addCode(ADD(Register.SP, Register.SP, scopeSize))
+        if (scopeSize > 0) {
+            var temp = scopeSize
+            while (temp > 1024) {
+                generator.addCode(ADD(Register.SP, Register.SP, 1024))
+                temp -= 1024
+            }
+            generator.addCode(ADD(Register.SP, Register.SP, temp))
+        }
         symbolManager.prevScope()
 
     }
