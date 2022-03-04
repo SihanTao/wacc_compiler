@@ -210,9 +210,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val typeSize = node.rhs.type!!.size()
         val strMode = if (typeSize == 1) STR.STRMode.STRB else STR.STRMode.STR
 
-        instructions.add(
-            STR(strMode, ARMRegisterAllocator.curr(), SP, offset)
-        )
+        instructions.add(STR(strMode, ARMRegisterAllocator.curr(), SP, offset))
         ARMRegisterAllocator.free()
         return null
     }
