@@ -21,6 +21,9 @@ fun main(args: Array<String>) {
             CharStreams.fromStream(fileInputStream)
         }
 
+				val filename = if (args.isEmpty()) null else
+					args[0].substringAfterLast("/").substringBeforeLast(".")
+
         val lexer = WACCLexer(input)
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
@@ -50,7 +53,8 @@ fun main(args: Array<String>) {
         if (!args.contains("--parse-only")) {
             val semanticChecker = WACCSemanticErrorVisitor()
             val ast = semanticChecker.visitProgram(tree) as ProgramNode
-            val writer = PrintWriter("output.s")
+						val writer = if (filename == null) PrintWriter("output.s") else
+							PrintWriter(filename + ".s")
             val codeGenerator = WACCCodeGenerator()
             val codeGeneratorVisitor = WACCCodeGeneratorVisitor(codeGenerator)
             codeGeneratorVisitor.visitProgramNode(ast)
