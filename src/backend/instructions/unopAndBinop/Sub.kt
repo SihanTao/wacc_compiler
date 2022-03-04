@@ -20,6 +20,13 @@ class Sub(
         operand2: Operand2
     ) : this(rd, rn, operand2, Cond.NONE)
 
+    constructor(rd: ARMRegister, rn: ARMRegister, constant: Int) : this(
+        rd,
+        rn,
+        Operand2(constant),
+        Cond.NONE
+    )
+
     override fun toString(): String {
         return "SUB$cond $Rd, $Rn, $operand2"
     }

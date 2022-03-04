@@ -22,6 +22,13 @@ class Add : Instruction {
         this.cond = Cond.NONE
     }
 
+    constructor(rd: ARMRegister, rn: ARMRegister, constant: Int) : this(
+        rd,
+        rn,
+        Operand2(constant),
+        Cond.NONE
+    )
+
     constructor(
         Rd: ARMRegister, Rn: ARMRegister,
         operand2: Operand2, cond: Cond

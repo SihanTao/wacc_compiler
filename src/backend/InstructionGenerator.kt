@@ -119,7 +119,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         /* decrease stack, leave space for variable in function body
          * NOT include parameters stack area */
         if (funcStackSize != 0) {
-            instructions.add(Sub(SP, SP, Operand2(funcStackSize)))
+            instructions.add(Sub(SP, SP, funcStackSize))
         }
 
         /* visit function,
@@ -139,7 +139,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(Mov(R0, ARMRegisterAllocator.curr()))
         ARMRegisterAllocator.free()
         if (funcStackSize != 0) {
-            instructions.add(Add(SP, SP, Operand2(funcStackSize)))
+            instructions.add(Add(SP, SP, funcStackSize))
         }
         instructions.add(Pop(PC))
         return null
@@ -173,7 +173,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         var temp = stackSize
         while (temp > 0) {
             val stackStep = if (temp >= MAX_STACK_STEP) MAX_STACK_STEP else temp
-            instructions.add(Sub(SP, SP, Operand2(stackStep)))
+            instructions.add(Sub(SP, SP, stackStep))
             temp -= stackStep
         }
 
@@ -194,7 +194,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         temp = stackSize
         while (temp > 0) {
             val stackStep = if (temp >= MAX_STACK_STEP) MAX_STACK_STEP else temp
-            instructions.add(Add(SP, SP, Operand2(stackStep)))
+            instructions.add(Add(SP, SP, stackStep))
             temp -= stackStep
         }
         return null
@@ -299,7 +299,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         /* 3 add back stack pointer */
         if (paramSize > 0) {
-            instructions.add(Add(SP, SP, Operand2(paramSize)))
+            instructions.add(Add(SP, SP, paramSize))
         }
 
         /* 4 get result, put in register */
@@ -429,7 +429,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         visit(node.cond)
 
-        instructions.add(Cmp(ARMRegisterAllocator.curr(), Operand2(1)))
+        instructions.add(Cmp(ARMRegisterAllocator.curr(), 1))
         instructions.add(B(Cond.EQ, loopLabel))
 
         ARMRegisterAllocator.free()
@@ -451,7 +451,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         if (isExprLhs) {
             // only add address
             instructions.add(
-                Add(ARMRegisterAllocator.allocate(), SP, Operand2(offset))
+                Add(ARMRegisterAllocator.allocate(), SP, offset)
             )
         } else {
             instructions.add(
@@ -499,7 +499,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             node.name,
             node.symbol
         )) + stackOffset
-        instructions.add(Add(addrReg, SP, Operand2(offset)))
+        instructions.add(Add(addrReg, SP, offset))
 
         checkAndAddRuntimeError(CHECK_ARRAY_BOUND)
         checkAndAddRuntimeError(
@@ -526,7 +526,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(Mov(R0, indexReg))
             instructions.add(Mov(R1, addrReg))
             instructions.add(BL("$CHECK_ARRAY_BOUND"))
-            instructions.add(Add(addrReg, addrReg, Operand2(POINTERSIZE)))
+            instructions.add(Add(addrReg, addrReg, POINTERSIZE))
             val elemSize: Int = node.type!!.size() / 2
             instructions.add(
                 Add(addrReg, addrReg, Operand2(indexReg, Operand2Operator.LSL, elemSize))
