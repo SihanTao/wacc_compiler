@@ -1,7 +1,7 @@
 package backend.utils
 
 import backend.instructions.*
-import backend.register.ARMRegister
+import backend.register.ARMRegister.*
 import backend.instructions.addressing.AddressingMode2
 import backend.instructions.addressing.LabelAddressing
 import backend.instructions.unopAndBinop.Add
@@ -59,12 +59,9 @@ enum class IOInstructionHelper: Instruction {
                 listOf(
                     /* add the helper function label */
                     Label(PRINT_INT.toString()),
-                    Push(ARMRegister.LR),  /* put the content in r0 int o r1 as the snd arg of printf */
-                    Mov(
-                        ARMRegister.R1,
-                        Operand2(ARMRegister.R0)
-                    ),  /* fst arg of printf is the format */
-                    LDR(ARMRegister.R0, LabelAddressing(printIntLabel))
+                    Push(LR),  /* put the content in r0 int o r1 as the snd arg of printf */
+                    Mov(R1, Operand2(R0)),  /* fst arg of printf is the format */
+                    LDR(R0, LabelAddressing(printIntLabel))
                 )
             )
             instructions.addAll(addCommonPrint())
@@ -85,12 +82,9 @@ enum class IOInstructionHelper: Instruction {
                 listOf(
                     /* add the helper function label */
                     Label(PRINT_REFERENCE.toString()),
-                    Push(ARMRegister.LR),  /* put the content in r0 int o r1 as the snd arg of printf */
-                    Mov(
-                        ARMRegister.R1,
-                        Operand2(ARMRegister.R0)
-                    ),  /* fst arg of printf is the format */
-                    LDR(ARMRegister.R0, LabelAddressing(printIntLabel))
+                    Push(LR),  /* put the content in r0 int o r1 as the snd arg of printf */
+                    Mov(R1, Operand2(R0)),  /* fst arg of printf is the format */
+                    LDR(R0, LabelAddressing(printIntLabel))
                 )
             )
             instructions.addAll(addCommonPrint())
@@ -107,16 +101,13 @@ enum class IOInstructionHelper: Instruction {
 
             return listOf(
                 Label(PRINT_LN.toString()),
-                Push(ARMRegister.LR),
-                LDR(
-                    ARMRegister.R0,
-                    LabelAddressing(printlnLabel)
-                ),  /* skip the first 4 byte of the msg which is the length of it */
-                Add(ARMRegister.R0, ARMRegister.R0, Operand2(4)),
+                Push(LR),
+                LDR(R0, LabelAddressing(printlnLabel)),  /* skip the first 4 byte of the msg which is the length of it */
+                Add(R0, R0, Operand2(4)),
                 BL(SyscallInstruction.PUTS.toString()),  /* refresh the r0 and buffer */
-                Mov(ARMRegister.R0, Operand2(0)),
+                Mov(R0, Operand2(0)),
                 BL(SyscallInstruction.FFLUSH.toString()),
-                Pop(ARMRegister.PC)
+                Pop(PC)
             )
 
         }
@@ -135,17 +126,12 @@ enum class IOInstructionHelper: Instruction {
             val instructions: MutableList<Instruction> =
                 mutableListOf( /* add the helper function label */
                     Label(PRINT_STRING.toString()),
-                    Push(ARMRegister.LR),  /* put the string length into r1 as snd arg */
-                    LDR(
-                        ARMRegister.R1,
-                        AddressingMode2(ARMRegister.R0)
-                    ),
+                    Push(LR),  /* put the string length into r1 as snd arg */
+                    LDR(R1, AddressingMode2(R0)),
                     /* skip the fst 4 bytes which is the length of the string */
-                    Add(ARMRegister.R2, ARMRegister.R0, Operand2(4)),
-                    LDR(ARMRegister.R0, LabelAddressing(msg))
-
+                    Add(R2, R0, Operand2(4)),
+                    LDR(R0, LabelAddressing(msg))
                 )
-
             instructions.addAll(addCommonPrint())
             return instructions
         }
@@ -173,22 +159,11 @@ enum class IOInstructionHelper: Instruction {
                 listOf(
                     /* add the helper function label */
                     Label(PRINT_BOOL.toString()),
-                    Push(ARMRegister.LR),
+                    Push(LR),
                     /* cmp the content in r0 with 0 */
-                    Cmp(
-                        ARMRegister.R0,
-                        Operand2(0)
-                    ),  /* if not equal to 0 LDR true */
-                    LDR(
-                        ARMRegister.R0,
-                        LabelAddressing(msgTrue),
-                        LDR.LdrMode.LDRNE
-                    ),
-                    LDR(
-                        ARMRegister.R0,
-                        LabelAddressing(msgFalse),
-                        LDR.LdrMode.LDREQ
-                    )
+                    Cmp(R0, Operand2(0)),  /* if not equal to 0 LDR true */
+                    LDR(R0, LabelAddressing(msgTrue), LDR.LdrMode.LDRNE),
+                    LDR(R0, LabelAddressing(msgFalse), LDR.LdrMode.LDREQ)
                 )
             )
             instructions.addAll(addCommonPrint())
@@ -197,11 +172,11 @@ enum class IOInstructionHelper: Instruction {
 
         private fun addCommonPrint(): MutableList<Instruction> {
             return mutableListOf( /* skip the first 4 byte of the msg which is the length of it */
-                Add(ARMRegister.R0, ARMRegister.R0, Operand2(4)),
+                Add(R0, R0, Operand2(4)),
                 BL(SyscallInstruction.PRINTF.toString()),  /* refresh the r0 and buffer */
-                Mov(ARMRegister.R0, Operand2(0)),
+                Mov(R0, Operand2(0)),
                 BL(SyscallInstruction.FFLUSH.toString()),
-                Pop(ARMRegister.PC)
+                Pop(PC)
             )
         }
 
@@ -221,19 +196,11 @@ enum class IOInstructionHelper: Instruction {
 
             return listOf(
                 readLabel,
-                Push(ARMRegister.LR),
-                Mov(
-                    ARMRegister.R1,
-                    Operand2(ARMRegister.R0)
-                ),
-                LDR(
-                    ARMRegister.R0,
-                    LabelAddressing(msgLabel)
-                ),
-                Add(ARMRegister.R0, ARMRegister.R0, Operand2(4)), BL(
-                    SyscallInstruction.SCANF.toString()
-                ),
-                Pop(ARMRegister.PC)
+                Push(LR),
+                Mov(R1, Operand2(R0)),
+                LDR(R0, LabelAddressing(msgLabel)),
+                Add(R0, R0, Operand2(4)), BL("${SyscallInstruction.SCANF}"),
+                Pop(PC)
             )
         }
 
