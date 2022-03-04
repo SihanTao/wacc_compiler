@@ -473,9 +473,9 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         computePairElemLocation(node)
         val resultReg = registerAllocator.peekRegister()
         if (typeSize(node.type!!) == 1) {
-            LDRSB(resultReg, ImmOffset(resultReg))
+            generator.addCode(LDRSB(resultReg, ImmOffset(resultReg)))
         } else {
-            LDR(resultReg, ImmOffset(resultReg))
+            generator.addCode(LDR(resultReg, ImmOffset(resultReg)))
         }
     }
 
@@ -490,9 +490,10 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
 
             listOf(node.fst!!, node.snd!!).forEachIndexed{ i, expr ->
                 visitExprNode(expr)
+                val exprReg = registerAllocator.peekRegister()
                 generator.addCode(LDR(Register.R0, typeSize(expr.type!!)))
                 generator.addCode(BL("malloc"))
-                generator.addCode(STORE(destReg, ImmOffset(Register.R0), expr.type!!))
+                generator.addCode(STORE(exprReg, ImmOffset(Register.R0), expr.type!!))
                 generator.addCode(STR(Register.R0, ImmOffset(destReg, 4*i)))
             }
         }
