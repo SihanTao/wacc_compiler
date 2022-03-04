@@ -657,12 +657,9 @@ class SymbolManager {
     }
 
     fun lookup(identifier: String): Int {
-        println(identifier)
         val res = symbolTable!!.lookupAll(identifier)!!
         val destScopeDepth = res.second
         var offset = res.first
-        println(destScopeDepth)
-        println(currentScopeDepth)
         for (i in currentScopeDepth downTo destScopeDepth + 1) {
             offset += symbolTable!!.lookupAll("#LOCAL_VARIABLE_SIZE_$i")!!.first
         }
