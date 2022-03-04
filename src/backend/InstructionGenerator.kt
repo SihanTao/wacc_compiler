@@ -491,10 +491,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(
             STR(
                 armRegister,
-                AddressingMode2(
-                    AddrMode2.OFFSET,
-                    ARMRegisterAllocator.curr()
-                ),
+                AddressingMode2(ARMRegisterAllocator.curr()),
                 strMode
             )
         )
@@ -528,12 +525,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 visit(index)
                 indexReg = ARMRegisterAllocator.curr()
                 if (isExprLhs) {
-                    instructions.add(
-                        LDR(
-                            indexReg,
-                            AddressingMode2(AddrMode2.OFFSET, indexReg)
-                        )
-                    )
+                    instructions.add(LDR(indexReg, AddressingMode2(indexReg)))
                 }
             } else {
                 indexReg = ARMRegisterAllocator.allocate()
@@ -542,10 +534,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
             /* check array bound */
             instructions.add(
-                LDR(
-                    addrReg,
-                    AddressingMode2(AddrMode2.OFFSET, addrReg)
-                )
+                LDR(addrReg, AddressingMode2(addrReg))
             )
             instructions.add(Mov(R0, indexReg))
             instructions.add(Mov(R1, addrReg))
@@ -564,7 +553,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         if (!isExprLhs) {
             instructions.add(
                 LDR(
-                    addrReg, AddressingMode2(AddrMode2.OFFSET, addrReg),
+                    addrReg, AddressingMode2(addrReg),
                     if (node.type!!.size() > 1) LdrMode.LDR else LdrMode.LDRSB
                 )
             )
@@ -613,7 +602,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(LDR(sizeReg, node.length))
 
         instructions.add(
-            STR(sizeReg, AddressingMode2(AddrMode2.OFFSET, addrReg))
+            STR(sizeReg, AddressingMode2(addrReg))
         )
 
         ARMRegisterAllocator.free()
@@ -645,7 +634,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
          */
 
         val addrMode: AddressingMode2 = if (node.isFirst()) {
-            AddressingMode2(AddrMode2.OFFSET, register)
+            AddressingMode2(register)
         } else {
             AddressingMode2(AddrMode2.OFFSET, register, POINTERSIZE)
         }
@@ -715,7 +704,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(
             STR(
                 fstVal!!,
-                AddressingMode2(AddrMode2.OFFSET, R0),
+                AddressingMode2(R0),
                 mode
             )
         )

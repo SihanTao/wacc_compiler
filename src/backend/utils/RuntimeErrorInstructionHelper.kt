@@ -83,14 +83,11 @@ enum class RuntimeErrorInstructionHelper: Instruction {
                 Push(ARMRegister.R0),
                 LDR(
                     ARMRegister.R0,
-                    AddressingMode2(AddrMode2.OFFSET, ARMRegister.R0)
+                    AddressingMode2(ARMRegister.R0)
                 ),
                 BL(SyscallInstruction.FREE.toString()),
                 LDR(
-                    ARMRegister.R0, AddressingMode2(
-                        AddrMode2.OFFSET,
-                        ARMRegister.SP
-                    )
+                    ARMRegister.R0, AddressingMode2(ARMRegister.SP)
                 ),
                 LDR(
                     ARMRegister.R0,
@@ -148,7 +145,7 @@ enum class RuntimeErrorInstructionHelper: Instruction {
                 BL(Cond.LT, THROW_RUNTIME_ERROR.toString()),
                 LDR(
                     ARMRegister.R1,
-                    AddressingMode2(AddrMode2.OFFSET, ARMRegister.R1)
+                    AddressingMode2(ARMRegister.R1)
                 ),
                 Cmp(ARMRegister.R0, Operand2(ARMRegister.R1)),
                 LDR(

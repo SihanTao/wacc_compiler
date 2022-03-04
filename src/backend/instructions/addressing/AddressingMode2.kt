@@ -12,7 +12,7 @@ class AddressingMode2 private constructor(/*
     [<Rn>, +/-<Rm>, LSL/LSR/ASR/ROR #<immed_5>]  [<Rn>, +/-<Rm>, LSL/LSR/ASR/ROR #<immed_5>]!
     [<Rn>, +/-<Rm>, RRX]                         [<Rn>, +/-<Rm>, RRX]!
      */
-    private val mode: AddrMode2,
+    mode: AddrMode2,
     Rn: ARMRegister,
     Rm: ARMRegister?,
     operator: AddrMode2Operator?,
@@ -22,14 +22,9 @@ class AddressingMode2 private constructor(/*
     private val rm: ARMRegister?
     private val operator: AddrMode2Operator?
     private val immediate: Immediate?
+    private var mode: AddrMode2
 
-    constructor(mode: AddrMode2, Rn: ARMRegister) : this(
-        mode,
-        Rn,
-        null,
-        null,
-        null
-    )
+    constructor(Rn: ARMRegister): this(AddrMode2.OFFSET, Rn, null, null, null)
 
     constructor(mode: AddrMode2, Rn: ARMRegister, value: Int) : this(
         mode,
@@ -76,5 +71,6 @@ class AddressingMode2 private constructor(/*
         this.rm = Rm
         this.operator = operator
         this.immediate = immed
+        this.mode = mode
     }
 }

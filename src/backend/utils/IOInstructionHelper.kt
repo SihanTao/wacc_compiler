@@ -138,10 +138,7 @@ enum class IOInstructionHelper: Instruction {
                     Push(ARMRegister.LR),  /* put the string length into r1 as snd arg */
                     LDR(
                         ARMRegister.R1,
-                        AddressingMode2(
-                            AddressingMode2.AddrMode2.OFFSET,
-                            ARMRegister.R0
-                        )
+                        AddressingMode2(ARMRegister.R0)
                     ),
                     /* skip the fst 4 bytes which is the length of the string */
                     Add(ARMRegister.R2, ARMRegister.R0, Operand2(4)),

@@ -15,7 +15,7 @@ class LDR(private val register: ARMRegister, private val addressing: Addressing,
 
     // Constructor for labels : LDR r4, =msg_0
     constructor(register: ARMRegister, label: Label): this(register, LabelAddressing(label))
-    constructor(register: ARMRegister, register2: ARMRegister): this(register, AddressingMode2(AddressingMode2.AddrMode2.OFFSET, register2))
+    constructor(register: ARMRegister, register2: ARMRegister): this(register, AddressingMode2(register2))
 
     @Override
     override fun toString(): String {
