@@ -2,8 +2,6 @@ package backend.utils
 
 import backend.instructions.*
 import backend.register.ARMRegister.*
-import backend.instructions.addressing.AddressingMode2
-import backend.instructions.addressing.LabelAddressing
 import backend.instructions.unopAndBinop.Add
 import java.util.*
 
@@ -61,7 +59,7 @@ enum class IOInstructionHelper: Instruction {
                     Label("$PRINT_INT"),
                     Push(LR),  /* put the content in r0 int o r1 as the snd arg of printf */
                     Mov(R1, Operand2(R0)),  /* fst arg of printf is the format */
-                    LDR(R0, LabelAddressing(printIntLabel))
+                    LDR(R0, printIntLabel)
                 )
             )
             instructions.addAll(addCommonPrint())
@@ -83,7 +81,7 @@ enum class IOInstructionHelper: Instruction {
                     Label("$PRINT_REFERENCE"),
                     Push(LR),  /* put the content in r0 int o r1 as the snd arg of printf */
                     Mov(R1, Operand2(R0)),  /* fst arg of printf is the format */
-                    LDR(R0, LabelAddressing(printIntLabel))
+                    LDR(R0, printIntLabel)
                 )
             )
             instructions.addAll(addCommonPrint())
@@ -101,7 +99,7 @@ enum class IOInstructionHelper: Instruction {
             return listOf(
                 Label("$PRINT_LN"),
                 Push(LR),
-                LDR(R0, LabelAddressing(printlnLabel)),  /* skip the first 4 byte of the msg which is the length of it */
+                LDR(R0, printlnLabel),  /* skip the first 4 byte of the msg which is the length of it */
                 Add(R0, R0, Operand2(4)),
                 BL("${SyscallInstruction.PUTS}"),  /* refresh the r0 and buffer */
                 Mov(R0, Operand2(0)),
@@ -129,7 +127,7 @@ enum class IOInstructionHelper: Instruction {
                     LDR(R1, R0),
                     /* skip the fst 4 bytes which is the length of the string */
                     Add(R2, R0, Operand2(4)),
-                    LDR(R0, LabelAddressing(msg))
+                    LDR(R0, msg)
                 )
             instructions.addAll(addCommonPrint())
             return instructions
@@ -161,8 +159,8 @@ enum class IOInstructionHelper: Instruction {
                     Push(LR),
                     /* cmp the content in r0 with 0 */
                     Cmp(R0, Operand2(0)),  /* if not equal to 0 LDR true */
-                    LDR(R0, LabelAddressing(msgTrue), LDR.LdrMode.LDRNE),
-                    LDR(R0, LabelAddressing(msgFalse), LDR.LdrMode.LDREQ)
+                    LDR(R0, msgTrue, LDR.LdrMode.LDRNE),
+                    LDR(R0, msgFalse, LDR.LdrMode.LDREQ)
                 )
             )
             instructions.addAll(addCommonPrint())
@@ -197,8 +195,9 @@ enum class IOInstructionHelper: Instruction {
                 readLabel,
                 Push(LR),
                 Mov(R1, Operand2(R0)),
-                LDR(R0, LabelAddressing(msgLabel)),
-                Add(R0, R0, Operand2(4)), BL("${SyscallInstruction.SCANF}"),
+                LDR(R0, msgLabel),
+                Add(R0, R0, Operand2(4)),
+                BL("${SyscallInstruction.SCANF}"),
                 Pop(PC)
             )
         }

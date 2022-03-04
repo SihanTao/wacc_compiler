@@ -15,6 +15,7 @@ class LDR(private val register: ARMRegister, private val addressing: Addressing,
 
     // Constructor for labels : LDR r4, =msg_0
     constructor(register: ARMRegister, label: Label): this(register, LabelAddressing(label))
+    constructor(register: ARMRegister, label: Label, mode: LdrMode): this(register, LabelAddressing(label), mode)
 
     constructor(register: ARMRegister, register2: ARMRegister): this(register, AddressingMode2(register2), LdrMode.LDR)
     constructor(Rn: ARMRegister, Rm: ARMRegister, offset: Int): this(Rn, AddressingMode2(Rm, offset))
