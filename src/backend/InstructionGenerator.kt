@@ -701,18 +701,10 @@ class InstructionGenerator : ASTVisitor<Void?> {
         /* STR the fst value into reg[0] */
         val mode =
             if (child.type!!.size() > 1) STR.STRMode.STR else STR.STRMode.STRB
-        instructions.add(
-            STR(
-                fstVal!!,
-                AddressingMode2(R0),
-                mode
-            )
-        )
+        instructions.add(STR(fstVal!!, AddressingMode2(R0), mode))
 
         /* STR the snd value into reg[1] */
-        instructions.add(
-            STR(R0, AddressingMode2(AddrMode2.OFFSET, pairPointer, offset))
-        )
+        instructions.add(STR(R0, AddressingMode2(AddrMode2.OFFSET, pairPointer, offset)))
 
         /* free register used for storing child's value */
         ARMRegisterAllocator.free()

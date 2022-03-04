@@ -16,7 +16,7 @@ enum class IOInstructionHelper: Instruction {
 
     override fun toString(): String {
         if (this == PRINT_CHAR) {
-            return SyscallInstruction.PUTCHAR.toString()
+            return "${SyscallInstruction.PUTCHAR}"
         }
 
         return "p_${name.lowercase(Locale.getDefault())}"
@@ -58,7 +58,7 @@ enum class IOInstructionHelper: Instruction {
             val instructions: MutableList<Instruction> = ArrayList(
                 listOf(
                     /* add the helper function label */
-                    Label(PRINT_INT.toString()),
+                    Label("$PRINT_INT"),
                     Push(LR),  /* put the content in r0 int o r1 as the snd arg of printf */
                     Mov(R1, Operand2(R0)),  /* fst arg of printf is the format */
                     LDR(R0, LabelAddressing(printIntLabel))
@@ -73,7 +73,6 @@ enum class IOInstructionHelper: Instruction {
             dataSegment: MutableMap<Label, String>,
             labelGenerator: LabelGenerator
         ): List<Instruction> {
-            println("In addPrintRef")
             val label = labelGenerator.getLabel()
             dataSegment[label] = PRINT_REF_MSG
             val printIntLabel =
@@ -81,7 +80,7 @@ enum class IOInstructionHelper: Instruction {
             val instructions: MutableList<Instruction> = ArrayList(
                 listOf(
                     /* add the helper function label */
-                    Label(PRINT_REFERENCE.toString()),
+                    Label("$PRINT_REFERENCE"),
                     Push(LR),  /* put the content in r0 int o r1 as the snd arg of printf */
                     Mov(R1, Operand2(R0)),  /* fst arg of printf is the format */
                     LDR(R0, LabelAddressing(printIntLabel))
@@ -100,7 +99,7 @@ enum class IOInstructionHelper: Instruction {
             dataSegment[printlnLabel] = PRINT_LN_MSG
 
             return listOf(
-                Label(PRINT_LN.toString()),
+                Label("$PRINT_LN"),
                 Push(LR),
                 LDR(R0, LabelAddressing(printlnLabel)),  /* skip the first 4 byte of the msg which is the length of it */
                 Add(R0, R0, Operand2(4)),
@@ -203,7 +202,6 @@ enum class IOInstructionHelper: Instruction {
                 Pop(PC)
             )
         }
-
 
         private fun addMsg(
             msg: String,
