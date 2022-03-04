@@ -140,9 +140,66 @@ runtimeErr-general-test:
   script:
     - /bin/bash test/test 0 "" "$VALID_TEST_DIR"/runtimeErr
 
-backend-test:
+backend-array-test:
   stage: test-backend
   script:
-    - /bin/bash backEndTest.sh
+    - /bin/bash backEndTest.sh -d array 
+
+backend-basic-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d basic
+  
+backend-expression-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d expressions
+
+backend-function-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d function
+
+backend-if-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d if 
+  
+backend-IO-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d IO 
+
+backend-pairs-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d pairs 
+
+backend-runtimeErr-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d runtimeErr
+
+backend-scope-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d scope 
+
+backend-sequence-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d sequence 
+
+backend-variables-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d variables
+
+backend-while-test:
+  stage: test-backend
+  script:
+    - /bin/bash backEndTest.sh -d while 
+
+
   
 
