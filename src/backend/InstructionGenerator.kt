@@ -287,11 +287,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             val size: Int = expr.type!!.size()
             val mode = if (size > 1) STR.STRMode.STR else STR.STRMode.STRB
             instructions.add(
-                STR(
-                    reg!!,
-                    AddressingMode2(AddrMode2.PRE_INDEX, SP, -size),
-                    mode
-                )
+                STR(reg!!, AddressingMode2(AddrMode2.PRE_INDEX, SP, -size), mode)
             )
             ARMRegisterAllocator.free()
             paramSize += size
@@ -518,7 +514,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
                 visit(index)
                 indexReg = ARMRegisterAllocator.curr()
                 if (isExprLhs) {
-                    instructions.add(LDR(indexReg, AddressingMode2(indexReg)))
+                    instructions.add(LDR(indexReg, indexReg))
                 }
             } else {
                 indexReg = ARMRegisterAllocator.allocate()
@@ -526,9 +522,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             }
 
             /* check array bound */
-            instructions.add(
-                LDR(addrReg, AddressingMode2(addrReg))
-            )
+            instructions.add(LDR(addrReg, addrReg))
             instructions.add(Mov(R0, indexReg))
             instructions.add(Mov(R1, addrReg))
             instructions.add(BL("$CHECK_ARRAY_BOUND"))
@@ -544,11 +538,8 @@ class InstructionGenerator : ASTVisitor<Void?> {
 
         /* if is not lhs, load the array content to `reg` */
         if (!isExprLhs) {
-            instructions.add(
-                LDR(
-                    addrReg, AddressingMode2(addrReg),
-                    if (node.type!!.size() > 1) LdrMode.LDR else LdrMode.LDRSB
-                )
+            instructions.add(LDR(addrReg, addrReg,
+                if (node.type!!.size() > 1) LdrMode.LDR else LdrMode.LDRSB)
             )
         }
         return null

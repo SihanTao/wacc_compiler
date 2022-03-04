@@ -126,7 +126,7 @@ enum class IOInstructionHelper: Instruction {
                 mutableListOf( /* add the helper function label */
                     Label("$PRINT_STRING"),
                     Push(LR),  /* put the string length into r1 as snd arg */
-                    LDR(R1, AddressingMode2(R0)),
+                    LDR(R1, R0),
                     /* skip the fst 4 bytes which is the length of the string */
                     Add(R2, R0, Operand2(4)),
                     LDR(R0, LabelAddressing(msg))

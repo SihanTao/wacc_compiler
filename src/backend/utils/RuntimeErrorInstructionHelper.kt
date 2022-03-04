@@ -80,18 +80,10 @@ enum class RuntimeErrorInstructionHelper: Instruction {
                 LDR(R0, LabelAddressing(msg), LdrMode.LDREQ),
                 B(Cond.EQ, "$THROW_RUNTIME_ERROR"),
                 Push(R0),
-                LDR(
-                    R0,
-                    AddressingMode2(R0)
-                ),
+                LDR(R0, R0),
                 BL("${SyscallInstruction.FREE}"),
-                LDR(
-                    R0, AddressingMode2(SP)
-                ),
-                LDR(
-                    R0,
-                    AddressingMode2(R0, 4)
-                ),
+                LDR(R0, SP),
+                LDR(R0, R0, 4),
                 BL("${SyscallInstruction.FREE}"),
                 Pop(R0),
                 BL("${SyscallInstruction.FREE}"),
