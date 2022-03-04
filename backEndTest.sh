@@ -19,7 +19,7 @@ rm -rf $FAILS_DIR/*
 TOTAL_COUNT=0
 PASSED=0
 
-INPUT="c"
+INPUT="g"
 SINGLE_FILE=""
 DIRECTORY=""
 
@@ -46,7 +46,7 @@ if [[ $SINGLE_FILE != "" ]]; then
 elif [[ $DIRECTORY != "" ]]; then
   FILES_TO_TEST=$(find "${VALID_EXAMPLES}/$DIRECTORY" -name "*.wacc")
 else
-  FILES_TO_TEST=$(find ${VALID_EXAMPLES} -name "*.wacc" ! -name "IOLoop.wacc")
+  FILES_TO_TEST=$(find ${VALID_EXAMPLES} -name "*.wacc" ! -name "IOLoop.wacc" ! -name "ticTacToe.wacc")
 fi
 
 for file in $FILES_TO_TEST;do
