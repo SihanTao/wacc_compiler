@@ -91,7 +91,7 @@ enum class RuntimeErrorInstructionHelper: Instruction {
                 ),
                 LDR(
                     ARMRegister.R0,
-                    AddressingMode2(AddrMode2.OFFSET, ARMRegister.R0, 4)
+                    AddressingMode2(ARMRegister.R0, 4)
                 ),
                 BL("${SyscallInstruction.FREE}"),
                 Pop(ARMRegister.R0),

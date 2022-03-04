@@ -212,7 +212,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(
             STR(
                 ARMRegisterAllocator.curr(),
-                AddressingMode2(AddrMode2.OFFSET, SP, offset),
+                AddressingMode2(SP, offset),
                 strMode
             )
         )
@@ -464,7 +464,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(
                 LDR(
                     ARMRegisterAllocator.allocate(),
-                    AddressingMode2(AddrMode2.OFFSET, SP, offset),
+                    AddressingMode2(SP, offset),
                     mode
                 )
             )
@@ -590,7 +590,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
             instructions.add(
                 STR(
                     ARMRegisterAllocator.curr(),
-                    AddressingMode2(AddrMode2.OFFSET, addrReg, strIndex),
+                    AddressingMode2(addrReg, strIndex),
                     mode
                 )
             )
@@ -636,7 +636,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         val addrMode: AddressingMode2 = if (node.isFirst()) {
             AddressingMode2(register)
         } else {
-            AddressingMode2(AddrMode2.OFFSET, register, POINTERSIZE)
+            AddressingMode2(register, POINTERSIZE)
         }
 
         if (isExprLhs) {
@@ -704,7 +704,7 @@ class InstructionGenerator : ASTVisitor<Void?> {
         instructions.add(STR(fstVal!!, AddressingMode2(R0), mode))
 
         /* STR the snd value into reg[1] */
-        instructions.add(STR(R0, AddressingMode2(AddrMode2.OFFSET, pairPointer, offset)))
+        instructions.add(STR(R0, AddressingMode2(pairPointer, offset)))
 
         /* free register used for storing child's value */
         ARMRegisterAllocator.free()

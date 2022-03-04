@@ -24,7 +24,7 @@ class AddressingMode2 private constructor(/*
     private val immediate: Immediate?
     private var mode: AddrMode2
 
-    constructor(Rn: ARMRegister): this(AddrMode2.OFFSET, Rn, null, null, null)
+    constructor(Rn: ARMRegister) : this(AddrMode2.OFFSET, Rn, null, null, null)
 
     constructor(mode: AddrMode2, Rn: ARMRegister, value: Int) : this(
         mode,
@@ -32,6 +32,14 @@ class AddressingMode2 private constructor(/*
         null,
         null,
         Immediate(value)
+    )
+
+    constructor(Rn: ARMRegister, offset: Int) : this(
+        AddrMode2.OFFSET,
+        Rn,
+        null,
+        null,
+        Immediate(offset)
     )
 
     override fun toString(): String {
