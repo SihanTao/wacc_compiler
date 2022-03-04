@@ -314,7 +314,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
             visitExprNode(expr)
             val exprReg = registerAllocator.peekRegister()
             val elemSize = typeSize(node.contentType!!)
-            generator.addCode(STORE(exprReg, ImmOffset(exprReg, elemDest), node.contentType))
+            generator.addCode(STORE(exprReg, ImmOffset(dest, elemDest), node.contentType))
             elemDest += elemSize
         }
 
@@ -665,7 +665,6 @@ class SymbolManager {
         for (i in currentScopeDepth downTo destScopeDepth + 1) {
             offset += symbolTable!!.lookupAll("#LOCAL_VARIABLE_SIZE_$i")!!.first
         }
-        dumpStack()
         return offset
     }
 
@@ -693,11 +692,5 @@ class SymbolManager {
         nextDeclarationPos = size
     }
 
-    fun dumpStack() {
-        for (i in currentScopeDepth downTo 0) {
-            val size = symbolTable!!.lookupAll("#LOCAL_VARIABLE_SIZE_$i")!!.first
-            println("i: $i, $size")
-        }
-    }
 
 }
