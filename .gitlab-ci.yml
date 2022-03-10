@@ -160,11 +160,6 @@ backend-if-test:
   script:
     - /bin/bash backEndTest.sh -d if 
   
-backend-IO-test:
-  stage: backend-test
-  script:
-    - /bin/bash backEndTest.sh -d IO 
-
 backend-pairs-test:
   stage: backend-test
   script:
