@@ -169,7 +169,7 @@ class WACCOptimiserVisitor() {
 			return null
 		}
 
-		var newcontent: MutableList<ExprNode> = java.util.ArrayList()
+		val newcontent: MutableList<ExprNode> = java.util.ArrayList()
 		/* variable to check if any of the expressions have been optimised */
 		var isChanged: Boolean = false
 
@@ -191,7 +191,6 @@ class WACCOptimiserVisitor() {
 
 	private fun visitBinopNode(node: BinopNode): ExprNode? {
 
-		/*
 		val newexpr1: ExprNode? = visitExprNode(node.expr1)
 		val newexpr2: ExprNode? = visitExprNode(node.expr2)
 
@@ -199,23 +198,12 @@ class WACCOptimiserVisitor() {
 			return null
 		}
 
-		if (newexpr1 == null) {
-			val lhs: ExprNode = node.expr1
-		} else {
-			val lhs: ExprNode = newexpr1
-		}
+		val lhs = newexpr1 ?: node.expr1
+		val rhs = newexpr2 ?: node.expr2
 
-		if (newexpr2 == null) {
-			val rhs: ExprNode = node.expr2
-		} else {
-			val rhsL ExprNode = newexpr2
-		}
+		// TODO: Equality of any statements
 
-		// TODO
-
-		/* TODO: Equality of any statements */
-
-		/* TODO: x + 5 < x + 10 regardless of x */
+		// TODO: x + 5 < x + 10 regardless of x
 
 		/* Other Binop expressions can only be reduced if both sides
 		are BasicType */
@@ -225,7 +213,7 @@ class WACCOptimiserVisitor() {
 			/* There's no need to check rhs_type, as we know the program is
 			semantically valid at this stage, so types must match */
 
-			if (lhs is IntNode) {
+			if (lhs is CharNode && rhs is CharNode) {
 
 				when (node.operator) {
 
@@ -244,8 +232,8 @@ class WACCOptimiserVisitor() {
 				}
 			}
 
-			if (lhs.type.typeEnum is BasicTypeEnum.BOOLEAN) {
-				
+			else if (lhs is BoolNode && rhs is BoolNode) {
+
 				when (node.operator) {
 
 					Utils.Binop.AND -> {
@@ -254,9 +242,10 @@ class WACCOptimiserVisitor() {
 					Utils.Binop.OR -> {
 						return BoolNode(lhs.`val` || rhs.`val`);
 					}
+				}
 			}
 
-			if (lhs_type.typeEnum is BasicTypeEnum.INTEGER) {
+			else if (lhs is IntNode && rhs is IntNode) {
 
 				when (node.operator) {
 
@@ -287,22 +276,17 @@ class WACCOptimiserVisitor() {
 					Utils.Binop.LESS_EQUAL -> {
 						return BoolNode(lhs.value <= rhs.value)
 					}
+				}
 			}
-
 		} else {
 			return BinopNode(lhs, rhs, node.operator)
 		}
-		*/
 		return null
 	}
 
 	private fun visitUnopNode(node: UnopNode): ExprNode? {
 
-		val newexpr: ExprNode? = visitExprNode(node.expr)
-
-		if (newexpr == null) {
-			return null
-		}
+		val newexpr: ExprNode = visitExprNode(node.expr) ?: return null
 
 		/* TODO: len simplification */
 
@@ -329,13 +313,9 @@ class WACCOptimiserVisitor() {
 
 	private fun visitPairElemNode(node: PairElemNode): ExprNode? {
 
-		val newpair: ExprNode? = visitExprNode(node.pair!!)
+		val newpair: ExprNode = visitExprNode(node.pair) ?: return null
 
-		if (newpair == null) {
-			return null
-		}
-
-        val pairType = newpair.type
+		val pairType = newpair.type
         val pairElemType: Type? = (pairType as PairType).fstType
 
         return PairElemNode(newpair, pairElemType).fst()
@@ -345,10 +325,10 @@ class WACCOptimiserVisitor() {
 		val newfst: ExprNode? = visitExprNode(node.fst!!)
 		val newsnd: ExprNode? = visitExprNode(node.snd!!)
 
-		if (newfst != null && newsnd != null) {
+		if (newfst != null || newsnd != null) {
         	return PairNode(
-				if (newfst == null) node.fst!! else newfst!!,
-				if (newsnd == null) node.snd!! else newsnd!!)
+					newfst ?: node.fst!!,
+					newsnd ?: node.snd!!)
 		} 
 		return null
 	}
