@@ -13,13 +13,13 @@ class WACCOptimiserVisitor() {
         visitStatNode(node.body)
     }
 
-	private fun visitFuncNode(node: FuncNode) {
+	fun visitFuncNode(node: FuncNode) {
 		if (node.functionBody != null) {
 			visitScopeNode(ScopeNode(node.functionBody!!))	
 		}
 	}
 
-	private fun visitStatNode(node: StatNode): StatNode? {
+	fun visitStatNode(node: StatNode): StatNode? {
         return when (node) {
             is AssignNode -> visitAssignNode(node)
             is DeclareStatNode -> visitDeclareStatNode(node)
@@ -38,7 +38,7 @@ class WACCOptimiserVisitor() {
         }
     }
 
-	private fun visitExprNode(node: ExprNode): ExprNode? {
+	fun visitExprNode(node: ExprNode): ExprNode? {
         return when (node) {
             is ArrayElemNode -> visitArrayElemNode(node)
             is ArrayNode -> visitArrayNode(node)
@@ -61,66 +61,66 @@ class WACCOptimiserVisitor() {
     * =========================================================
     */
 
-	private fun visitAssignNode(node: AssignNode): StatNode? {
+	fun visitAssignNode(node: AssignNode): StatNode? {
 		 visitExprNode(node.rhs!!)
 		 return null
 	}
 
-	private fun visitDeclareStatNode(node: DeclareStatNode): StatNode? {
+	fun visitDeclareStatNode(node: DeclareStatNode): StatNode? {
 		visitExprNode(node.rhs!!)
 		return null
 	}
 
-	private fun visitFreeNode(node: FreeNode): StatNode? {
+	fun visitFreeNode(node: FreeNode): StatNode? {
 		visitExprNode(node.expr)
 		return null
 	}
 
-	private fun visitExitNode(node: ExitNode): StatNode? {
+	fun visitExitNode(node: ExitNode): StatNode? {
 		return null
 	}
 
-	private fun visitIfNode(node: IfNode): StatNode? {
+	fun visitIfNode(node: IfNode): StatNode? {
 		visitExprNode(node.condition)
 		visitStatNode(node.ifBody!!)
 		visitStatNode(node.elseBody!!)
 		return null
 	}
 
-	private fun visitPrintlnNode(node: PrintlnNode): StatNode? {
+	fun visitPrintlnNode(node: PrintlnNode): StatNode? {
 		visitPrintNode(PrintNode(node.expr))
 		return null
 	}
 
-	private fun visitPrintNode(node: PrintNode): StatNode? {
+	fun visitPrintNode(node: PrintNode): StatNode? {
 		visitExprNode(node.expr!!)
 		return null
 	}
 
-	private fun visitReadNode(node: ReadNode): StatNode? {
+	fun visitReadNode(node: ReadNode): StatNode? {
 		return null
 	}
 
-	private fun visitReturnNode(node: ReturnNode): StatNode? {
+	fun visitReturnNode(node: ReturnNode): StatNode? {
 		visitExprNode(node.expr)
 		return null
 	}
 
-	private fun visitScopeNode(node: ScopeNode): StatNode? {
+	fun visitScopeNode(node: ScopeNode): StatNode? {
 		node.body.forEach{stat -> visitStatNode(stat)}
 		return null
 	}
 
-	private fun visitSequenceNode(node: SequenceNode): StatNode? {
+	fun visitSequenceNode(node: SequenceNode): StatNode? {
 		node.body.forEach{stat -> visitStatNode(stat)}
 		return null
 	}
 
-	private fun visitSkipNode(node: SkipNode): StatNode? {
+	fun visitSkipNode(node: SkipNode): StatNode? {
 		return null
 	}
 
-	private fun visitWhileNode(node: WhileNode): StatNode? {
+	fun visitWhileNode(node: WhileNode): StatNode? {
 		visitStatNode(node.body)
 		visitExprNode(node.cond)
 		return null
@@ -136,11 +136,11 @@ class WACCOptimiserVisitor() {
 	optimisation possible, so there's no need to create a new node.
 	This prevents unneeded creation of new nodes when there are no changes */
 
-	private fun visitArrayNode(node: ArrayNode): ExprNode? {
+	fun visitArrayNode(node: ArrayNode): ExprNode? {
 		return null
 	}
 
-	private fun visitArrayElemNode(node: ArrayElemNode): ExprNode? {
+	fun visitArrayElemNode(node: ArrayElemNode): ExprNode? {
 
 		val newindex: MutableList<ExprNode> = java.util.ArrayList()		
 		/* variable to check if any of the expressions have been optimised */
@@ -162,7 +162,7 @@ class WACCOptimiserVisitor() {
 		return null
 	}
 
-	private fun VisitArrayNode(node: ArrayNode): ExprNode? {
+	fun VisitArrayNode(node: ArrayNode): ExprNode? {
 
 		/* can't be optimised if empty list */
 		if (node.length == 0) {
@@ -189,14 +189,10 @@ class WACCOptimiserVisitor() {
 		return null
 	}
 
-	private fun visitBinopNode(node: BinopNode): ExprNode? {
+	fun visitBinopNode(node: BinopNode): ExprNode? {
 
 		val newexpr1: ExprNode? = visitExprNode(node.expr1)
 		val newexpr2: ExprNode? = visitExprNode(node.expr2)
-
-		if (newexpr1 == null && newexpr2 == null) {
-			return null
-		}
 
 		val lhs = newexpr1 ?: node.expr1
 		val rhs = newexpr2 ?: node.expr2
@@ -208,83 +204,75 @@ class WACCOptimiserVisitor() {
 		/* Other Binop expressions can only be reduced if both sides
 		are BasicType */
 
-		if (lhs.type!! is BasicType && rhs.type!! is BasicType) {
+		if (lhs is CharNode && rhs is CharNode) {
 
-			/* There's no need to check rhs_type, as we know the program is
-			semantically valid at this stage, so types must match */
+			when (node.operator) {
 
-			if (lhs is CharNode && rhs is CharNode) {
-
-				when (node.operator) {
-
-					Utils.Binop.GREATER -> {
-						return BoolNode(lhs.char > rhs.char)
-					}
-					Utils.Binop.GREATER_EQUAL -> {
-						return BoolNode(lhs.char >= rhs.char)
-					}
-					Utils.Binop.LESS -> {
-						return BoolNode(lhs.char < rhs.char)
-					}
-					Utils.Binop.LESS_EQUAL -> {
-						return BoolNode(lhs.char <= rhs.char)
-					}
+				Utils.Binop.GREATER -> {
+					return BoolNode(lhs.char > rhs.char)
+				}
+				Utils.Binop.GREATER_EQUAL -> {
+					return BoolNode(lhs.char >= rhs.char)
+				}
+				Utils.Binop.LESS -> {
+					return BoolNode(lhs.char < rhs.char)
+				}
+				Utils.Binop.LESS_EQUAL -> {
+					return BoolNode(lhs.char <= rhs.char)
 				}
 			}
+		}
 
-			else if (lhs is BoolNode && rhs is BoolNode) {
+		else if (lhs is BoolNode && rhs is BoolNode) {
 
-				when (node.operator) {
+			when (node.operator) {
 
-					Utils.Binop.AND -> {
-						return BoolNode(lhs.`val` && rhs.`val`);
-					}
-					Utils.Binop.OR -> {
-						return BoolNode(lhs.`val` || rhs.`val`);
-					}
+				Utils.Binop.AND -> {
+					return BoolNode(lhs.`val` && rhs.`val`);
+				}
+				Utils.Binop.OR -> {
+					return BoolNode(lhs.`val` || rhs.`val`);
 				}
 			}
+		}
 
-			else if (lhs is IntNode && rhs is IntNode) {
+		else if (lhs is IntNode && rhs is IntNode) {
 
-				when (node.operator) {
+			when (node.operator) {
 
-					Utils.Binop.PLUS -> {
-						return IntNode(lhs.value + rhs.value)			
-					}
-					Utils.Binop.MINUS -> {
-						return IntNode(lhs.value - rhs.value)
-					}
-					Utils.Binop.MUL -> {
-						return IntNode(lhs.value * rhs.value)
-					}
-					Utils.Binop.DIV -> {
-						return IntNode(lhs.value / rhs.value)
-					}
-					Utils.Binop.MOD -> {
-						return IntNode(lhs.value % rhs.value)
-					}
-					Utils.Binop.GREATER -> {
-						return BoolNode(lhs.value > rhs.value)
-					}
-					Utils.Binop.GREATER_EQUAL -> {
-						return BoolNode(lhs.value >= rhs.value)
-					}
-					Utils.Binop.LESS -> {
-						return BoolNode(lhs.value < rhs.value)
-					}
-					Utils.Binop.LESS_EQUAL -> {
-						return BoolNode(lhs.value <= rhs.value)
-					}
+				Utils.Binop.PLUS -> {
+					return IntNode(lhs.value + rhs.value)
+				}
+				Utils.Binop.MINUS -> {
+					return IntNode(lhs.value - rhs.value)
+				}
+				Utils.Binop.MUL -> {
+					return IntNode(lhs.value * rhs.value)
+				}
+				Utils.Binop.DIV -> {
+					return IntNode(lhs.value / rhs.value)
+				}
+				Utils.Binop.MOD -> {
+					return IntNode(lhs.value % rhs.value)
+				}
+				Utils.Binop.GREATER -> {
+					return BoolNode(lhs.value > rhs.value)
+				}
+				Utils.Binop.GREATER_EQUAL -> {
+					return BoolNode(lhs.value >= rhs.value)
+				}
+				Utils.Binop.LESS -> {
+					return BoolNode(lhs.value < rhs.value)
+				}
+				Utils.Binop.LESS_EQUAL -> {
+					return BoolNode(lhs.value <= rhs.value)
 				}
 			}
-		} else {
-			return BinopNode(lhs, rhs, node.operator)
 		}
 		return null
 	}
 
-	private fun visitUnopNode(node: UnopNode): ExprNode? {
+	fun visitUnopNode(node: UnopNode): ExprNode? {
 
 		val newexpr: ExprNode = visitExprNode(node.expr) ?: return null
 
@@ -311,7 +299,7 @@ class WACCOptimiserVisitor() {
 		}
 	}
 
-	private fun visitPairElemNode(node: PairElemNode): ExprNode? {
+	fun visitPairElemNode(node: PairElemNode): ExprNode? {
 
 		val newpair: ExprNode = visitExprNode(node.pair) ?: return null
 
@@ -321,7 +309,7 @@ class WACCOptimiserVisitor() {
         return PairElemNode(newpair, pairElemType).fst()
 	}
 
-	private fun visitPairNode(node: PairNode): ExprNode? {
+	fun visitPairNode(node: PairNode): ExprNode? {
 		val newfst: ExprNode? = visitExprNode(node.fst!!)
 		val newsnd: ExprNode? = visitExprNode(node.snd!!)
 
@@ -333,7 +321,7 @@ class WACCOptimiserVisitor() {
 		return null
 	}
 
-	private fun visitFunctionCallNode(node: FunctionCallNode): ExprNode? {
+	fun visitFunctionCallNode(node: FunctionCallNode): ExprNode? {
 
 		val params: MutableList<ExprNode> = java.util.ArrayList()
 		node.params.forEach { param ->
@@ -343,7 +331,7 @@ class WACCOptimiserVisitor() {
 	}
 
 
-	private fun visitIdentNode(node: IdentNode): ExprNode? {
+	fun visitIdentNode(node: IdentNode): ExprNode? {
 		return node
 	}
 
@@ -352,19 +340,19 @@ class WACCOptimiserVisitor() {
 	/* Basic Types never need to be changed */
 	/****************************************/
 
-	private fun visitBoolNode(node: BoolNode): ExprNode? {
+	fun visitBoolNode(node: BoolNode): ExprNode? {
 		return null
 	}
 
-	private fun visitCharNode(node: CharNode): ExprNode? {
+	fun visitCharNode(node: CharNode): ExprNode? {
 		return null
 	}
 
-	private fun visitIntNode(node: IntNode): ExprNode? {
+	fun visitIntNode(node: IntNode): ExprNode? {
 		return null
 	}
 
-	private fun visitStringNode(node: StringNode): ExprNode? {
+	fun visitStringNode(node: StringNode): ExprNode? {
 		return null
 	}
 
