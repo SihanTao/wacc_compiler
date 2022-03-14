@@ -18,7 +18,7 @@ class WACCOptimiserVisitor() {
 
 	fun visitFuncNode(node: FuncNode) {
 		if (node.functionBody != null) {
-			var newFunctionBody = visitStatNode(node.functionBody!!)
+			val newFunctionBody = visitStatNode(node.functionBody!!)
 			if (newFunctionBody != null) {
 				node.functionBody = newFunctionBody
 			}
@@ -30,15 +30,12 @@ class WACCOptimiserVisitor() {
             is AssignNode -> visitAssignNode(node)
             is DeclareStatNode -> visitDeclareStatNode(node)
             is ExitNode -> visitExitNode(node)
-            is FreeNode -> visitFreeNode(node)
             is IfNode -> visitIfNode(node)
             is PrintlnNode -> visitPrintlnNode(node)
             is PrintNode -> visitPrintNode(node)
-            is ReadNode -> visitReadNode(node)
             is ReturnNode -> visitReturnNode(node)
             is ScopeNode -> visitScopeNode(node)
             is SequenceNode -> visitSequenceNode(node)
-            is SkipNode -> visitSkipNode(node)
             is WhileNode -> visitWhileNode(node)
 			else -> null
         }
@@ -49,14 +46,10 @@ class WACCOptimiserVisitor() {
             is ArrayElemNode -> visitArrayElemNode(node)
             is ArrayNode -> visitArrayNode(node)
             is BinopNode -> visitBinopNode(node)
-            is BoolNode -> visitBoolNode(node)
-            is CharNode -> visitCharNode(node)
             is FunctionCallNode -> visitFunctionCallNode(node)
             is IdentNode -> visitIdentNode(node)
-            is IntNode -> visitIntNode(node)
             is PairElemNode -> visitPairElemNode(node)
             is PairNode -> visitPairNode(node)
-            is StringNode -> visitStringNode(node)
             is UnopNode -> visitUnopNode(node)
 			else -> null
         }
@@ -80,10 +73,6 @@ class WACCOptimiserVisitor() {
 		if (newrhs != null) {
 			node.rhs = newrhs
 		}
-		return null
-	}
-
-	fun visitFreeNode(node: FreeNode): StatNode? {
 		return null
 	}
 
@@ -125,10 +114,6 @@ class WACCOptimiserVisitor() {
 		return null
 	}
 
-	fun visitReadNode(node: ReadNode): StatNode? {
-		return null
-	}
-
 	fun visitReturnNode(node: ReturnNode): StatNode? {
 		val newExpr: ExprNode? = visitExprNode(node.expr)
 		if (newExpr != null) {
@@ -144,10 +129,6 @@ class WACCOptimiserVisitor() {
 
 	fun visitSequenceNode(node: SequenceNode): StatNode? {
 		node.body.forEach{stat -> visitStatNode(stat)}
-		return null
-	}
-
-	fun visitSkipNode(node: SkipNode): StatNode? {
 		return null
 	}
 
@@ -367,27 +348,6 @@ class WACCOptimiserVisitor() {
 
 	fun visitIdentNode(node: IdentNode): ExprNode? {
 		return node
-	}
-
-
-	/****************************************/
-	/* Basic Types never need to be changed */
-	/****************************************/
-
-	fun visitBoolNode(node: BoolNode): ExprNode? {
-		return null
-	}
-
-	fun visitCharNode(node: CharNode): ExprNode? {
-		return null
-	}
-
-	fun visitIntNode(node: IntNode): ExprNode? {
-		return null
-	}
-
-	fun visitStringNode(node: StringNode): ExprNode? {
-		return null
 	}
 
 }	
