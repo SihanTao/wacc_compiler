@@ -48,7 +48,6 @@ class WACCOptimiserVisitor() {
             is BinopNode -> visitBinopNode(node)
             is FunctionCallNode -> visitFunctionCallNode(node)
             is IdentNode -> visitIdentNode(node)
-            is PairElemNode -> visitPairElemNode(node)
             is PairNode -> visitPairNode(node)
             is UnopNode -> visitUnopNode(node)
 			else -> null
@@ -151,56 +150,30 @@ class WACCOptimiserVisitor() {
 	optimisation possible, so there's no need to create a new node.
 	This prevents unneeded creation of new nodes when there are no changes */
 
-	fun visitArrayNode(node: ArrayNode): ExprNode? {
-		return null
+	/* Attempts to optimise expressions in a list of expressions,
+	returns false if no optimisation was possible
+	 */
+	private fun optimiseListOfExpressions(list: MutableList<ExprNode>) {
+		for (i in 0 until list.size) {
+			val newExpr: ExprNode? = visitExprNode(list[i])
+			if (newExpr != null) {
+				list[i] = newExpr
+			}
+		}
 	}
 
 	fun visitArrayElemNode(node: ArrayElemNode): ExprNode? {
-
-		val newindex: MutableList<ExprNode> = java.util.ArrayList()		
-		/* variable to check if any of the expressions have been optimised */
-		var isChanged: Boolean = false
-
-		for (expr in node.index) {
-			val newexpr: ExprNode? = visitExprNode(expr)
-			if (newexpr != null) {
-				newindex.add(newexpr)
-				isChanged = true
-			} else {
-				newindex.add(expr)
-			}
-		}
-
-		if (!isChanged) {
-			return ArrayElemNode(node.arrayIdent, node.array, newindex, node.type)
-		}
+		optimiseListOfExpressions(node.index)
 		return null
 	}
 
-	fun VisitArrayNode(node: ArrayNode): ExprNode? {
-
+	fun visitArrayNode(node: ArrayNode): ExprNode? {
 		/* can't be optimised if empty list */
 		if (node.length == 0) {
 			return null
 		}
 
-		val newcontent: MutableList<ExprNode> = java.util.ArrayList()
-		/* variable to check if any of the expressions have been optimised */
-		var isChanged: Boolean = false
-
-		for (expr in node.content) {
-			val newexpr: ExprNode? = visitExprNode(expr)
-			if (newexpr != null) {
-				newcontent.add(newexpr)
-				isChanged = true
-			} else {
-				newcontent.add(expr)
-			}
-		}
-
-		if (isChanged) {
-			return ArrayNode(node.contentType, newcontent, node.length)
-		}
+		optimiseListOfExpressions(node.content)
 		return null
 	}
 
@@ -314,35 +287,24 @@ class WACCOptimiserVisitor() {
 		}
 	}
 
-	fun visitPairElemNode(node: PairElemNode): ExprNode? {
-
-		val newpair: ExprNode = visitExprNode(node.pair) ?: return null
-
-		val pairType = newpair.type
-        val pairElemType: Type? = (pairType as PairType).fstType
-
-        return PairElemNode(newpair, pairElemType).fst()
-	}
-
 	fun visitPairNode(node: PairNode): ExprNode? {
 		val newfst: ExprNode? = visitExprNode(node.fst!!)
 		val newsnd: ExprNode? = visitExprNode(node.snd!!)
 
 		if (newfst != null || newsnd != null) {
-        	return PairNode(
-					newfst ?: node.fst!!,
-					newsnd ?: node.snd!!)
+			if (newfst != null) {
+				node.fst = newfst
+			}
+			if (newsnd != null) {
+				node.snd = newsnd
+			}
 		} 
 		return null
 	}
 
 	fun visitFunctionCallNode(node: FunctionCallNode): ExprNode? {
-
-		val params: MutableList<ExprNode> = java.util.ArrayList()
-		node.params.forEach { param ->
-			visitExprNode(param)
-		}
-		return node
+		optimiseListOfExpressions(node.params)
+		return null
 	}
 
 

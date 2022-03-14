@@ -12,7 +12,7 @@ class ArrayElemNode(
     /* the array where this array_elem is located */
     val arrayIdent: String,
     val array: ExprNode, /* a list of indices needed in multilevel indexing. e.g. a[3][4][5] */
-    var index: List<ExprNode>, type: Type?
+    var index: MutableList<ExprNode>, type: Type?
 ) :
     ExprNode() {
     init {
