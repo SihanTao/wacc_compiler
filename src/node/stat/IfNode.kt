@@ -8,7 +8,7 @@ import node.expr.ExprNode
  */
 
 class IfNode(
-    var condition: ExprNode, val ifBody: StatNode?, val elseBody: StatNode?
+        var condition: ExprNode, var ifBody: StatNode?, var elseBody: StatNode?
 ) : StatNode() {
     init {
         isReturned = endValue

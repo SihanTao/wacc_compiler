@@ -8,11 +8,12 @@ import type.BasicTypeEnum
 import type.Utils
 import kotlin.test.assertIs
 import kotlin.test.assertEquals
-
+import kotlin.test.assertIsNot
 
 internal class SampleTest {
 
-    private val optimiser: WACCOptimiserVisitor = WACCOptimiserVisitor()
+    private val optimiser: WACCOptimiserVisitor = WACCOptimiserVisitor(1)
+    private val optimiserO3: WACCOptimiserVisitor = WACCOptimiserVisitor(3)
     
     /***************************************/
     /* Integer Expression operations tests */
@@ -426,12 +427,43 @@ internal class SampleTest {
     }
 
     /***************************************/
-    /* Variable replacement tests          */
+    /* Constant propagation tests          */
     /***************************************/
 
     /***************************************/
-    /* If simplification tests             */
+    /* CFA tests                           */
     /***************************************/
+
+    @Test
+    fun testIfTrue() {
+        val tree = IfNode(BoolNode(true), DeclareStatNode("x", IntNode(5)),
+                ReturnNode(IntNode(3)))
+        val newTree = optimiserO3.visitIfNode(tree)
+        assertIs<DeclareStatNode>(newTree)
+    }
+
+    @Test
+    fun testO1OptimiserDoesNotOptimiserIfTrue() {
+        val tree = IfNode(BoolNode(true), DeclareStatNode("x", IntNode(5)),
+                ReturnNode(IntNode(3)))
+        val newTree = optimiser.visitIfNode(tree)
+        assertIsNot<DeclareStatNode>(newTree)
+    }
+
+    @Test
+    fun testIfFalse() {
+        val tree = IfNode(BoolNode(false), DeclareStatNode("x", IntNode(5)),
+                ReturnNode(IntNode(3)))
+        val newTree = optimiserO3.visitIfNode(tree)
+        assertIs<ReturnNode>(newTree)
+    }
+
+    @Test
+    fun testWhileFalse() {
+        val tree = WhileNode(BoolNode(false), ReturnNode(IntNode(3)))
+        val newTree = optimiserO3.visitWhileNode(tree)
+        assertIs<SkipNode>(newTree)
+    }
 
     /***************************************/
     /* Equality tests                      */

@@ -4,7 +4,15 @@ import node.expr.*
 import node.stat.*
 import type.*
 
-class WACCOptimiserVisitor() {
+class WACCOptimiserVisitor(optimisationLevel: Int) {
+
+	private val constantPropagationAnalysis: Boolean
+	private val controlFlowAnalysis: Boolean
+
+	init {
+		constantPropagationAnalysis = optimisationLevel >= 2
+		controlFlowAnalysis = optimisationLevel >= 3
+	}
 
     fun visitProgramNode(node: ProgramNode) {
 		node.functions.forEach{ (ident, func) ->
@@ -88,8 +96,23 @@ class WACCOptimiserVisitor() {
 		if (newCondition != null) {
 			node.condition = newCondition
 		}
-		visitStatNode(node.ifBody!!)
-		visitStatNode(node.elseBody!!)
+		val newIfBody: StatNode? = visitStatNode(node.ifBody!!)
+		val newElseBody: StatNode? = visitStatNode(node.elseBody!!)
+		if (newIfBody != null) {
+			node.ifBody = newIfBody
+		}
+		if (newElseBody != null) {
+			node.elseBody = newElseBody
+		}
+		if (controlFlowAnalysis) {
+			if (node.condition is BoolNode) {
+				return if ((node.condition as BoolNode).`val`) {
+					node.ifBody
+				} else {
+					node.elseBody
+				}
+			}
+		}
 		return null
 	}
 
@@ -121,13 +144,22 @@ class WACCOptimiserVisitor() {
 		return null
 	}
 
+	private fun optimiseListOfStatements(list: MutableList<StatNode>) {
+		for (i in 0 until list.size) {
+			val newStat: StatNode? = visitStatNode(list[i])
+			if (newStat != null) {
+				list[i] = newStat
+			}
+		}
+	}
+
 	fun visitScopeNode(node: ScopeNode): StatNode? {
-		node.body.forEach{stat -> visitStatNode(stat)}
+		optimiseListOfStatements(node.body)
 		return null
 	}
 
 	fun visitSequenceNode(node: SequenceNode): StatNode? {
-		node.body.forEach{stat -> visitStatNode(stat)}
+		optimiseListOfStatements(node.body)
 		return null
 	}
 
@@ -136,7 +168,17 @@ class WACCOptimiserVisitor() {
 		if (newCond != null) {
 			node.cond = newCond
 		}
-		visitStatNode(node.body)
+		val newBody: StatNode? = visitStatNode(node.body)
+		if (newBody != null) {
+			node.body = newBody
+		}
+		if (controlFlowAnalysis) {
+			if (node.cond is BoolNode) {
+				if (!(node.cond as BoolNode).`val`) {
+					return SkipNode()
+				}
+			}
+		}
 		return null
 	}
 
@@ -216,10 +258,10 @@ class WACCOptimiserVisitor() {
 			when (node.operator) {
 
 				Utils.Binop.AND -> {
-					return BoolNode(lhs.`val` && rhs.`val`);
+					return BoolNode(lhs.`val` && rhs.`val`)
 				}
 				Utils.Binop.OR -> {
-					return BoolNode(lhs.`val` || rhs.`val`);
+					return BoolNode(lhs.`val` || rhs.`val`)
 				}
 			}
 		}
