@@ -350,6 +350,70 @@ internal class SampleTest {
     }
 
     /***************************************/
+    /* Unop Expressions tests              */
+    /***************************************/
+
+    @Test
+    fun testNot() {
+        val tree = UnopNode(BoolNode(false), Utils.Unop.NOT)
+        val optimisedTree = optimiser.visitUnopNode(tree)
+        assertTrue(optimisedTree is BoolNode)
+        if (optimisedTree is BoolNode) {
+            assertEquals(optimisedTree.`val`, true)
+        }
+    }
+
+    @Test
+    fun testMinus() {
+        val tree = UnopNode(IntNode(5), Utils.Unop.MINUS)
+        val optimisedTree = optimiser.visitUnopNode(tree)
+        assertTrue(optimisedTree is IntNode)
+        if (optimisedTree is IntNode) {
+            assertEquals(optimisedTree.value, -5)
+        }
+    }
+
+    @Test
+    fun testOrd() {
+        val tree = UnopNode(CharNode("'c'"), Utils.Unop.ORD)
+        val optimisedTree = optimiser.visitUnopNode(tree)
+        assertTrue(optimisedTree is IntNode)
+        if (optimisedTree is IntNode) {
+            assertEquals(optimisedTree.value, 99)
+        }
+    }
+
+    @Test
+    fun testChr() {
+        val tree = UnopNode(IntNode(99), Utils.Unop.CHR)
+        val optimisedTree = optimiser.visitUnopNode(tree)
+        assertTrue(optimisedTree is CharNode)
+        if (optimisedTree is CharNode) {
+            assertEquals(optimisedTree.char, 'c')
+        }
+    }
+
+    @Test
+    fun testOrdChrInverse() {
+        val tree = UnopNode(UnopNode(IntNode(110), Utils.Unop.CHR), Utils.Unop.ORD)
+        val optimisedTree = optimiser.visitUnopNode(tree)
+        assertTrue(optimisedTree is IntNode)
+        if (optimisedTree is IntNode) {
+            assertEquals(optimisedTree.value, 110)
+        }
+    }
+
+    @Test
+    fun testChrOrdInverse() {
+        val tree = UnopNode(UnopNode(CharNode("'f'"), Utils.Unop.ORD),Utils.Unop.CHR)
+        val optimisedTree = optimiser.visitUnopNode(tree)
+        assertTrue(optimisedTree is CharNode)
+        if (optimisedTree is CharNode) {
+            assertEquals(optimisedTree.char, 'f')
+        }
+    }
+
+    /***************************************/
     /* Full AST tests                      */
     /***************************************/
 

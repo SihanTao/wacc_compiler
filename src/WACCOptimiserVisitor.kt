@@ -7,7 +7,7 @@ import type.*
 class WACCOptimiserVisitor() {
 
     fun visitProgramNode(node: ProgramNode) {
-		node.functions.forEach{ident, func ->
+		node.functions.forEach{ (ident, func) ->
 			visitFuncNode(func)
 		}
         visitStatNode(node.body)
@@ -274,7 +274,7 @@ class WACCOptimiserVisitor() {
 
 	fun visitUnopNode(node: UnopNode): ExprNode? {
 
-		val newexpr: ExprNode = visitExprNode(node.expr) ?: return null
+		val newexpr: ExprNode = visitExprNode(node.expr) ?: node.expr
 
 		/* TODO: len simplification */
 
@@ -284,14 +284,14 @@ class WACCOptimiserVisitor() {
 					if (node.operator == Utils.Unop.MINUS) {
 						IntNode(-newexpr.value)
 					} else {
-						CharNode(newexpr.value.toChar().toString())
+						CharNode("'" + newexpr.value.toChar().toString() + "'")
 					}
 				}
 				is BoolNode -> {
 					BoolNode(!newexpr.`val`)
 				}
 				is CharNode -> {
-					IntNode(newexpr.char.toInt())
+					IntNode(newexpr.char.code)
 				}
 				else -> null
 			}
