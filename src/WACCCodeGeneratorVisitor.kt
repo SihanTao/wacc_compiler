@@ -127,7 +127,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
     private fun visitDeclareStatNode(node: DeclareStatNode) {
         val assignExpr = node.rhs!!
         val resultReg = registerAllocator.peekRegister()
-        val stackLocation = symbolManager.addSymbol(node.identifier, typeSize(node.rhs.type!!))
+        val stackLocation = symbolManager.addSymbol(node.identifier, typeSize(node.rhs!!.type!!))
         visitExprNode(assignExpr)
         generator.addCode(STORE(resultReg, ImmOffset(Register.SP, stackLocation), assignExpr.type!!))
     }
@@ -173,7 +173,7 @@ class WACCCodeGeneratorVisitor(val generator: WACCCodeGenerator) {
         visitExprNode(node.expr!!)
         generator.addCode(MOV(Register.R0, resultReg))
 
-        when (val type = node.expr.type!!) {
+        when (val type = node.expr!!.type!!) {
             is BasicType -> when (type.typeEnum) {
                                 BasicTypeEnum.INTEGER -> { generator.addCode(BL("p_print_int"))
                                                             generator.addCodeDependency(PrintInt()) }

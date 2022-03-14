@@ -10,12 +10,18 @@ class WACCOptimiserVisitor() {
 		node.functions.forEach{ (ident, func) ->
 			visitFuncNode(func)
 		}
-        visitStatNode(node.body)
+		val newBody : StatNode? = visitStatNode(node.body)
+        if (newBody != null) {
+			node.body = newBody
+		}
     }
 
 	fun visitFuncNode(node: FuncNode) {
 		if (node.functionBody != null) {
-			visitScopeNode(ScopeNode(node.functionBody!!))	
+			var newFunctionBody = visitStatNode(node.functionBody!!)
+			if (newFunctionBody != null) {
+				node.functionBody = newFunctionBody
+			}
 		}
 	}
 
@@ -62,38 +68,60 @@ class WACCOptimiserVisitor() {
     */
 
 	fun visitAssignNode(node: AssignNode): StatNode? {
-		 visitExprNode(node.rhs!!)
-		 return null
+		val newrhs: ExprNode? = visitExprNode(node.rhs!!)
+		if (newrhs != null) {
+			node.rhs = newrhs
+		}
+		return null
 	}
 
 	fun visitDeclareStatNode(node: DeclareStatNode): StatNode? {
-		visitExprNode(node.rhs!!)
+		val newrhs: ExprNode? = visitExprNode(node.rhs!!)
+		if (newrhs != null) {
+			node.rhs = newrhs
+		}
 		return null
 	}
 
 	fun visitFreeNode(node: FreeNode): StatNode? {
-		visitExprNode(node.expr)
 		return null
 	}
 
 	fun visitExitNode(node: ExitNode): StatNode? {
+		val newExitCode: ExprNode? = visitExprNode(node.exitCode)
+		if (newExitCode != null) {
+			node.exitCode = newExitCode
+		}
 		return null
 	}
 
 	fun visitIfNode(node: IfNode): StatNode? {
-		visitExprNode(node.condition)
+		val newCondition: ExprNode? = visitExprNode(node.condition)
+		if (newCondition != null) {
+			node.condition = newCondition
+		}
 		visitStatNode(node.ifBody!!)
 		visitStatNode(node.elseBody!!)
 		return null
 	}
 
 	fun visitPrintlnNode(node: PrintlnNode): StatNode? {
-		visitPrintNode(PrintNode(node.expr))
+		if (node.expr != null) {
+			val newExpr: ExprNode? = visitExprNode(node.expr!!)
+			if (newExpr != null) {
+				node.expr = newExpr
+			}
+		}
 		return null
 	}
 
 	fun visitPrintNode(node: PrintNode): StatNode? {
-		visitExprNode(node.expr!!)
+		if (node.expr != null) {
+			val newExpr: ExprNode? = visitExprNode(node.expr!!)
+			if (newExpr != null) {
+				node.expr = newExpr
+			}
+		}
 		return null
 	}
 
@@ -102,7 +130,10 @@ class WACCOptimiserVisitor() {
 	}
 
 	fun visitReturnNode(node: ReturnNode): StatNode? {
-		visitExprNode(node.expr)
+		val newExpr: ExprNode? = visitExprNode(node.expr)
+		if (newExpr != null) {
+			node.expr = newExpr
+		}
 		return null
 	}
 
@@ -121,8 +152,11 @@ class WACCOptimiserVisitor() {
 	}
 
 	fun visitWhileNode(node: WhileNode): StatNode? {
+		val newCond: ExprNode? = visitExprNode(node.cond)
+		if (newCond != null) {
+			node.cond = newCond
+		}
 		visitStatNode(node.body)
-		visitExprNode(node.cond)
 		return null
 	}
 

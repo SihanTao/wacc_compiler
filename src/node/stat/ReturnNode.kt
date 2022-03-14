@@ -6,7 +6,7 @@ import node.expr.ExprNode
  * Represent a return statement
  */
 
-class ReturnNode(val expr: ExprNode) : StatNode() {
+class ReturnNode(var expr: ExprNode) : StatNode() {
     init {
         isReturned = true
     }

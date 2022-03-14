@@ -7,5 +7,5 @@ import node.expr.ExprNode
  */
 
 class WhileNode(
-    val cond: ExprNode, val body: StatNode
+        var cond: ExprNode, val body: StatNode
 ) : StatNode()
