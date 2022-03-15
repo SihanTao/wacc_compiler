@@ -10,7 +10,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertEquals
 import kotlin.test.assertIsNot
 
-internal class SampleTest {
+internal class WACCOptimiserVisitorTest {
 
     private val optimiser: WACCOptimiserVisitor = WACCOptimiserVisitor(1)
     private val optimiserO3: WACCOptimiserVisitor = WACCOptimiserVisitor(3)

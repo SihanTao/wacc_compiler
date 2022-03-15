@@ -54,7 +54,15 @@ fun main(args: Array<String>) {
             val semanticChecker = WACCSemanticErrorVisitor()
             val ast = semanticChecker.visitProgram(tree) as ProgramNode
 						val writer = if (filename == null) PrintWriter("output.s") else
-							PrintWriter(filename + ".s")
+							PrintWriter("$filename.s")
+            val optimisation = args.find {i -> i.contains("-o")}
+            if (optimisation != null) {
+                val optimisationLevel = optimisation.substringAfter("-o").toInt()
+                if (optimisationLevel in 1..5) {
+                    val optimiser = WACCOptimiserVisitor(optimisationLevel)
+                    optimiser.visitProgramNode(ast)
+                }
+            }
             val codeGenerator = WACCCodeGenerator()
             val codeGeneratorVisitor = WACCCodeGeneratorVisitor(codeGenerator)
             codeGeneratorVisitor.visitProgramNode(ast)
