@@ -21,40 +21,31 @@ fun main(args: Array<String>) {
             CharStreams.fromStream(fileInputStream)
         }
 
-				val filename = if (args.isEmpty()) null else
-					args[0].substringAfterLast("/").substringBeforeLast(".")
+        val filename = if (args.isEmpty()) null else
+            args[0].substringAfterLast("/").substringBeforeLast(".")
 
         val lexer = WACCLexer(input)
         val tokens = CommonTokenStream(lexer)
         val parser = WACCParser(tokens)
-
-//        parser.errorHandler = WACCSyntaxErrorStrategy()
 
         parser.removeErrorListeners()
         parser.addErrorListener(WACCSyntaxErrorListener())
 
         val tree: WACCParser.ProgramContext = parser.program()
 
-        if (parser.numberOfSyntaxErrors > 0 ) {
-//            println(parser.numberOfSyntaxErrors.toString() + " syntax errors detected, "
-//              + " failing with exit code " + SYNTAX_ERROR_EXIT_CODE)
-            exitProcess(SYNTAX_ERROR_EXIT_CODE)
-        }
-
         WACCSyntaxErrorVisitor(parser).visit(tree)
-
         if (parser.numberOfSyntaxErrors > 0 ) {
-//            println(parser.numberOfSyntaxErrors.toString() + " syntax errors detected, "
-//              + " failing with exit code " + SYNTAX_ERROR_EXIT_CODE)
+            println(parser.numberOfSyntaxErrors.toString() + " syntax errors detected, "
+              + " failing with exit code " + SYNTAX_ERROR_EXIT_CODE)
             exitProcess(SYNTAX_ERROR_EXIT_CODE)
         }
-
 
         if (!args.contains("--parse-only")) {
             val semanticChecker = WACCSemanticErrorVisitor()
             val ast = semanticChecker.visitProgram(tree) as ProgramNode
 						val writer = if (filename == null) PrintWriter("output.s") else
 							PrintWriter("$filename.s")
+
             val optimisation = args.find {i -> i.contains("-o")}
             if (optimisation != null) {
                 val optimisationLevel = optimisation.substringAfter("-o").toInt()
@@ -63,13 +54,13 @@ fun main(args: Array<String>) {
                     optimiser.visitProgramNode(ast)
                 }
             }
+
             val codeGenerator = WACCCodeGenerator()
             val codeGeneratorVisitor = WACCCodeGeneratorVisitor(codeGenerator)
             codeGeneratorVisitor.visitProgramNode(ast)
             codeGenerator.generateAssembleCode(writer)
             writer.close()
         }
-
 
         if (args.contains("--print_ast")) {
             println(tree.toStringTree(parser)) // Print LISP-style tree

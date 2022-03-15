@@ -1,14 +1,14 @@
 #!/bin/bash
-SRC_DIR="$(pwd)/test"
+SRC_DIR="$(pwd)"
 
-VALID_EXAMPLES="${SRC_DIR}/wacc_examples/valid"
+VALID_EXAMPLES="${SRC_DIR}/test/wacc_examples/valid"
 
 mkdir -p "${SRC_DIR}/log"
 mkdir -p "${SRC_DIR}/log/out"
 mkdir -p "${SRC_DIR}/log/fails"
 
-REFERENCE_COMPILER="${SRC_DIR}/wacc_examples/refCompile"
-REFERENCE_EMULATOR="${SRC_DIR}/wacc_examples/refEmulate"
+REFERENCE_COMPILER="${SRC_DIR}/test/wacc_examples/refCompile"
+REFERENCE_EMULATOR="${SRC_DIR}/test/wacc_examples/refEmulate"
 
 OUT_DIR="${SRC_DIR}/log/out"
 FAILS_DIR="${SRC_DIR}/log/fails"

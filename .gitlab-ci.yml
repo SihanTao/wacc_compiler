@@ -89,7 +89,6 @@ if-semantic-test:
   script:
     - /bin/bash test/test 200 "" "$INVALID_SEMANTIC_TEST_DIR"/if
 
-
 multiple-semantic-test:
   stage: test-semantic
   script:
@@ -138,57 +137,57 @@ runtimeErr-general-test:
 backend-array-test:
   stage: backend-test 
   script:
-    - /bin/bash backEndTest.sh -d array 
+    - /bin/bash test/backEndTest.sh -d array
 
 backend-basic-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d basic
+    - /bin/bash test/backEndTest.sh -d basic
   
 backend-expression-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d expressions
+    - /bin/bash test/backEndTest.sh -d expressions
 
 backend-function-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d function
+    - /bin/bash test/backEndTest.sh -d function
 
 backend-if-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d if 
+    - /bin/bash test/backEndTest.sh -d if
   
 backend-pairs-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d pairs 
+    - /bin/bash test/backEndTest.sh -d pairs
 
 backend-runtimeErr-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d runtimeErr
+    - /bin/bash test/backEndTest.sh -d runtimeErr
 
 backend-scope-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d scope 
+    - /bin/bash test/backEndTest.sh -d scope
 
 backend-sequence-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d sequence 
+    - /bin/bash test/backEndTest.sh -d sequence
 
 backend-variables-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d variables
+    - /bin/bash test/backEndTest.sh -d variables
 
 backend-while-test:
   stage: backend-test
   script:
-    - /bin/bash backEndTest.sh -d while
+    - /bin/bash test/backEndTest.sh -d while
 
 
 

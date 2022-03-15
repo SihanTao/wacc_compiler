@@ -1,8 +1,8 @@
-SRC_DIR="$(pwd)/test/wacc_examples"
+SRC_DIR="$(pwd)"
 
-VALID_TEST=$(find "${SRC_DIR}/valid" -iname '*.wacc')
-INVALID_SYNTAX_TEST=$(find "${SRC_DIR}/invalid/syntaxErr" -iname '*.wacc')
-INVALID_SEMANTIC_TEST=$(find "${SRC_DIR}/invalid/semanticErr" -iname '*.wacc')
+VALID_TEST=$(find "${SRC_DIR}/test/wacc_examples/valid" -iname '*.wacc')
+INVALID_SYNTAX_TEST=$(find "${SRC_DIR}/test/wacc_examples/invalid/syntaxErr" -iname '*.wacc')
+INVALID_SEMANTIC_TEST=$(find "${SRC_DIR}/test/wacc_examples/invalid/semanticErr" -iname '*.wacc')
 
 SYNTAX_ERROR_CODE=100
 SEMANTIC_ERROR_CODE=200
