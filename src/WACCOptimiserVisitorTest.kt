@@ -430,6 +430,36 @@ internal class SampleTest {
     /* Constant propagation tests          */
     /***************************************/
 
+    @Test
+    fun testIdentReplacement() {
+        optimiserO3.currSymbolTable = SymbolTable(null)
+        optimiserO3.currSymbolTable!!.add("x", IntNode(5))
+        val tree = IdentNode(BasicType(BasicTypeEnum.INTEGER),"x")
+        val newTree = optimiserO3.visitIdentNode(tree)
+        assertEquals((newTree as IntNode).value, 5)
+    }
+
+    @Test
+    fun testIdentReplacementInEquation() {
+        optimiserO3.currSymbolTable = SymbolTable(null)
+        optimiserO3.currSymbolTable!!.add("x", IntNode(5))
+        val tree = BinopNode(IdentNode(BasicType(BasicTypeEnum.INTEGER),"x"),
+                IntNode(5), Utils.Binop.PLUS)
+        val newTree = optimiserO3.visitBinopNode(tree)
+        assertEquals((newTree as IntNode).value, 10)
+    }
+
+    @Test
+    fun testIdentEquationReplacement() {
+        optimiserO3.currSymbolTable = SymbolTable(null)
+        optimiserO3.currSymbolTable!!.add("x",
+            BinopNode(IntNode(2), IntNode(1), Utils.Binop.PLUS))
+        val tree = BinopNode(IdentNode(BasicType(BasicTypeEnum.INTEGER),"x"),
+                IntNode(5), Utils.Binop.PLUS)
+        val newTree = optimiserO3.visitBinopNode(tree)
+        assertEquals((newTree as IntNode).value, 8)
+    }
+
     /***************************************/
     /* CFA tests                           */
     /***************************************/

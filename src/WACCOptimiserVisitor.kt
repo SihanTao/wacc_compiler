@@ -9,6 +9,8 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 	private val constantPropagationAnalysis: Boolean
 	private val controlFlowAnalysis: Boolean
 
+	var currSymbolTable: SymbolTable<ExprNode>? = null
+
 	init {
 		constantPropagationAnalysis = optimisationLevel >= 2
 		controlFlowAnalysis = optimisationLevel >= 3
@@ -34,6 +36,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 	}
 
 	fun visitStatNode(node: StatNode): StatNode? {
+		currSymbolTable = node.scope
         return when (node) {
             is AssignNode -> visitAssignNode(node)
             is DeclareStatNode -> visitDeclareStatNode(node)
@@ -349,9 +352,19 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
-
 	fun visitIdentNode(node: IdentNode): ExprNode? {
-		return node
+		if (constantPropagationAnalysis) {
+			val newExpr = currSymbolTable!!.lookupAll(node.name)
+			if (newExpr != null) {
+				val optimisedExpr = visitExprNode(newExpr)
+				 if (optimisedExpr != null) {
+					 return optimisedExpr
+				 } else {
+					 return newExpr
+				 }
+			}
+		}
+		return null
 	}
 
 }	
