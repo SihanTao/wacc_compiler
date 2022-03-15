@@ -19,17 +19,19 @@ PASSED=0
 INPUT="g"
 SINGLE_FILE=""
 DIRECTORY=""
+OPTIMISATION=""
 
 # optional flags:
 # -i {input}, sets input for the programs
 # -f {file}, test only file supplied
 # -d {directory}, tests all files in directory supplied
 # automatically searches for file/directory name, no need to put whole path
-while getopts 'i:f:d:' flag; do
+while getopts 'i:f:d:o:' flag; do
   case "${flag}" in
     i) INPUT="${OPTARG}" ;;
     f) SINGLE_FILE="${OPTARG}" ;;
     d) DIRECTORY="${OPTARG}" ;;
+    o) OPTIMISATION="${OPTARG}" ;;
     *) echo "Invalid option: -$flag" ;;
   esac
 done
@@ -54,7 +56,11 @@ for file in $FILES_TO_TEST;do
     echo "testing $NAME"
 
     # generate our output
-    ./compile $file
+    if [[ $OPTIMISATION != ""]]; then
+      ./compile $file
+    else
+      ./compile $file "o3"
+    fi
     mv "$NAME.s" "$OUT_DIR/$NAME.s"
     arm-linux-gnueabi-gcc -o "$OUT_DIR/${NAME}" -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "$OUT_DIR/$NAME.s"
     echo "$INPUT" | qemu-arm -L /usr/arm-linux-gnueabi/ "$OUT_DIR/${NAME}" > "$OUT_DIR/$NAME.out"

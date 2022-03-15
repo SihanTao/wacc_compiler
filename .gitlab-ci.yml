@@ -4,7 +4,7 @@ stages:
   - test-semantic
   - test-general
   - backend-test
-
+  - extension-integration
 
 variables:
   VALID_TEST_DIR: "test/wacc_examples/valid"
@@ -188,6 +188,61 @@ backend-while-test:
   stage: backend-test
   script:
     - /bin/bash test/backEndTest.sh -d while
+
+extension-array-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d array -o o3
+
+extension-basic-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d basic -o o3
+
+extension-expression-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d expressions -o o3
+
+extension-function-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d function -o o3
+
+extension-if-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d if -o o3
+
+extension-pairs-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d pairs -o o3
+
+extension-runtimeErr-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d runtimeErr -o o3
+
+extension-scope-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d scope -o o3
+
+extension-sequence-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d sequence -o o3
+
+extension-variables-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d variables -o o3
+
+extension-while-test:
+  stage: extension-integration
+  script:
+    - /bin/bash test/backEndTest.sh -d while -o o3
 
 
 
