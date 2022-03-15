@@ -1,19 +1,16 @@
 #!/bin/bash
-SRC_DIR="$(pwd)"
+SRC_DIR="$(pwd)/test"
 
-VALID_EXAMPLES="${SRC_DIR}/test/wacc_examples/valid"
+VALID_EXAMPLES="${SRC_DIR}/wacc_examples/valid"
 
 mkdir -p "${SRC_DIR}/log"
 mkdir -p "${SRC_DIR}/log/out"
 mkdir -p "${SRC_DIR}/log/fails"
 
-REFERENCE_COMPILER="${SRC_DIR}/test/wacc_examples/refCompile"
-REFERENCE_EMULATOR="${SRC_DIR}/test/wacc_examples/refEmulate"
-
 OUT_DIR="${SRC_DIR}/log/out"
 FAILS_DIR="${SRC_DIR}/log/fails"
 
-rm -rf $OUT_DIR/*
+find $OUT_DIR -type f ! -name "*.txt" -delete
 rm -rf $FAILS_DIR/*
 
 TOTAL_COUNT=0
@@ -60,26 +57,10 @@ for file in $FILES_TO_TEST;do
     ./compile $file
     mv "$NAME.s" "$OUT_DIR/$NAME.s"
     arm-linux-gnueabi-gcc -o "$OUT_DIR/${NAME}" -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "$OUT_DIR/$NAME.s"
-    echo "$INPUT" | $REFERENCE_EMULATOR "$OUT_DIR/${NAME}.s" > "$OUT_DIR/$NAME.out"
-    echo "$INPUT" | qemu-arm -L /usr/arm-linux-gnueabi/ "$OUT_DIR/${NAME}"
+    echo "$INPUT" | qemu-arm -L /usr/arm-linux-gnueabi/ "$OUT_DIR/${NAME}" > "$OUT_DIR/$NAME.out"
     our_code=$?
 
-    awk '/-- Emulation Output:/{flag=1; next}
-     /---------------------------------------------------------------/{flag=0}
-      flag' "$OUT_DIR/$NAME.out" > tmp.out && mv tmp.out "$OUT_DIR/$NAME.out"
-
-    # generate reference file
-    echo $INPUT | $REFERENCE_COMPILER $file -a -x > "$OUT_DIR/${NAME}_REF.txt"
-
-    # get the asm and output from the generated file
-    awk '/===========================================================/{n++}
-      {
-          if (n == 3)
-            print > "tmp.out";
-      }' "$OUT_DIR/${NAME}_REF.txt"
-    sed -i '1d' tmp.out && mv tmp.out "$OUT_DIR/${NAME}_REF.out"
-
-    their_code=$(tail -n 3 "$OUT_DIR/${NAME}_REF.txt" | head -n 1 | grep -Eo '[0-9]+')
+    their_code=$(cat "$OUT_DIR/${NAME}_exitCode.txt")
 
     failed=false
 
@@ -90,10 +71,10 @@ for file in $FILES_TO_TEST;do
     fi
 
     # compare our output and reference output
-    if ! diff -b -B "${OUT_DIR}/$NAME.out" "${OUT_DIR}/${NAME}_REF.out"; then
-      echo "our output is different from refCompile"
+    if ! diff -b -B "${OUT_DIR}/$NAME.out" "${OUT_DIR}/${NAME}.txt"; then
+      echo "our output is different from expected output"
       failed=true
-      diff -b -B "${OUT_DIR}/$NAME.out" "${OUT_DIR}/${NAME}_REF.out" > "${FAILS_DIR}/$NAME.txt"
+      diff -b -B "${OUT_DIR}/$NAME.out" "${OUT_DIR}/${NAME}.txt" > "${FAILS_DIR}/$NAME.txt"
     fi
 
     if [[ "$failed" = false ]]; then
