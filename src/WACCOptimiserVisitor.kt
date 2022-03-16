@@ -17,7 +17,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 	}
 
     fun visitProgramNode(node: ProgramNode) {
-		node.functions.forEach{ (ident, func) ->
+		node.functions.forEach{ (_, func) ->
 			visitFuncNode(func)
 		}
 		val newBody : StatNode? = visitStatNode(node.body)
@@ -239,67 +239,88 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 
 		if (lhs is CharNode && rhs is CharNode) {
 
-			when (node.operator) {
+			return when (node.operator) {
 
 				Utils.Binop.GREATER -> {
-					return BoolNode(lhs.char > rhs.char)
+					BoolNode(lhs.char > rhs.char)
 				}
 				Utils.Binop.GREATER_EQUAL -> {
-					return BoolNode(lhs.char >= rhs.char)
+					BoolNode(lhs.char >= rhs.char)
 				}
 				Utils.Binop.LESS -> {
-					return BoolNode(lhs.char < rhs.char)
+					BoolNode(lhs.char < rhs.char)
 				}
 				Utils.Binop.LESS_EQUAL -> {
-					return BoolNode(lhs.char <= rhs.char)
+					BoolNode(lhs.char <= rhs.char)
 				}
+				Utils.Binop.EQUAL -> {
+					BoolNode(lhs.char == rhs.char)
+				}
+				Utils.Binop.INEQUAL -> {
+					BoolNode(lhs.char != rhs.char)
+				}
+				else -> null
 			}
 		}
 
 		else if (lhs is BoolNode && rhs is BoolNode) {
 
-			when (node.operator) {
+			return when (node.operator) {
 
 				Utils.Binop.AND -> {
-					return BoolNode(lhs.`val` && rhs.`val`)
+					BoolNode(lhs.`val` && rhs.`val`)
 				}
 				Utils.Binop.OR -> {
-					return BoolNode(lhs.`val` || rhs.`val`)
+					BoolNode(lhs.`val` || rhs.`val`)
 				}
+				Utils.Binop.EQUAL -> {
+					BoolNode(lhs.`val` == rhs.`val`)
+				}
+				Utils.Binop.INEQUAL -> {
+					BoolNode(lhs.`val` != rhs.`val`)
+				}
+				else -> null
 			}
 		}
 
 		else if (lhs is IntNode && rhs is IntNode) {
 
-			when (node.operator) {
+			return when (node.operator) {
 
 				Utils.Binop.PLUS -> {
-					return IntNode(lhs.value + rhs.value)
+					IntNode(lhs.value + rhs.value)
 				}
 				Utils.Binop.MINUS -> {
-					return IntNode(lhs.value - rhs.value)
+					IntNode(lhs.value - rhs.value)
 				}
 				Utils.Binop.MUL -> {
-					return IntNode(lhs.value * rhs.value)
+					IntNode(lhs.value * rhs.value)
 				}
 				Utils.Binop.DIV -> {
-					return IntNode(lhs.value / rhs.value)
+					IntNode(lhs.value / rhs.value)
 				}
 				Utils.Binop.MOD -> {
-					return IntNode(lhs.value % rhs.value)
+					IntNode(lhs.value % rhs.value)
 				}
 				Utils.Binop.GREATER -> {
-					return BoolNode(lhs.value > rhs.value)
+					BoolNode(lhs.value > rhs.value)
 				}
 				Utils.Binop.GREATER_EQUAL -> {
-					return BoolNode(lhs.value >= rhs.value)
+					BoolNode(lhs.value >= rhs.value)
 				}
 				Utils.Binop.LESS -> {
-					return BoolNode(lhs.value < rhs.value)
+					BoolNode(lhs.value < rhs.value)
 				}
 				Utils.Binop.LESS_EQUAL -> {
-					return BoolNode(lhs.value <= rhs.value)
+					BoolNode(lhs.value <= rhs.value)
 				}
+				Utils.Binop.EQUAL -> {
+					BoolNode(lhs.value == rhs.value)
+				}
+				Utils.Binop.INEQUAL -> {
+					BoolNode(lhs.value != rhs.value)
+				}
+				else -> null
 			}
 		}
 		return null
@@ -311,7 +332,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 
 		/* TODO: len simplification */
 
-		return when (val type = newexpr.type!!) {
+		return when (newexpr.type!!) {
 			is BasicType -> when (newexpr) {
 				is IntNode -> {
 					if (node.operator == Utils.Unop.MINUS) {

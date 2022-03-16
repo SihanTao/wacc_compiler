@@ -161,6 +161,20 @@ internal class WACCOptimiserVisitorTest {
         assertEquals((optimisedTree as BoolNode).`val`, true)
     }
 
+    @Test
+    fun testIntegerEqual() {
+        val tree = BinopNode(IntNode(5), IntNode(5), Utils.Binop.EQUAL)
+        val optimisedTree = optimiser.visitBinopNode(tree)
+        assertEquals((optimisedTree as BoolNode).`val`, true)
+    }
+
+    @Test
+    fun testIntegerUnequal() {
+        val tree = BinopNode(IntNode(5), IntNode(7), Utils.Binop.INEQUAL)
+        val optimisedTree = optimiser.visitBinopNode(tree)
+        assertEquals((optimisedTree as BoolNode).`val`, true)
+    }
+
     /***************************************/
     /* Char Expressions operations tests   */
     /***************************************/
@@ -203,6 +217,20 @@ internal class WACCOptimiserVisitorTest {
     @Test
     fun testCharLessThanEqualToEqual() {
         val tree = BinopNode(CharNode("'f'"), CharNode("'f'"), Utils.Binop.LESS_EQUAL)
+        val optimisedTree = optimiser.visitBinopNode(tree)
+        assertEquals((optimisedTree as BoolNode).`val`, true)
+    }
+
+    @Test
+    fun testCharEqual() {
+        val tree = BinopNode(CharNode("'c'"), CharNode("'c'"), Utils.Binop.EQUAL)
+        val optimisedTree = optimiser.visitBinopNode(tree)
+        assertEquals((optimisedTree as BoolNode).`val`, true)
+    }
+
+    @Test
+    fun testCharUnequal() {
+        val tree = BinopNode(CharNode("'a'"), CharNode("'c'"), Utils.Binop.INEQUAL)
         val optimisedTree = optimiser.visitBinopNode(tree)
         assertEquals((optimisedTree as BoolNode).`val`, true)
     }
@@ -261,6 +289,20 @@ internal class WACCOptimiserVisitorTest {
                         BinopNode(BoolNode(true), BoolNode(false), Utils.Binop.OR),
                         Utils.Binop.AND),
                 Utils.Binop.OR)
+        val optimisedTree = optimiser.visitBinopNode(tree)
+        assertEquals((optimisedTree as BoolNode).`val`, true)
+    }
+
+    @Test
+    fun testBoolEqual() {
+        val tree = BinopNode(BoolNode(false), BoolNode(false), Utils.Binop.EQUAL)
+        val optimisedTree = optimiser.visitBinopNode(tree)
+        assertEquals((optimisedTree as BoolNode).`val`, true)
+    }
+
+    @Test
+    fun testBoolUnequal() {
+        val tree = BinopNode(BoolNode(false), BoolNode(true), Utils.Binop.INEQUAL)
         val optimisedTree = optimiser.visitBinopNode(tree)
         assertEquals((optimisedTree as BoolNode).`val`, true)
     }
