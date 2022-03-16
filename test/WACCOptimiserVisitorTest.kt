@@ -3,6 +3,7 @@ import node.stat.*
 import node.FuncNode
 import node.ProgramNode
 import org.junit.Test
+import type.ArrayType
 import type.BasicType
 import type.BasicTypeEnum
 import type.Utils
@@ -351,6 +352,16 @@ internal class WACCOptimiserVisitorTest {
         val tree = UnopNode(UnopNode(CharNode("'f'"), Utils.Unop.ORD),Utils.Unop.CHR)
         val optimisedTree = optimiser.visitUnopNode(tree)
         assertEquals((optimisedTree as CharNode).char, 'f')
+    }
+
+    @Test
+    fun testLen() {
+        optimiserO3.currSymbolTable = SymbolTable(null)
+        optimiserO3.currSymbolTable!!.add("x", ArrayNode(BasicType(BasicTypeEnum.INTEGER),
+            mutableListOf(IntNode(1), IntNode(2), IntNode(3)), 3))
+        val tree = UnopNode(IdentNode(ArrayType(BasicType(BasicTypeEnum.INTEGER)),"x"), Utils.Unop.LEN)
+        val optimisedTree = optimiserO3.visitUnopNode(tree)
+        assertEquals((optimisedTree as IntNode).value, 3)
     }
 
     /***************************************/
