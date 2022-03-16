@@ -56,10 +56,10 @@ for file in $FILES_TO_TEST;do
     echo "testing $NAME"
 
     # generate our output
-    if [[ $OPTIMISATION != ""]]; then
+    if [[ $OPTIMISATION == "" ]]; then
       ./compile $file
     else
-      ./compile $file "o3"
+      ./compile $file $OPTIMISATION
     fi
     mv "$NAME.s" "$OUT_DIR/$NAME.s"
     arm-linux-gnueabi-gcc -o "$OUT_DIR/${NAME}" -mcpu=arm1176jzf-s -mtune=arm1176jzf-s "$OUT_DIR/$NAME.s"
