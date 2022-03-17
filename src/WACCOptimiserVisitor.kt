@@ -208,8 +208,27 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 	}
 
 	fun visitArrayElemNode(node: ArrayElemNode): ExprNode? {
-		optimiseListOfExpressions(node.index)
-		return null
+		if (constantPropagationAnalysis) {
+			var currArray = (node.array as ArrayNode)
+			var returnElem: ExprNode? = null
+			for (index in node.index) {
+				val indexOptimised = visitExprNode(index) ?: index
+				if (indexOptimised is IntNode) {
+					if (indexOptimised.value < currArray.length) {
+						returnElem = currArray.content[indexOptimised.value]
+						if (returnElem is ArrayNode) {
+							currArray = returnElem
+						}
+					}
+				} else {
+					return null
+				}
+			}
+			return returnElem
+		} else {
+			optimiseListOfExpressions(node.index)
+			return null
+		}
 	}
 
 	fun visitArrayNode(node: ArrayNode): ExprNode? {

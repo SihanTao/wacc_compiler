@@ -365,6 +365,15 @@ internal class WACCOptimiserVisitorTest {
     }
 
     /***************************************/
+    /* Other expressions tests             */
+    /***************************************/
+
+    @Test
+    fun testArrayElem() {
+
+    }
+
+    /***************************************/
     /* Statement tests                     */
     /***************************************/
 
@@ -513,6 +522,29 @@ internal class WACCOptimiserVisitorTest {
         assertEquals((newTree as IntNode).value, 8)
     }
 
+    @Test
+    fun testArrayElemEvaluated() {
+        val array = ArrayNode(BasicType(BasicTypeEnum.INTEGER),
+                mutableListOf(IntNode(1), IntNode(2), IntNode(3)), 3)
+        val tree = ArrayElemNode("x", array, mutableListOf(IntNode(1)),
+            BasicType(BasicTypeEnum.INTEGER))
+        val newTree = optimiserO3.visitArrayElemNode(tree)
+        assertEquals((newTree as IntNode).value, 2)
+    }
+
+    @Test
+    fun testArrayDepthTwoElemEvaluated() {
+        val array = ArrayNode(ArrayType(BasicType(BasicTypeEnum.INTEGER)),
+                mutableListOf(ArrayNode(BasicType(BasicTypeEnum.INTEGER),
+                        mutableListOf(IntNode(1), IntNode(2)), 2),
+                        ArrayNode(BasicType(BasicTypeEnum.INTEGER),
+                                mutableListOf(IntNode(3), IntNode(4)), 2)), 2)
+        val tree = ArrayElemNode("x", array, mutableListOf(IntNode(0), IntNode(1)),
+                BasicType(BasicTypeEnum.INTEGER))
+        val newTree = optimiserO3.visitArrayElemNode(tree)
+        assertEquals((newTree as IntNode).value, 2)
+    }
+
     /***************************************/
     /* CFA tests                           */
     /***************************************/
@@ -547,8 +579,4 @@ internal class WACCOptimiserVisitorTest {
         val newTree = optimiserO3.visitWhileNode(tree)
         assertIs<SkipNode>(newTree)
     }
-
-    /***************************************/
-    /* Equality tests                      */
-    /***************************************/
 }

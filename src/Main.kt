@@ -43,8 +43,8 @@ fun main(args: Array<String>) {
         if (!args.contains("--parse-only")) {
             val semanticChecker = WACCSemanticErrorVisitor()
             val ast = semanticChecker.visitProgram(tree) as ProgramNode
-						val writer = if (filename == null) PrintWriter("output.s") else
-							PrintWriter("$filename.s")
+            val writer = if (filename == null) PrintWriter("output.s") else
+                PrintWriter("$filename.s")
 
             val optimisation = args.find {i -> i.contains("-o")}
             if (optimisation != null) {
