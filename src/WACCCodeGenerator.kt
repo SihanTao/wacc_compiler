@@ -40,14 +40,14 @@ class WACCCodeGenerator {
 
         if (!staticDataTable.isEmpty()) {
             writer.println(".data")
+            writer.println()
+            staticDataTable.forEach{str, msgNo ->
+                writer.println("msg_$msgNo:")
+                writer.println("\t.word ${strLength(str)}")
+                writer.println("\t.ascii \"$str\"")
+            }
+            writer.println()
         }
-        writer.println()
-        staticDataTable.forEach{str, msgNo ->
-            writer.println("msg_$msgNo:")
-            writer.println("\t.word ${strLength(str)}")
-            writer.println("\t.ascii \"$str\"")
-        }
-        writer.println()
 
         writer.println(".text")
         writer.println()

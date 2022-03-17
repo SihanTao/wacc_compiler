@@ -368,11 +368,6 @@ internal class WACCOptimiserVisitorTest {
     /* Other expressions tests             */
     /***************************************/
 
-    @Test
-    fun testArrayElem() {
-
-    }
-
     /***************************************/
     /* Statement tests                     */
     /***************************************/
