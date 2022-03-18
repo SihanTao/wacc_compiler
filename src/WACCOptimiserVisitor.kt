@@ -179,9 +179,9 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 	// removes the entire while block if the condition is always false
 	fun visitWhileNode(node: WhileNode): StatNode? {
 		val newCond: ExprNode? = visitExprNode(node.cond)
-		if (newCond != null) {
+		/* if (newCond != null) {
 			node.cond = newCond
-		}
+		} */
 		val newBody: StatNode? = visitStatNode(node.body)
 		if (newBody != null) {
 			node.body = newBody
