@@ -451,12 +451,12 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 	// replaces identifiers with the corresponding expression node,
 	// which it tries to reduce
 	fun visitIdentNode(node: IdentNode): ExprNode? {
-		if (constantPropagationAnalysis) {
+		/* if (constantPropagationAnalysis) {
 			val newExpr = currSymbolTable!!.lookupAll(node.name)
 			if (newExpr != null) {
 				return visitExprNode(newExpr) ?: newExpr
 			}
-		}
+		} */
 		return null
 	}
 
