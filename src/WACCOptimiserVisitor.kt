@@ -427,8 +427,9 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 
 	// reduces arguments to pair
 	fun visitPairNode(node: PairNode): ExprNode? {
-		val newfst: ExprNode? = visitExprNode(node.fst!!)
-		val newsnd: ExprNode? = visitExprNode(node.snd!!)
+
+		val newfst: ExprNode? = if (node.fst != null) visitExprNode(node.fst!!) else null
+		val newsnd: ExprNode? = if (node.snd != null) visitExprNode(node.snd!!) else null
 
 		if (newfst != null || newsnd != null) {
 			if (newfst != null) {
