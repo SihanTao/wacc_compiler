@@ -220,7 +220,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 	// and then tries to replace with the direct value of the array access
 	fun visitArrayElemNode(node: ArrayElemNode): ExprNode? {
 		if (constantPropagationAnalysis) {
-			var currArray = (node.array as ArrayNode)
+			var currArray = (currSymbolTable!!.lookupAll(node.arrayIdent) as ArrayNode)
 			var returnElem: ExprNode? = null
 			for (index in node.index) {
 				val indexOptimised = visitExprNode(index) ?: index
