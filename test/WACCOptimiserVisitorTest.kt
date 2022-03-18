@@ -10,6 +10,7 @@ import type.Utils
 import kotlin.test.assertIs
 import kotlin.test.assertEquals
 import kotlin.test.assertIsNot
+import kotlin.test.assertNull
 
 internal class WACCOptimiserVisitorTest {
 
@@ -573,5 +574,40 @@ internal class WACCOptimiserVisitorTest {
         val tree = WhileNode(BoolNode(false), ReturnNode(IntNode(3)))
         val newTree = optimiserO3.visitWhileNode(tree)
         assertIs<SkipNode>(newTree)
+    }
+
+    /***************************************/
+    /* Runtime error tests                 */
+    /***************************************/
+
+    @Test
+    fun testArrayElemOutOfBounds() {
+        val array = ArrayNode(BasicType(BasicTypeEnum.INTEGER),
+                mutableListOf(IntNode(1), IntNode(2), IntNode(3)), 3)
+        val tree = ArrayElemNode("x", array, mutableListOf(IntNode(3)),
+                BasicType(BasicTypeEnum.INTEGER))
+        val newTree = optimiserO3.visitArrayElemNode(tree)
+        assertNull(newTree)
+    }
+
+    @Test
+    fun testDivideByZero() {
+        val tree = BinopNode(IntNode(5), IntNode(0), Utils.Binop.DIV)
+        val newTree = optimiser.visitBinopNode(tree)
+        assertNull(newTree)
+    }
+
+    @Test
+    fun testAddOverflow() {
+        val tree = BinopNode(IntNode(2_000_000_000), IntNode(2_000_000_000), Utils.Binop.PLUS)
+        val newTree = optimiser.visitBinopNode(tree)
+        assertNull(newTree)
+    }
+
+    @Test
+    fun testMulOverflow() {
+        val tree = BinopNode(IntNode(2_000_000_000), IntNode(2_000_000_000), Utils.Binop.MUL)
+        val newTree = optimiser.visitBinopNode(tree)
+        assertNull(newTree)
     }
 }

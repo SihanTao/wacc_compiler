@@ -241,14 +241,24 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	fun checkIntValid(value: Long): Boolean {
+		return value >= -2147483648 && value <= 2147483647
+	}
+
 	fun visitBinopNode(node: BinopNode): ExprNode? {
 
-		val lhs = visitExprNode(node.expr1) ?: node.expr1
-		val rhs = visitExprNode(node.expr2) ?: node.expr2
+		val optimisedExpr1 = visitExprNode(node.expr1)
+		val optimisedExpr2 = visitExprNode(node.expr2)
 
-		// TODO: Equality of any statements
+		if (optimisedExpr1 != null) {
+			node.expr1 = optimisedExpr1
+		}
+		if (optimisedExpr2 != null) {
+			node.expr2 = optimisedExpr2
+		}
 
-		// TODO: x + 5 < x + 10 regardless of x
+		val lhs = node.expr1
+		val rhs = node.expr2
 
 		/* Other Binop expressions can only be reduced if both sides
 		are BasicType */
@@ -304,13 +314,28 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 			return when (node.operator) {
 
 				Utils.Binop.PLUS -> {
-					IntNode(lhs.value + rhs.value)
+					val value = lhs.value.toLong() + rhs.value
+					return if (checkIntValid(value)) {
+						IntNode(value.toInt())
+					} else {
+						null
+					}
 				}
 				Utils.Binop.MINUS -> {
-					IntNode(lhs.value - rhs.value)
+					val value = lhs.value.toLong() - rhs.value
+					return if (checkIntValid(value)) {
+						IntNode(value.toInt())
+					} else {
+						null
+					}
 				}
 				Utils.Binop.MUL -> {
-					IntNode(lhs.value * rhs.value)
+					val value = lhs.value.toLong() * rhs.value
+					return if (checkIntValid(value)) {
+						IntNode(value.toInt())
+					} else {
+						null
+					}
 				}
 				Utils.Binop.DIV -> {
 					if (rhs.value == 0) {
@@ -348,29 +373,38 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 
 	fun visitUnopNode(node: UnopNode): ExprNode? {
 
-		val newexpr: ExprNode = visitExprNode(node.expr) ?: node.expr
+		node.expr = visitExprNode(node.expr) ?: node.expr
 
-		return when (node.operator) {
-			Utils.Unop.MINUS -> {
-				IntNode(-(newexpr as IntNode).value)
-			}
-			Utils.Unop.CHR -> {
-				CharNode("'" + (newexpr as IntNode).value.toChar().toString() + "'")
-			}
-			Utils.Unop.NOT -> {
-				BoolNode(!(newexpr as BoolNode).`val`)
-			}
-			Utils.Unop.ORD -> {
-				IntNode((newexpr as CharNode).char.code)
-			}
-			Utils.Unop.LEN -> {
-				if (constantPropagationAnalysis) {
-					IntNode((newexpr as ArrayNode).length)
-				} else {
-					null
+		if (node.expr is IntNode || node.expr is BoolNode ||
+				node.expr is CharNode || node.expr is ArrayNode) {
+			return when (node.operator) {
+				Utils.Unop.MINUS -> {
+					val value = -((node.expr as IntNode).value.toLong())
+					return if (checkIntValid(value)) {
+						IntNode(value.toInt())
+					} else {
+						null
+					}
+				}
+				Utils.Unop.CHR -> {
+					CharNode("'" + (node.expr as IntNode).value.toChar().toString() + "'")
+				}
+				Utils.Unop.NOT -> {
+					BoolNode(!(node.expr as BoolNode).`val`)
+				}
+				Utils.Unop.ORD -> {
+					IntNode((node.expr as CharNode).char.code)
+				}
+				Utils.Unop.LEN -> {
+					if (constantPropagationAnalysis) {
+						IntNode((node.expr as ArrayNode).length)
+					} else {
+						null
+					}
 				}
 			}
 		}
+		return null
 	}
 
 	fun visitPairNode(node: PairNode): ExprNode? {
@@ -397,12 +431,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		if (constantPropagationAnalysis) {
 			val newExpr = currSymbolTable!!.lookupAll(node.name)
 			if (newExpr != null) {
-				val optimisedExpr = visitExprNode(newExpr)
-				 if (optimisedExpr != null) {
-					 return optimisedExpr
-				 } else {
-					 return newExpr
-				 }
+				return visitExprNode(newExpr) ?: newExpr
 			}
 		}
 		return null
