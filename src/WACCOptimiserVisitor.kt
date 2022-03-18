@@ -70,6 +70,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
     * =========================================================
     */
 
+	// reduces the rhs expression of an assignment statement
 	fun visitAssignNode(node: AssignNode): StatNode? {
 		val newrhs: ExprNode? = visitExprNode(node.rhs!!)
 		if (newrhs != null) {
@@ -86,6 +87,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// reduces the argument to the exit node
 	fun visitExitNode(node: ExitNode): StatNode? {
 		val newExitCode: ExprNode? = visitExprNode(node.exitCode)
 		if (newExitCode != null) {
@@ -94,6 +96,9 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// first reduces the condition of the if node, and then
+	// replaces with the if-body if the condition is always true,
+	// and replaces with the else-body if the condition is always false
 	fun visitIfNode(node: IfNode): StatNode? {
 		val newCondition: ExprNode? = visitExprNode(node.condition)
 		if (newCondition != null) {
@@ -119,6 +124,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// reduces the argument to println
 	fun visitPrintlnNode(node: PrintlnNode): StatNode? {
 		if (node.expr != null) {
 			val newExpr: ExprNode? = visitExprNode(node.expr!!)
@@ -129,6 +135,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// reduces the argument to the print
 	fun visitPrintNode(node: PrintNode): StatNode? {
 		if (node.expr != null) {
 			val newExpr: ExprNode? = visitExprNode(node.expr!!)
@@ -139,6 +146,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// reduces the argument to the return
 	fun visitReturnNode(node: ReturnNode): StatNode? {
 		val newExpr: ExprNode? = visitExprNode(node.expr)
 		if (newExpr != null) {
@@ -147,6 +155,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// iterates through a list of statements and visits all of them
 	private fun optimiseListOfStatements(list: MutableList<StatNode>) {
 		for (i in 0 until list.size) {
 			val newStat: StatNode? = visitStatNode(list[i])
@@ -166,6 +175,8 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// reduces the condition of the while node, and then
+	// removes the entire while block if the condition is always false
 	fun visitWhileNode(node: WhileNode): StatNode? {
 		val newCond: ExprNode? = visitExprNode(node.cond)
 		if (newCond != null) {
@@ -195,9 +206,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 	optimisation possible, so there's no need to create a new node.
 	This prevents unneeded creation of new nodes when there are no changes */
 
-	/* Attempts to optimise expressions in a list of expressions,
-	returns false if no optimisation was possible
-	 */
+	/* Attempts to optimise expressions in a list of expressions */
 	private fun optimiseListOfExpressions(list: MutableList<ExprNode>) {
 		for (i in 0 until list.size) {
 			val newExpr: ExprNode? = visitExprNode(list[i])
@@ -207,6 +216,8 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		}
 	}
 
+	// first reduces the arguments to array access (the indices),
+	// and then tries to replace with the direct value of the array access
 	fun visitArrayElemNode(node: ArrayElemNode): ExprNode? {
 		if (constantPropagationAnalysis) {
 			var currArray = (node.array as ArrayNode)
@@ -231,6 +242,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		}
 	}
 
+	// reduces the list of expressions in an array literal
 	fun visitArrayNode(node: ArrayNode): ExprNode? {
 		/* can't be optimised if empty list */
 		if (node.length == 0) {
@@ -241,10 +253,14 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// returns if an integer is between -2^31 and 2^31 - 1,
+	// i.e. if it is a valid integer
 	fun checkIntValid(value: Long): Boolean {
 		return value >= -2147483648 && value <= 2147483647
 	}
 
+	// Reduces the arguments to the binary operation, and then
+	// attempts to reduce the binary operation
 	fun visitBinopNode(node: BinopNode): ExprNode? {
 
 		val optimisedExpr1 = visitExprNode(node.expr1)
@@ -260,7 +276,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		val lhs = node.expr1
 		val rhs = node.expr2
 
-		/* Other Binop expressions can only be reduced if both sides
+		/* Binop expressions can only be reduced if both sides
 		are BasicType */
 
 		if (lhs is CharNode && rhs is CharNode) {
@@ -371,6 +387,8 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// reduces the argument to the unary operation,
+	// and then attempts to reduce to an int/bool/char
 	fun visitUnopNode(node: UnopNode): ExprNode? {
 
 		node.expr = visitExprNode(node.expr) ?: node.expr
@@ -407,6 +425,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// reduces arguments to pair
 	fun visitPairNode(node: PairNode): ExprNode? {
 		val newfst: ExprNode? = visitExprNode(node.fst!!)
 		val newsnd: ExprNode? = visitExprNode(node.snd!!)
@@ -422,11 +441,14 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 		return null
 	}
 
+	// will simply reduce the arguments to the function call
 	fun visitFunctionCallNode(node: FunctionCallNode): ExprNode? {
 		optimiseListOfExpressions(node.params)
 		return null
 	}
 
+	// replaces identifiers with the corresponding expression node,
+	// which it tries to reduce
 	fun visitIdentNode(node: IdentNode): ExprNode? {
 		if (constantPropagationAnalysis) {
 			val newExpr = currSymbolTable!!.lookupAll(node.name)
