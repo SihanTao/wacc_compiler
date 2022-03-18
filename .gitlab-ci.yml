@@ -134,115 +134,15 @@ runtimeErr-general-test:
   script:
     - /bin/bash test/test 0 "" "$VALID_TEST_DIR"/runtimeErr
 
-backend-array-test:
-  stage: backend-test 
-  script:
-    - /bin/bash test/backEndTest.sh -d array
-
-backend-basic-test:
+backend-test:
   stage: backend-test
   script:
-    - /bin/bash test/backEndTest.sh -d basic
-  
-backend-expression-test:
-  stage: backend-test
-  script:
-    - /bin/bash test/backEndTest.sh -d expressions
+    - /bin/bash test/backEndTest.sh
 
-backend-function-test:
-  stage: backend-test
-  script:
-    - /bin/bash test/backEndTest.sh -d function
-
-backend-if-test:
-  stage: backend-test
-  script:
-    - /bin/bash test/backEndTest.sh -d if
-  
-backend-pairs-test:
-  stage: backend-test
-  script:
-    - /bin/bash test/backEndTest.sh -d pairs
-
-backend-runtimeErr-test:
-  stage: backend-test
-  script:
-    - /bin/bash test/backEndTest.sh -d runtimeErr
-
-backend-scope-test:
-  stage: backend-test
-  script:
-    - /bin/bash test/backEndTest.sh -d scope
-
-backend-sequence-test:
-  stage: backend-test
-  script:
-    - /bin/bash test/backEndTest.sh -d sequence
-
-backend-variables-test:
-  stage: backend-test
-  script:
-    - /bin/bash test/backEndTest.sh -d variables
-
-backend-while-test:
-  stage: backend-test
-  script:
-    - /bin/bash test/backEndTest.sh -d while
-
-extension-array-test:
+extension-test:
   stage: extension-integration
   script:
-    - /bin/bash test/backEndTest.sh -d array -o o3
-
-extension-basic-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d basic -o o3
-
-extension-expression-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d expressions -o o3
-
-extension-function-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d function -o o3
-
-extension-if-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d if -o o3
-
-extension-pairs-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d pairs -o o3
-
-extension-runtimeErr-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d runtimeErr -o o3
-
-extension-scope-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d scope -o o3
-
-extension-sequence-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d sequence -o o3
-
-extension-variables-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d variables -o o3
-
-extension-while-test:
-  stage: extension-integration
-  script:
-    - /bin/bash test/backEndTest.sh -d while -o o3
+    - /bin/bash test/backEndTest.sh -o o3
 
 
 
