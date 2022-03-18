@@ -53,7 +53,6 @@ fun main(args: Array<String>) {
                     val optimiser = WACCOptimiserVisitor(optimisationLevel)
                     optimiser.visitProgramNode(ast)
                 }
-                println("OPTIMISED")
             }
 
             val codeGenerator = WACCCodeGenerator()
