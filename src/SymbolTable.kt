@@ -26,6 +26,14 @@ class SymbolTable<T>(parentSymbolTable: SymbolTable<T>?) {
         return false
     }
 
+    fun replace(name: String, expr: T?) {
+        if (dictionary.containsKey(name)) {
+            if (expr != null) {
+                dictionary[name] = expr
+            }
+        }
+    }
+
     fun lookup(name: String): T? {
         return dictionary[name]
     }

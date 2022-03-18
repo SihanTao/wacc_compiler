@@ -164,6 +164,10 @@ class WACCSemanticErrorVisitor : WACCParserBaseVisitor<Node>() {
         val node: StatNode = AssignNode(lhs, rhs)
         node.scope = symbolTable
 
+        if (lhs is IdentNode) {
+            symbolTable!!.replace(lhs.name, rhs)
+        }
+
         return node
     }
 
