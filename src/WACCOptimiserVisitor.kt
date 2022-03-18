@@ -451,10 +451,10 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 	// which it tries to reduce
 	fun visitIdentNode(node: IdentNode): ExprNode? {
 		if (constantPropagationAnalysis) {
-			val newExpr = currSymbolTable!!.lookupAll(node.name)
+			/*val newExpr = currSymbolTable!!.lookupAll(node.name)
 			if (newExpr != null) {
 				return visitExprNode(newExpr) ?: newExpr
-			}
+			}*/
 		}
 		return null
 	}
