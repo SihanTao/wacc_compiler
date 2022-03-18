@@ -313,7 +313,11 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 					IntNode(lhs.value * rhs.value)
 				}
 				Utils.Binop.DIV -> {
-					IntNode(lhs.value / rhs.value)
+					if (rhs.value == 0) {
+						null
+					} else {
+						IntNode(lhs.value / rhs.value)
+					}
 				}
 				Utils.Binop.MOD -> {
 					IntNode(lhs.value % rhs.value)
