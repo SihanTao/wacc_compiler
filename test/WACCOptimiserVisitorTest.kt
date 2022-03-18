@@ -620,4 +620,11 @@ internal class WACCOptimiserVisitorTest {
         val newTree = optimiser.visitBinopNode(tree)
         assertNull(newTree)
     }
+
+    @Test
+    fun testSubtractUnderflow() {
+        val tree = BinopNode(IntNode(-2_000_000_000), IntNode(2_000_000_000), Utils.Binop.MINUS)
+        val newTree = optimiser.visitBinopNode(tree)
+        assertNull(newTree)
+    }
 }
