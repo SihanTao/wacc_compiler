@@ -591,6 +591,16 @@ internal class WACCOptimiserVisitorTest {
     }
 
     @Test
+    fun testArrayElemNegOutOfBounds() {
+        val array = ArrayNode(BasicType(BasicTypeEnum.INTEGER),
+                mutableListOf(IntNode(1), IntNode(2), IntNode(3)), 3)
+        val tree = ArrayElemNode("x", array, mutableListOf(IntNode(-1)),
+                BasicType(BasicTypeEnum.INTEGER))
+        val newTree = optimiserO3.visitArrayElemNode(tree)
+        assertNull(newTree)
+    }
+
+    @Test
     fun testDivideByZero() {
         val tree = BinopNode(IntNode(5), IntNode(0), Utils.Binop.DIV)
         val newTree = optimiser.visitBinopNode(tree)

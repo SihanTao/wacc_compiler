@@ -225,7 +225,7 @@ class WACCOptimiserVisitor(optimisationLevel: Int) {
 			for (index in node.index) {
 				val indexOptimised = visitExprNode(index) ?: index
 				if (indexOptimised is IntNode) {
-					if (indexOptimised.value < currArray.length) {
+					if (indexOptimised.value < currArray.length && indexOptimised.value >= 0) {
 						returnElem = currArray.content[indexOptimised.value]
 						if (returnElem is ArrayNode) {
 							currArray = returnElem
